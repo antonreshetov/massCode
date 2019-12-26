@@ -1,5 +1,8 @@
 <template>
-  <div class="snippet-view">
+  <div
+    v-click-outside="onClickOutside"
+    class="snippet-view"
+  >
     <div class="snippet-view__title">
       <AppInput
         ref="input"
@@ -63,6 +66,11 @@ export default {
     cloneSnippet () {
       this.localSnippet = cloneDeep(this.selected)
       this.localSnippet.updatedAt = new Date()
+    },
+    onClickOutside () {
+      if (this.newSnippetId) {
+        this.$store.commit('snippets/SET_NEW', null)
+      }
     }
   }
 }
