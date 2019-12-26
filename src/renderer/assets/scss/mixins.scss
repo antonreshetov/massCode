@@ -1,0 +1,25 @@
+@mixin form-input-default() {
+  color: var(--color-text);
+  box-sizing: border-box;
+  -webkit-appearance: none;
+  // border-radius: $input-border-radius;
+  outline: none;
+  border: none;
+  line-height: 40px;
+  height: 40px;
+  // border: $input-border;
+  // line-height: $input-height;
+  // padding: $input-inner-padding;
+  // height: $input-height;
+  background-color: transparent;
+  font-size: var(--text-md);
+  // color: $color-text-regular;
+  transition: border-color 0.3s;
+  &:focus {
+    // border-color: $color-primary;
+    transition: border-color 0.3s;
+  }
+  &::-webkit-input-placeholder {
+    color: var(--color-contrast-low);
+  }
+}

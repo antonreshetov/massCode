@@ -1,0 +1,42 @@
+{
+  // See https://go.microsoft.com/fwlink/?LinkId=733558
+  // for the documentation about the tasks.json format
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Eslint current file",
+      "type": "shell",
+      "command": "npx eslint --fix ${file}",
+      "problemMatcher": [
+        "$eslint-stylish"
+      ],
+      "presentation": {
+        "reveal": "never"
+      }
+    },
+    {
+      "label": "Prettier current file",
+      "type": "shell",
+      "command": "node ./node_modules/prettier/bin-prettier.js --write ${file}",
+      "problemMatcher": [
+        "$eslint-stylish"
+      ]
+      "presentation": {
+        "reveal": "never"
+      }
+    },
+    {
+      "label": "Lint",
+      "dependsOn": [
+        "Prettier current file",
+        "Eslint current file"
+      ],
+      "problemMatcher": [
+        "$eslint-stylish"
+      ],
+      "presentation": {
+        "reveal": "never"
+      }
+    }
+  ]
+}

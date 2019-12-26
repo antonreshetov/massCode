@@ -1,0 +1,136 @@
+{
+  "name": "masscode",
+  "version": "0.1.0",
+  "author": "Anton Reshetov <reshetov.art@gmail.com>",
+  "description": "Snippets app",
+  "license": "AGPL-3.0",
+  "main": "./dist/electron/main.js",
+  "scripts": {
+    "build": "node .electron-vue/build.js && electron-builder",
+    "build:dir": "node .electron-vue/build.js && electron-builder --dir",
+    "build:clean": "cross-env BUILD_TARGET=clean node .electron-vue/build.js",
+    "build:web": "cross-env BUILD_TARGET=web node .electron-vue/build.js",
+    "dev": "node .electron-vue/dev-runner.js",
+    "lint": "eslint --ext .js,.vue src --fix",
+    "lint:fix": "eslint --ext .js,.vue -f ./node_modules/eslint-friendly-formatter --fix src",
+    "pack": "npm run pack:main && npm run pack:renderer",
+    "pack:main": "cross-env NODE_ENV=production webpack --progress --colors --config .electron-vue/webpack.main.config.js",
+    "pack:renderer": "cross-env NODE_ENV=production webpack --progress --colors --config .electron-vue/webpack.renderer.config.js",
+    "postinstall": "npm run lint:fix"
+  },
+  "lint-staged": {
+    "*.{js,vue}": [
+      "prettier --write",
+      "eslint --fix",
+      "git add"
+    ]
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged",
+      "commit-msg": "node scripts/verify-commit.js"
+    }
+  },
+  "build": {
+    "productName": "massCode",
+    "appId": "massCode",
+    "directories": {
+      "output": "build"
+    },
+    "files": [
+      "dist/electron/**/*"
+    ],
+    "dmg": {
+      "contents": [
+        {
+          "x": 410,
+          "y": 150,
+          "type": "link",
+          "path": "/Applications"
+        },
+        {
+          "x": 130,
+          "y": 150,
+          "type": "file"
+        }
+      ]
+    },
+    "mac": {
+      "icon": "build/icons/icon.icns"
+    },
+    "win": {
+      "icon": "build/icons/icon.ico"
+    },
+    "linux": {
+      "icon": "build/icons"
+    }
+  },
+  "dependencies": {
+    "date-fns": "^2.8.1",
+    "electron-store": "^5.1.0",
+    "feather-icons": "^4.25.0",
+    "interactjs": "^1.8.0-alpha.6",
+    "lodash-es": "^4.17.15",
+    "nedb": "^1.8.0",
+    "shortid": "^2.2.15",
+    "vue": "^2.5.16",
+    "vue-draggable-nested-tree": "github:massCodeIO/vue-draggable-nested-tree",
+    "vue-electron": "^1.0.6",
+    "vuex": "^3.0.1"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.7.7",
+    "@babel/plugin-transform-runtime": "^7.7.6",
+    "@babel/polyfill": "^7.7.0",
+    "@babel/preset-env": "^7.7.7",
+    "@babel/register": "^7.7.7",
+    "@babel/runtime": "^7.7.7",
+    "@vue/eslint-config-standard": "^5.0.1",
+    "ajv": "^6.5.0",
+    "babel-eslint": "^10.0.3",
+    "babel-loader": "^8.0.6",
+    "cfonts": "^2.1.2",
+    "chalk": "^3.0.0",
+    "copy-webpack-plugin": "^5.1.1",
+    "cross-env": "^6.0.3",
+    "css-loader": "^3.4.0",
+    "del": "^5.1.0",
+    "devtron": "^1.4.0",
+    "electron": "^7.1.6",
+    "electron-builder": "^21.2.0",
+    "electron-debug": "^3.0.1",
+    "electron-devtools-installer": "^2.2.4",
+    "eslint": "^6.7.2",
+    "eslint-config-standard": "^14.1.0",
+    "eslint-friendly-formatter": "^4.0.1",
+    "eslint-loader": "^3.0.3",
+    "eslint-plugin-html": "^6.0.0",
+    "eslint-plugin-import": "^2.19.1",
+    "eslint-plugin-node": "^10.0.0",
+    "eslint-plugin-promise": "^4.2.1",
+    "eslint-plugin-standard": "^4.0.1",
+    "eslint-plugin-vue": "^6.0.1",
+    "file-loader": "^5.0.2",
+    "html-webpack-plugin": "^3.2.0",
+    "husky": "^3.1.0",
+    "lint-staged": "^9.5.0",
+    "mini-css-extract-plugin": "0.8.2",
+    "multispinner": "^0.2.1",
+    "node-loader": "^0.6.0",
+    "node-sass": "^4.9.2",
+    "prettier": "^1.19.1",
+    "sass-loader": "^8.0.0",
+    "style-loader": "^1.0.2",
+    "terser-webpack-plugin": "^2.3.1",
+    "url-loader": "^3.0.0",
+    "vue-html-loader": "^1.2.4",
+    "vue-loader": "^15.8.3",
+    "vue-style-loader": "^4.1.0",
+    "vue-template-compiler": "^2.5.16",
+    "webpack": "^4.41.3",
+    "webpack-cli": "^3.0.8",
+    "webpack-dev-server": "^3.10.0",
+    "webpack-hot-middleware": "^2.22.2",
+    "webpack-merge": "^4.1.3"
+  }
+}
