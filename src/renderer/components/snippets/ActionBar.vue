@@ -49,6 +49,7 @@ export default {
 
 <style lang="scss">
 .search {
+  padding-top: var(--spacing-xs);
   display: flex;
   align-items: center;
   border-bottom: 1px solid var(--color-border);

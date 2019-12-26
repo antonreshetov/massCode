@@ -1,7 +1,7 @@
 <template>
   <div
     id="app"
-    data-theme="light"
+    data-theme="dark"
   >
     <MainView v-if="init" />
   </div>

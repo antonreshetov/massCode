@@ -33,6 +33,7 @@ function createWindow () {
     ...bounds,
     title: 'massCode',
     useContentSize: true,
+    titleBarStyle: 'hidden',
     webPreferences: {
       nodeIntegration: true
     }

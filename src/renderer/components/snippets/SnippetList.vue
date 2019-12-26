@@ -107,7 +107,7 @@ export default {
 
 <style lang="scss">
 .snippet-list {
-  --action-bar-height: 40px;
+  --action-bar-height: 48px;
 
   position: relative;
   outline: none;

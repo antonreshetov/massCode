@@ -48,6 +48,7 @@ export default {
 
 <style lang="scss">
 .sidebar {
+  padding-top: var(--title-bar-height);
   position: relative;
   background-color: var(--color-contrast-lower);
 }
