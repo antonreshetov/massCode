@@ -213,7 +213,8 @@ export default {
     }
     &.is-editable {
       border: 1px solid var(--color-primary);
-      background-color: #fff;
+      background-color: var(--color-contrast-lower);
+      color: var(--color-contrast-higher);
     }
   }
   svg {
