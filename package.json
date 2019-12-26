@@ -71,6 +71,7 @@
     "feather-icons": "^4.25.0",
     "interactjs": "^1.8.0-alpha.6",
     "lodash-es": "^4.17.15",
+    "mousetrap": "^1.6.3",
     "nedb": "^1.8.0",
     "shortid": "^2.2.15",
     "vue": "^2.5.16",
