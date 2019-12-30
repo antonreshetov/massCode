@@ -83,7 +83,7 @@ export default {
             id: shortid(),
             name: 'Default',
             open: false,
-            defaultSyntax: null
+            defaultLanguage: 'text'
           }
         ],
         _id: 'folders'
