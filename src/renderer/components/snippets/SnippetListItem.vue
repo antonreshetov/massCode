@@ -30,7 +30,7 @@
 <script>
 import { mapGetters } from 'vuex'
 import { format, isSameDay } from 'date-fns'
-import context from '@@/lib/context'
+import { menu } from '@@/lib'
 
 export default {
   name: 'SnippetListItem',
@@ -85,7 +85,7 @@ export default {
   methods: {
     onSelect () {
       this.focus = true
-      this.$store.commit('snippets/SET_SELECTED', this.model)
+      this.$store.dispatch('snippets/setSelected', this.model)
     },
     onDrag (e) {
       const payload = JSON.stringify({ value: this.model._id })
@@ -97,7 +97,7 @@ export default {
     },
     onContext () {
       this.context = true
-      const menu = context.popup([
+      const contextMenu = menu.popup([
         {
           label: 'Add to Favorites',
           click: () => {
@@ -124,7 +124,7 @@ export default {
           }
         }
       ])
-      menu.addListener('menu-will-close', () => {
+      contextMenu.addListener('menu-will-close', () => {
         this.context = false
       })
     }
@@ -167,7 +167,6 @@ export default {
 }
 
 .title {
-  // font-weight: 600;
 }
 .meta {
   display: flex;

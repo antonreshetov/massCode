@@ -14,7 +14,7 @@
       <AppIcon
         v-if="children"
         class="sidebar-list-item__child-icon"
-        :class="{'is-open': open}"
+        :class="{ 'is-open': open }"
         name="chevron-right"
       />
     </div>
@@ -36,8 +36,7 @@
 
 <script>
 import { mapGetters } from 'vuex'
-import context from '@@/lib/context'
-import dialog from '@@/lib/dialog'
+import { menu, dialog } from '@@/lib'
 
 export default {
   name: 'SidebarListItem',
@@ -120,7 +119,7 @@ export default {
     },
     folderContext () {
       this.context = true
-      const menu = context.popup([
+      const contextMenu = menu.popup([
         {
           label: 'Rename',
           click: () => this.setEditable()
@@ -143,18 +142,19 @@ export default {
           }
         }
       ])
-      menu.addListener('menu-will-close', () => {
+      contextMenu.addListener('menu-will-close', () => {
         this.context = false
       })
     },
     trashContext () {
       this.context = true
-      const menu = context.popup([
+      const contextMenu = menu.popup([
         {
           label: 'Empty Trash',
           click: () => {
             const buttonId = dialog.showMessageBoxSync({
-              message: 'Are you sure you want to permanently delete all snippets in Trash?',
+              message:
+                'Are you sure you want to permanently delete all snippets in Trash?',
               detail: 'You cannot undo this action.',
               buttons: ['Delete', 'Cancel'],
               defaultId: 0,
@@ -167,7 +167,7 @@ export default {
           }
         }
       ])
-      menu.addListener('menu-will-close', () => {
+      contextMenu.addListener('menu-will-close', () => {
         this.context = false
       })
     },
@@ -254,7 +254,7 @@ export default {
       }
     }
     svg {
-      transition: all .1s;
+      transition: all 0.1s;
       width: 14px;
       height: 14px;
     }

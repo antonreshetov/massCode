@@ -1,11 +1,13 @@
 import { app, BrowserWindow } from 'electron'
 import store from './store'
 
+const isDev = process.env.NODE_ENV === 'development'
+
 /**
  * Set `__static` path to static files in production
  * https://simulatedgreg.gitbooks.io/electron-vue/content/en/using-static-assets.html
  */
-if (process.env.NODE_ENV !== 'development') {
+if (!isDev) {
   global.__static = require('path')
     .join(__dirname, '/static')
     .replace(/\\/g, '\\\\')
@@ -40,6 +42,10 @@ function createWindow () {
   })
 
   mainWindow.loadURL(winURL)
+
+  if (isDev) {
+    mainWindow.webContents.openDevTools({ mode: 'detach' })
+  }
 
   mainWindow.on('closed', () => {
     mainWindow = null

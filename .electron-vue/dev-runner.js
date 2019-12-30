@@ -72,8 +72,8 @@ function startRenderer() {
     const server = new WebpackDevServer(compiler, {
       contentBase: path.join(__dirname, '../'),
       quiet: true,
+      hot: true,
       before(app, ctx) {
-        app.use(hotMiddleware)
         ctx.middleware.waitUntilValid(() => {
           resolve()
         })

@@ -1,6 +1,10 @@
 :root {
   --sidebar-width: 180px;
   --snippets-list-width: 220px;
+  --snippets-view-header-height: 60px;
+  --snippets-view-footer-height: 30px;
+  --snippet-tab-header-height: 40px;
+  --snippet-tab-height: 30px;
   --title-bar-height: 20px;
 
   --spacing-unit: 4px;
@@ -12,6 +16,7 @@
 
   --font-primary: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen,
     Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+  --font-code: Menlo, Monaco, "Courier New", monospace;
 
   --text-base-size: 10px;
   --text-xs: calc(var(--text-base-size) * 1);

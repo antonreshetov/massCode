@@ -1,4 +1,5 @@
 import db from '@/datastore'
+import electronStore from '@@/store'
 import { defaultLibraryQuery } from '@/util/helpers'
 
 export default {
@@ -6,6 +7,7 @@ export default {
   state: {
     snippets: [],
     selected: null,
+    selectedId: null,
     newSnippetId: null
   },
   getters: {
@@ -39,6 +41,9 @@ export default {
     },
     SET_SELECTED (state, snippet) {
       state.selected = snippet
+    },
+    SET_SELECTED_ID (state, id) {
+      state.selectedId = id
     },
     SET_NEW (state, snippet) {
       state.newSnippetId = snippet
@@ -82,15 +87,25 @@ export default {
         })
       })
     },
+    setSelected ({ commit }, snippet) {
+      commit('SET_SELECTED', snippet)
+      commit('SET_SELECTED_ID', snippet._id)
+      electronStore.set('selectedSnippetId', snippet._id)
+    },
     addSnippet ({ commit, dispatch, rootGetters }, folderId) {
       const ids = rootGetters['folders/selectedIds']
       const defaultQuery = { folderId: { $in: ids } }
       const query = defaultLibraryQuery(defaultQuery, folderId)
 
+      const code = 'function hello () {\n\tconsole.log("Hello world!")\n}'
+
       const snippet = {
         name: 'Untitled snippet',
         folderId: folderId,
-        content: [],
+        content: [
+          { label: 'Fragment 1', language: 'javascript', value: code }
+          // { label: 'Fragment 2', language: 'html', value: '<div>Hello</div>' }
+        ],
         tags: [],
         isFavorites: false,
         isDeleted: false,

@@ -1,7 +1,7 @@
 <template>
   <div
     id="app"
-    data-theme="dark"
+    :data-theme="app.theme"
   >
     <MainView v-if="init" />
   </div>
@@ -10,7 +10,7 @@
 <script>
 import MainView from './views/Main.vue'
 import shortid from 'shortid'
-import { mapGetters } from 'vuex'
+import { mapGetters, mapState } from 'vuex'
 import { defaultLibraryQuery } from '@/util/helpers'
 import shortcuts from '@/lib/shortcuts'
 
@@ -28,6 +28,7 @@ export default {
   },
 
   computed: {
+    ...mapState(['app']),
     ...mapGetters('folders', ['selectedIds'])
   },
 
@@ -43,13 +44,16 @@ export default {
       const snippetListWidth = this.$electronStore.get('snippetListWidth')
       const sidebarWidth = this.$electronStore.get('sidebarWidth')
       const selectedFolderId = this.$electronStore.get('selectedFolderId')
+      const selectedSnippetId = this.$electronStore.get('selectedSnippetId')
 
       if (snippetListWidth) {
         this.$store.commit('app/SET_SNIPPET_LIST_WIDTH', snippetListWidth)
       }
+
       if (sidebarWidth) {
         this.$store.commit('app/SET_SIDEBAR_WIDTH', sidebarWidth)
       }
+
       if (selectedFolderId) {
         this.$store.dispatch('folders/setSelectedFolder', selectedFolderId)
 
@@ -59,6 +63,15 @@ export default {
         this.$store.dispatch('snippets/getSnippets', query)
       } else {
         this.$store.dispatch('snippets/getSnippets', { folderId: null })
+      }
+
+      if (selectedSnippetId) {
+        this.$db.snippets.findOne({ _id: selectedSnippetId }, (err, doc) => {
+          if (err) return
+          if (doc) {
+            this.$store.dispatch('snippets/setSelected', doc)
+          }
+        })
       }
 
       this.init = true

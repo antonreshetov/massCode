@@ -1,7 +1,4 @@
-import context from './context'
+import menu from './menu'
 import dialog from './dialog'
 
-export {
-  context,
-  dialog
-}
+export { menu, dialog }
