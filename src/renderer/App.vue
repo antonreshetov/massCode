@@ -1,7 +1,7 @@
 <template>
   <div
     id="app"
-    data-theme="dark"
+    :data-theme="app.theme"
   >
     <MainView v-if="init" />
   </div>
@@ -10,7 +10,7 @@
 <script>
 import MainView from './views/Main.vue'
 import shortid from 'shortid'
-import { mapGetters } from 'vuex'
+import { mapGetters, mapState } from 'vuex'
 import { defaultLibraryQuery } from '@/util/helpers'
 import shortcuts from '@/lib/shortcuts'
 
@@ -28,6 +28,7 @@ export default {
   },
 
   computed: {
+    ...mapState(['app']),
     ...mapGetters('folders', ['selectedIds'])
   },
 
