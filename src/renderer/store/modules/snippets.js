@@ -114,20 +114,16 @@ export default {
       if (folderId === 'trash') {
         snippet.folderId = null
         snippet.isDeleted = true
-        // query = { isDeleted: true }
       }
       if (folderId === 'favorites') {
         snippet.folderId = null
         snippet.isFavorites = true
-        // query = { isFavorites: true }
       }
       if (folderId === 'allSnippets') {
         snippet.folderId = null
-        // query = {}
       }
       if (folderId === 'inBox') {
         snippet.folderId = null
-        // query = { folderId: null }
       }
 
       db.snippets.insert(snippet, (err, snippet) => {
