@@ -68,9 +68,12 @@
   "dependencies": {
     "date-fns": "^2.8.1",
     "electron-store": "^5.1.0",
+    "emmet-monaco-es": "^4.3.3",
     "feather-icons": "^4.25.0",
     "interactjs": "^1.8.0-alpha.6",
     "lodash-es": "^4.17.15",
+    "monaco-editor": "^0.19.0",
+    "monaco-editor-webpack-plugin": "^1.8.1",
     "mousetrap": "^1.6.3",
     "nedb": "^1.8.0",
     "shortid": "^2.2.15",
