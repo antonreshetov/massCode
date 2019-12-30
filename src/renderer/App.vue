@@ -43,13 +43,16 @@ export default {
       const snippetListWidth = this.$electronStore.get('snippetListWidth')
       const sidebarWidth = this.$electronStore.get('sidebarWidth')
       const selectedFolderId = this.$electronStore.get('selectedFolderId')
+      const selectedSnippetId = this.$electronStore.get('selectedSnippetId')
 
       if (snippetListWidth) {
         this.$store.commit('app/SET_SNIPPET_LIST_WIDTH', snippetListWidth)
       }
+
       if (sidebarWidth) {
         this.$store.commit('app/SET_SIDEBAR_WIDTH', sidebarWidth)
       }
+
       if (selectedFolderId) {
         this.$store.dispatch('folders/setSelectedFolder', selectedFolderId)
 
@@ -59,6 +62,15 @@ export default {
         this.$store.dispatch('snippets/getSnippets', query)
       } else {
         this.$store.dispatch('snippets/getSnippets', { folderId: null })
+      }
+
+      if (selectedSnippetId) {
+        this.$db.snippets.findOne({ _id: selectedSnippetId }, (err, doc) => {
+          if (err) return
+          if (doc) {
+            this.$store.dispatch('snippets/setSelected', doc)
+          }
+        })
       }
 
       this.init = true
