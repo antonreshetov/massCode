@@ -24,6 +24,9 @@ export default {
     },
     editableId (state) {
       return state.editableId
+    },
+    defaultLanguage (state) {
+      return state.selected.defaultLanguage
     }
   },
   mutations: {

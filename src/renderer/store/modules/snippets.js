@@ -94,17 +94,15 @@ export default {
     },
     addSnippet ({ commit, dispatch, rootGetters }, folderId) {
       const ids = rootGetters['folders/selectedIds']
+      const defaultLanguage = rootGetters['folders/defaultLanguage']
       const defaultQuery = { folderId: { $in: ids } }
       const query = defaultLibraryQuery(defaultQuery, folderId)
-
-      const code = 'function hello () {\n\tconsole.log("Hello world!")\n}'
 
       const snippet = {
         name: 'Untitled snippet',
         folderId: folderId,
         content: [
-          { label: 'Fragment 1', language: 'javascript', value: code }
-          // { label: 'Fragment 2', language: 'html', value: '<div>Hello</div>' }
+          { label: 'Fragment 1', language: defaultLanguage, value: '' }
         ],
         tags: [],
         isFavorites: false,
