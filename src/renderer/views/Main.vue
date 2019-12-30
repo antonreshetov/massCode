@@ -8,7 +8,6 @@
     <SnippetList ref="list" />
     <SnippetView
       v-if="isSelected"
-      :key="Math.random()"
       @edit="onEdit"
     />
   </div>
@@ -59,7 +58,7 @@ export default {
   overflow: hidden;
   .title-bar {
     position: absolute;
-    top:0;
+    top: 0;
     width: 100%;
     height: var(--title-bar-height);
     -webkit-user-select: none;
