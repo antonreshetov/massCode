@@ -10,10 +10,7 @@
         class="snippet-name"
       />
       <div class="snippet-view__actions">
-        <div
-          class="snippet-view__actions-item"
-          @click="onAddTab"
-        >
+        <div class="snippet-view__actions-item">
           <AppIcon name="clipboard" />
         </div>
       </div>
@@ -30,7 +27,6 @@
       <SnippetTabs
         v-model="active"
         :tabs="localSnippet.content"
-        @tab:add="onAddTab"
         @tab:edit="onEditTab"
         @tab:delete="onDeleteTab"
       >
@@ -45,7 +41,6 @@
             :language="i.language"
             :is-tabs="localSnippet.content.length > 1"
             @change:lang="onChangeLanguage($event, index)"
-            @tab:add="onAddTab"
           />
         </SnippetTabsPane>
       </SnippetTabs>
@@ -60,6 +55,7 @@ import MonacoEditor from '@/components/editor/MonacoEditor.vue'
 import SnippetTabs from '@/components/snippets/SnippetTabs.vue'
 import SnippetTabsPane from '@/components/snippets/SnippetTabsPane.vue'
 import { menu, dialog } from '@@/lib'
+import EventBus from '@/event-bus'
 
 export default {
   name: 'SnippetView',
@@ -94,6 +90,9 @@ export default {
       this.active = 0
     })
     this.setWatcher()
+    EventBus.$on('snippet:new-fragment', () => {
+      this.onAddTab()
+    })
   },
 
   mounted () {
