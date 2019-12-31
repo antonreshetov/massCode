@@ -20,6 +20,7 @@
               :title="data.name"
               :children="!!data.children.length"
               :open="data.open"
+              :model="data"
               @click:toggle="onNodeToggle(data, store)"
             />
           </div>

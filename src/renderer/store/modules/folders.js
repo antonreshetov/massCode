@@ -49,7 +49,7 @@ export default {
     }
   },
   actions: {
-    async getFolders ({ commit }) {
+    getFolders ({ commit }) {
       return new Promise((resolve, reject) => {
         db.masscode.findOne({ _id: 'folders' }, (err, doc) => {
           if (err) return
@@ -117,7 +117,7 @@ export default {
         id: shortid(),
         name: 'Untitled',
         open: false,
-        defaultSyntax: null
+        defaultLanguage: 'text'
       }
 
       db.masscode.update(
@@ -139,6 +139,7 @@ export default {
         if (err) return
 
         const { list } = doc
+
         function findAndUpdate (arr) {
           arr.forEach((i, index) => {
             if (i.id === id) {
@@ -161,10 +162,40 @@ export default {
         dispatch('snippets/getSnippets', query, { root: true })
       })
     },
-    updateFolders ({ dispatch }, list) {
-      db.masscode.update({ _id: 'folders' }, { list }, (err, doc) => {
+    updateFolderLanguage ({ dispatch, rootGetters }, { id, payload }) {
+      db.masscode.findOne({ _id: 'folders' }, async (err, doc) => {
         if (err) return
-        dispatch('getFolders')
+
+        const { list } = doc
+
+        function findAndUpdate (arr) {
+          arr.forEach((i, index) => {
+            if (i.id === id) {
+              i.defaultLanguage = payload
+            }
+
+            if (i.children && i.children.length) {
+              findAndUpdate(i.children)
+            }
+          })
+        }
+        findAndUpdate(list)
+
+        await dispatch('updateFolders', list)
+        const folderId = rootGetters['folders/selectedId']
+
+        if (folderId === id) {
+          dispatch('setSelectedFolder', id)
+        }
+      })
+    },
+    updateFolders ({ dispatch }, list) {
+      return new Promise((resolve, reject) => {
+        db.masscode.update({ _id: 'folders' }, { list }, async (err, doc) => {
+          if (err) return
+          await dispatch('getFolders')
+          resolve()
+        })
       })
     },
     deleteFolder ({ state, commit, dispatch, rootGetters }, id) {

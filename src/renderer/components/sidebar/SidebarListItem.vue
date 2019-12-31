@@ -37,6 +37,7 @@
 <script>
 import { mapGetters } from 'vuex'
 import { menu, dialog } from '@@/lib'
+import languages from '@/components/editor/languages'
 
 export default {
   name: 'SidebarListItem',
@@ -78,9 +79,23 @@ export default {
 
   computed: {
     ...mapGetters('folders', ['selectedId', 'editableId']),
-    isSelected () {
-      if (!this.selectedId) return null
-      return this.selectedId === this.id
+    languagesMenu () {
+      return languages
+        .map(i => {
+          i.type = 'radio'
+          i.checked = i.value === this.model.defaultLanguage
+          i.click = e => {
+            // this.$emit('change:lang', e.value)
+            const id = this.id
+            const payload = e.value
+            this.$store.dispatch('folders/updateFolderLanguage', {
+              id,
+              payload
+            })
+          }
+          return i
+        })
+        .sort((a, b) => (a.label < b.label ? -1 : 1))
     },
     folderName: {
       get () {
@@ -89,6 +104,10 @@ export default {
       set (e) {
         this.updatedFolderName = e
       }
+    },
+    isSelected () {
+      if (!this.selectedId) return null
+      return this.selectedId === this.id
     },
     isEditable () {
       return this.editableId === this.id
@@ -124,7 +143,7 @@ export default {
           label: 'Rename',
           click: () => this.setEditable()
         },
-        { type: 'separator' },
+
         {
           label: 'Delete',
           click: () => {
@@ -140,6 +159,11 @@ export default {
               this.$store.dispatch('folders/deleteFolder', this.id)
             }
           }
+        },
+        { type: 'separator' },
+        {
+          label: 'Default Language',
+          submenu: this.languagesMenu
         }
       ])
       contextMenu.addListener('menu-will-close', () => {
