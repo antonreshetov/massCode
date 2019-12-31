@@ -12,7 +12,7 @@ import MainView from './views/Main.vue'
 import shortid from 'shortid'
 import { mapGetters, mapState } from 'vuex'
 import { defaultLibraryQuery } from '@/util/helpers'
-import shortcuts from '@/lib/shortcuts'
+import '@/lib/ipcRenderer'
 
 export default {
   name: 'App',
@@ -34,7 +34,6 @@ export default {
 
   created () {
     this.initState()
-    shortcuts()
   },
 
   methods: {

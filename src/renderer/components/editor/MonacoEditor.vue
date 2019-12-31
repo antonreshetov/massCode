@@ -155,15 +155,6 @@ export default {
       this.editor.onDidChangeCursorPosition(e => {
         this.position = e.position
       })
-      // Определяем сочетания клавиш
-      this.editor.addAction({
-        id: 'add-new-fragment',
-        label: 'Add new fragment',
-        keybindings: [monaco.KeyMod.CtrlCmd | monaco.KeyCode.KEY_N],
-        run: () => {
-          this.$emit('tab:add')
-        }
-      })
       // Отключаем поиск по cmd+f
       this.editor._standaloneKeybindingService.addDynamicKeybinding(
         '-actions.find'
