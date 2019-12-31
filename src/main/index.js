@@ -1,5 +1,6 @@
-import { app, BrowserWindow } from 'electron'
+import { app, BrowserWindow, Menu } from 'electron'
 import store from './store'
+import mainMenu from './lib/main-menu'
 
 const isDev = process.env.NODE_ENV === 'development'
 
@@ -52,7 +53,12 @@ function createWindow () {
   })
 }
 
-app.on('ready', createWindow)
+app.on('ready', () => {
+  createWindow()
+
+  const menu = Menu.buildFromTemplate(mainMenu(mainWindow))
+  Menu.setApplicationMenu(menu)
+})
 
 app.on('window-all-closed', () => {
   if (process.platform !== 'darwin') {
