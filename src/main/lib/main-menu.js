@@ -1,12 +1,14 @@
 import { app, shell } from 'electron'
 const { version, author } = require('../../../package.json')
 
-app.setAboutPanelOptions({
-  applicationName: 'massCode',
-  applicationVersion: version,
-  version,
-  copyright: author
-})
+if (process.platform !== 'win32') {
+  app.setAboutPanelOptions({
+    applicationName: 'massCode',
+    applicationVersion: version,
+    version,
+    copyright: author
+  })
+}
 
 export default mainWindow => {
   const massCode = {
