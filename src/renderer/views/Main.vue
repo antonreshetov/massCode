@@ -3,7 +3,6 @@
     class="main"
     :style="mainStyle"
   >
-    <div class="title-bar" />
     <TheSidebar />
     <SnippetList ref="list" />
     <SnippetView
@@ -56,14 +55,5 @@ export default {
   height: 100vh;
   background-color: var(--color-bg);
   overflow: hidden;
-  .title-bar {
-    position: absolute;
-    top: 0;
-    width: 100%;
-    height: var(--title-bar-height);
-    -webkit-user-select: none;
-    -webkit-app-region: drag;
-    z-index: 1010;
-  }
 }
 </style>

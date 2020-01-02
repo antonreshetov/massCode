@@ -3,6 +3,7 @@
     id="app"
     :data-theme="app.theme"
   >
+    <div class="app-title-bar" />
     <template v-if="init">
       <KeepAlive>
         <Component :is="view" />
@@ -119,4 +120,14 @@ export default {
 
 <style lang="scss">
 @import '@/assets/scss/main';
+
+.app-title-bar {
+  position: absolute;
+  top: 0;
+  width: 100%;
+  height: var(--title-bar-height);
+  -webkit-user-select: none;
+  -webkit-app-region: drag;
+  z-index: 1010;
+}
 </style>
