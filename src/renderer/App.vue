@@ -57,6 +57,7 @@ export default {
       const sidebarWidth = this.$electronStore.get('sidebarWidth')
       const selectedFolderId = this.$electronStore.get('selectedFolderId')
       const selectedSnippetId = this.$electronStore.get('selectedSnippetId')
+      const theme = this.$electronStore.get('theme')
 
       if (snippetListWidth) {
         this.$store.commit('app/SET_SNIPPET_LIST_WIDTH', snippetListWidth)
@@ -84,6 +85,10 @@ export default {
             this.$store.dispatch('snippets/setSelected', doc)
           }
         })
+      }
+
+      if (theme) {
+        this.$store.dispatch('app/setTheme', theme)
       }
 
       this.init = true
