@@ -3,12 +3,17 @@
     id="app"
     :data-theme="app.theme"
   >
-    <MainView v-if="init" />
+    <template v-if="init">
+      <KeepAlive>
+        <Component :is="view" />
+      </KeepAlive>
+    </template>
   </div>
 </template>
 
 <script>
 import MainView from './views/Main.vue'
+import PreferencesView from './views/Preferences.vue'
 import shortid from 'shortid'
 import { mapGetters, mapState } from 'vuex'
 import { defaultLibraryQuery } from '@/util/helpers'
@@ -18,7 +23,8 @@ export default {
   name: 'App',
 
   components: {
-    MainView
+    MainView,
+    PreferencesView
   },
 
   data () {
@@ -29,7 +35,14 @@ export default {
 
   computed: {
     ...mapState(['app']),
-    ...mapGetters('folders', ['selectedIds'])
+    ...mapGetters('folders', ['selectedIds']),
+    view () {
+      if (this.app.view === 'main') {
+        return 'MainView'
+      } else {
+        return 'PreferencesView'
+      }
+    }
   },
 
   created () {
