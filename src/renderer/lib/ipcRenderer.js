@@ -19,5 +19,5 @@ ipcRenderer.on('menu:new-folder', () => {
 })
 
 ipcRenderer.on('menu:preferences', () => {
-  // TODO:
+  store.commit('app/SET_VIEW', 'preferences')
 })
