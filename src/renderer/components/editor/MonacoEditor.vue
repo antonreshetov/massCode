@@ -100,6 +100,12 @@ export default {
     }
   },
 
+  watch: {
+    'app.theme' () {
+      this.setTheme()
+    }
+  },
+
   mounted () {
     this.init()
     this.$watch('value', newVal => {
@@ -160,12 +166,7 @@ export default {
         '-actions.find'
       )
 
-      if (this.app.theme === 'dark') {
-        this.setTheme('massCode-dark')
-      } else {
-        this.setTheme('massCode-light')
-      }
-
+      this.setTheme()
       emmetHTML(monaco)
     },
     defineThemes () {
@@ -208,8 +209,12 @@ export default {
         }
       })
     },
-    setTheme (theme) {
-      monaco.editor.setTheme(theme)
+    setTheme () {
+      if (this.app.theme === 'dark') {
+        monaco.editor.setTheme('massCode-dark')
+      } else {
+        monaco.editor.setTheme('massCode-light')
+      }
     },
     setLanguage (lang) {
       const model = this.editor.getModel()
