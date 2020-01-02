@@ -249,4 +249,10 @@ export default {
     width: 0 !important;
   }
 }
+.language {
+  cursor: pointer;
+}
+.language:hover {
+  border-bottom: 1px solid var(--color-contrast-medium);
+}
 </style>
