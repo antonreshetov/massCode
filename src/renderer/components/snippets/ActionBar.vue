@@ -1,7 +1,11 @@
 <template>
   <div class="action-bar">
     <div class="search">
-      <AppInput placeholder="Search...">
+      <AppInput
+        class="search__input"
+        placeholder="Search..."
+        ghost
+      >
         <template slot="prefix">
           <AppIcon
             class="search__icon"
@@ -53,6 +57,10 @@ export default {
   display: flex;
   align-items: center;
   border-bottom: 1px solid var(--color-border);
+  &__input {
+    height: 40px;
+    line-height: 40px;
+  }
   svg {
     width: 18px;
     height: 18px;

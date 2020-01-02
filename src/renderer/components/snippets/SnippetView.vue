@@ -7,6 +7,7 @@
       <AppInput
         ref="input"
         v-model="localSnippet.name"
+        ghost
         class="snippet-name"
       />
       <div class="snippet-view__actions">
@@ -221,6 +222,8 @@ export default {
   input {
     font-size: var(--text-lg);
     font-weight: 600;
+    height: 40px;
+    line-height: 40px;
   }
 }
 </style>

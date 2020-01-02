@@ -136,6 +136,7 @@ export default {
     position: relative;
     width: 100%;
     @include form-input-default();
+    padding: 0 var(--spacing-xs);
     &[disabled] {
       cursor: no-drop;
       background-color: var(--color-contrast-low);
@@ -149,7 +150,6 @@ export default {
   }
   &__prefix,
   &__suffix {
-    // color: $color-text-regular;
     position: absolute;
     top: 0;
     bottom: 0;
@@ -167,28 +167,12 @@ export default {
   }
   &__prepend {
     display: table-cell;
-    // border-left: $input-border;
-    // border-top: $input-border;
-    // border-bottom: $input-border;
-    // color: $color-text-faded-low;
-    // padding: $input-inner-padding;
-    // border-top-left-radius: $input-border-radius;
-    // border-bottom-left-radius: $input-border-radius;
-    // background-color: $color-grey-light;
     position: relative;
     width: 1px;
     white-space: nowrap;
   }
   &__append {
     display: table-cell;
-    // border-top: $input-border;
-    // border-right: $input-border;
-    // border-bottom: $input-border;
-    // border-top-right-radius: $input-border-radius;
-    // border-bottom-right-radius: $input-border-radius;
-    // padding: $input-inner-padding;
-    // color: $color-text-faded-low;
-    // background-color: $color-grey-light;
     position: relative;
     width: 1px;
     white-space: nowrap;
@@ -219,6 +203,16 @@ export default {
       border-bottom-right-radius: 0;
     }
   }
+  &--small {
+    #{$r}__inner {
+      height: 32px;
+    }
+  }
+  &[ghost] {
+    #{$r}__inner {
+      border: 1px solid transparent;
+    }
+  }
 }
 
 .app-textarea {
@@ -230,7 +224,6 @@ export default {
     resize: vertical;
     &[disabled] {
       cursor: no-drop;
-      // background-color: $color-grey-light;
     }
   }
 }
