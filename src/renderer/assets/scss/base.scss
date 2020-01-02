@@ -64,22 +64,10 @@ h6 {
     left: -3px;
     z-index: 10;
   }
-  // &-vertical {
-  //   position: fixed;
-  //   top: 0;
-  //   right: 0;
-  //   width: 1px;
-  //   height: 100vh;
-  //   background-color: var(--color-border);
-  // }
 }
-// .sidebar {
-//   .gutter-line {
-//     left: var(--sidebar-width);
-//   }
-// }
-// .snippet-list {
-//   .gutter-line {
-//     left: calc(var(--sidebar-width) + var(--snippets-list-width));
-//   }
-// }
+
+.desc {
+  font-size: var(--text-sm);
+  color: var(--color-contrast-medium);
+  margin-top: var(--spacing-xs);
+}
