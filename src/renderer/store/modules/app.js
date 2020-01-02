@@ -5,7 +5,9 @@ export default {
   state: {
     theme: 'dark',
     sidebarWidth: 180,
-    snippetListWidth: 220
+    snippetListWidth: 220,
+    view: 'main',
+    storagePath: null
   },
   getters: {},
   mutations: {
@@ -14,6 +16,15 @@ export default {
     },
     SET_SNIPPET_LIST_WIDTH (state, width) {
       state.snippetListWidth = width
+    },
+    SET_VIEW (state, view) {
+      state.view = view
+    },
+    SET_STORAGE_PATH (state, path) {
+      state.storagePath = path
+    },
+    SET_THEME (state, theme) {
+      state.theme = theme
     }
   },
   actions: {
@@ -26,6 +37,10 @@ export default {
       width = Math.ceil(width)
       commit('SET_SNIPPET_LIST_WIDTH', width)
       electronStore.set('snippetListWidth', width)
+    },
+    setTheme ({ commit }, theme) {
+      commit('SET_THEME', theme)
+      electronStore.set('theme', theme)
     }
   }
 }
