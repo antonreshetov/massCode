@@ -196,7 +196,7 @@ export default {
         rules: [{ background: 'EDF9FA' }],
         colors: {
           'editor.background': '#ffffff',
-          'editor.lineHighlightBackground': '#f7f7f7',
+          'editor.lineHighlightBackground': '#ffffff',
           'editorLineNumber.foreground': '#525252',
           'editorSuggestWidget.foreground': '#262626',
           'editorSuggestWidget.background': '#f7f7f7',
