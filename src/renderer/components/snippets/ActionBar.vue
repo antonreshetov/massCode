@@ -27,7 +27,6 @@
 <script>
 import AppInput from '@/components/uikit/AppInput.vue'
 import { mapGetters } from 'vuex'
-import EventBus from '@/event-bus'
 
 export default {
   name: 'ActionBar',
@@ -54,7 +53,7 @@ export default {
   },
 
   created () {
-    EventBus.$on('menu:find-snippets', () => {
+    this.$bus.$on('menu:find-snippets', () => {
       this.$refs.search.$refs.input.focus()
     })
   },

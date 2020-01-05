@@ -56,7 +56,6 @@ import MonacoEditor from '@/components/editor/MonacoEditor.vue'
 import SnippetTabs from '@/components/snippets/SnippetTabs.vue'
 import SnippetTabsPane from '@/components/snippets/SnippetTabsPane.vue'
 import { menu, dialog } from '@@/lib'
-import EventBus from '@/event-bus'
 
 export default {
   name: 'SnippetView',
@@ -91,7 +90,7 @@ export default {
       this.active = 0
     })
     this.setWatcher()
-    EventBus.$on('snippet:new-fragment', () => {
+    this.$bus.$on('snippet:new-fragment', () => {
       this.onAddTab()
     })
   },

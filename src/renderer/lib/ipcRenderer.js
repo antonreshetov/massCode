@@ -1,6 +1,6 @@
 import { ipcRenderer } from 'electron'
 import store from '@/store'
-import EventBus from '@/event-bus'
+import eventBus from '@/event-bus'
 
 ipcRenderer.on('menu:new-snippet', () => {
   const folderId = store.getters['folders/selectedId']
@@ -10,7 +10,7 @@ ipcRenderer.on('menu:new-snippet', () => {
 ipcRenderer.on('menu:new-fragment', () => {
   const snippetId = store.getters['snippets/selectedId']
   if (snippetId) {
-    EventBus.$emit('snippet:new-fragment')
+    eventBus.$emit('snippet:new-fragment')
   }
 })
 
@@ -23,5 +23,5 @@ ipcRenderer.on('menu:preferences', () => {
 })
 
 ipcRenderer.on('menu:find-snippets', () => {
-  EventBus.$emit('menu:find-snippets')
+  eventBus.$emit('menu:find-snippets')
 })
