@@ -2,6 +2,8 @@
   <div class="action-bar">
     <div class="search">
       <AppInput
+        ref="search"
+        v-model="query"
         class="search__input"
         placeholder="Search..."
         ghost
@@ -25,6 +27,7 @@
 <script>
 import AppInput from '@/components/uikit/AppInput.vue'
 import { mapGetters } from 'vuex'
+import EventBus from '@/event-bus'
 
 export default {
   name: 'ActionBar',
@@ -38,13 +41,26 @@ export default {
   },
 
   computed: {
-    ...mapGetters('folders', ['selectedId'])
+    ...mapGetters('folders', ['selectedId']),
+    ...mapGetters('snippets', ['searchQuery']),
+    query: {
+      get () {
+        return this.searchQuery
+      },
+      set (query) {
+        this.$store.dispatch('snippets/searchSnippets', query)
+      }
+    }
+  },
+
+  created () {
+    EventBus.$on('menu:find-snippets', () => {
+      this.$refs.search.$refs.input.focus()
+    })
   },
 
   methods: {
     onAddSnippet () {
-      console.log('add snippet')
-
       this.$store.dispatch('snippets/addSnippet', this.selectedId)
     }
   }

@@ -27,7 +27,7 @@
 import * as monaco from 'monaco-editor/esm/vs/editor/editor.api'
 import { emmetHTML } from 'emmet-monaco-es'
 import { menu } from '@@/lib'
-import { mapState } from 'vuex'
+import { mapState, mapGetters } from 'vuex'
 import languages from './languages'
 
 export default {
@@ -59,12 +59,14 @@ export default {
       position: {
         lineNumber: 0,
         column: 0
-      }
+      },
+      decorations: []
     }
   },
 
   computed: {
     ...mapState(['app']),
+    ...mapGetters('snippets', ['searchQuery']),
     languagesMenu () {
       return languages
         .map(i => {
@@ -108,14 +110,19 @@ export default {
 
   mounted () {
     this.init()
+    this.searchHighlight(this.searchQuery)
     this.$watch('value', newVal => {
       if (newVal !== this.editor.getValue()) {
         this.editor.setValue(newVal)
         this.editor.setPosition({ lineNumber: 0, column: 0 })
+        this.searchHighlight(this.searchQuery)
       }
     })
     this.$watch('language', newVal => {
       this.setLanguage(newVal)
+    })
+    this.$watch('searchQuery', newVal => {
+      this.searchHighlight(newVal)
     })
     if (this.isTabs) {
       const { height, width } = this.$refs.wrapper.getBoundingClientRect()
@@ -226,10 +233,23 @@ export default {
     calculateHeight () {
       window.addEventListener('resize', () => {
         const { height, width } = this.$refs.editor.getBoundingClientRect()
-        console.log(height)
         const footerHeight = 0
         this.editor.layout({ width, height: height - footerHeight })
       })
+    },
+    searchHighlight (query) {
+      const model = this.editor.getModel()
+      const matches = model.findMatches(query, false, true, false)
+      const newDecorations = matches.map(i => {
+        return {
+          range: i.range,
+          options: { inlineClassName: 'marked' }
+        }
+      })
+      this.decorations = this.editor.deltaDecorations(
+        this.decorations,
+        newDecorations
+      )
     }
   }
 }
@@ -252,6 +272,11 @@ export default {
   }
   .decorationsOverviewRuler {
     width: 0 !important;
+  }
+  .marked {
+    background-color: yellow;
+    color: #000;
+    border-radius: 3px;
   }
 }
 </style>

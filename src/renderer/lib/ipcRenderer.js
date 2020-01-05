@@ -21,3 +21,7 @@ ipcRenderer.on('menu:new-folder', () => {
 ipcRenderer.on('menu:preferences', () => {
   store.commit('app/SET_VIEW', 'preferences')
 })
+
+ipcRenderer.on('menu:find-snippets', () => {
+  EventBus.$emit('menu:find-snippets')
+})

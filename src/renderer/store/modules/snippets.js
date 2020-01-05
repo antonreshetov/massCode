@@ -8,6 +8,9 @@ export default {
     snippets: [],
     selected: null,
     selectedId: null,
+    searched: [],
+    search: false,
+    searchQuery: null,
     newSnippetId: null
   },
   getters: {
@@ -19,6 +22,12 @@ export default {
     },
     snippetsDeleted (state) {
       return state.snippets.filter(i => i.isDeleted)
+    },
+    snippetsSearched (state) {
+      return state.searched
+    },
+    searchQuery (state) {
+      return state.searchQuery
     },
     selected (state) {
       return state.selected
@@ -33,6 +42,9 @@ export default {
     },
     isSelected (state) {
       return !!state.selected
+    },
+    isSearched (state) {
+      return state.search
     }
   },
   mutations: {
@@ -47,6 +59,15 @@ export default {
     },
     SET_NEW (state, snippet) {
       state.newSnippetId = snippet
+    },
+    SET_SEARCHED (state, snippets) {
+      state.searched = snippets
+    },
+    SET_SEARCH (state, bool) {
+      state.search = bool
+    },
+    SET_SEARCH_QUERY (state, query) {
+      state.searchQuery = query
     }
   },
   actions: {
@@ -154,6 +175,44 @@ export default {
       db.snippets.remove({ isDeleted: true }, { multi: true }, (err, num) => {
         if (err) return
         dispatch('getSnippets', query)
+      })
+    },
+    searchSnippets ({ state, commit, dispatch }, query) {
+      db.snippets.find({}, (err, doc) => {
+        if (err) return
+        query = query.toLowerCase()
+
+        const results = doc
+          .filter(snippet =>
+            snippet.content.some(content =>
+              content.value
+                ? content.value.toLowerCase().includes(query)
+                : false
+            )
+          )
+          .sort((a, b) => b.updatedAt - a.updatedAt)
+
+        if (query) {
+          commit('SET_SEARCH', true)
+          commit('SET_SEARCH_QUERY', query)
+
+          if (results.length) {
+            const first = results[0]
+            commit('SET_SELECTED', first)
+            commit('SET_SELECTED_ID', first._id)
+          } else {
+            commit('SET_SELECTED', null)
+            commit('SET_SELECTED_ID', null)
+          }
+        } else {
+          commit('SET_SEARCH', false)
+          commit('SET_SEARCH_QUERY', null)
+          const selectedSnippetId = electronStore.get('selectedSnippetId')
+          const snippet = state.snippets.find(i => i._id === selectedSnippetId)
+          commit('SET_SELECTED', snippet)
+          commit('SET_SELECTED_ID', selectedSnippetId)
+        }
+        commit('SET_SEARCHED', results)
       })
     }
   }
