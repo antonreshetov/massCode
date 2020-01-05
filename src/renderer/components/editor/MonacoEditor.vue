@@ -269,6 +269,9 @@ export default {
     justify-content: space-between;
     padding: 0 var(--spacing-xs);
     color: var(--color-contrast-medium);
+    .language {
+      cursor: default;
+    }
   }
   .decorationsOverviewRuler {
     width: 0 !important;
