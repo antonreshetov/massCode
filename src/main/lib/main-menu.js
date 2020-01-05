@@ -116,6 +116,16 @@ export default mainWindow => {
         label: 'Select All',
         accelerator: 'CommandOrControl+A',
         selector: 'selectAll:'
+      },
+      {
+        type: 'separator'
+      },
+      {
+        label: 'Find',
+        accelerator: 'CommandOrControl+F',
+        click () {
+          mainWindow.webContents.send('menu:find-snippets')
+        }
       }
     ]
   }

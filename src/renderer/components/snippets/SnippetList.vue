@@ -51,10 +51,11 @@ export default {
 
   computed: {
     ...mapState(['app']),
-    ...mapGetters('snippets', ['snippets']),
+    ...mapGetters('snippets', ['snippets', 'snippetsSearched', 'isSearched']),
     ...mapGetters('folders', ['selectedId', 'selectedIds', 'allSnippetsId']),
     sortedSnippets () {
-      return [...this.snippets].sort((a, b) => b.updatedAt - a.updatedAt)
+      const snippets = this.isSearched ? this.snippetsSearched : this.snippets
+      return [...snippets].sort((a, b) => b.updatedAt - a.updatedAt)
     }
   },
 
