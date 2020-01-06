@@ -77,6 +77,10 @@ export default {
   methods: {
     async onAddFolder () {
       this.$store.dispatch('folders/addFolder')
+      this.$ga.event({
+        eventCategory: 'Folders',
+        eventAction: 'New folder'
+      })
     },
     onDropTreeNode (e, folderId) {
       const data = e.dataTransfer.getData('payload')

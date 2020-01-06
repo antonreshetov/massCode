@@ -107,6 +107,10 @@ export default {
             }
 
             this.$store.dispatch('snippets/updateSnippet', { id, payload })
+            this.$ga.event({
+              eventCategory: 'Snippets',
+              eventAction: 'Add to favorites'
+            })
           }
         },
         {
@@ -121,6 +125,10 @@ export default {
             }
 
             this.$store.dispatch('snippets/updateSnippet', { id, payload })
+            this.$ga.event({
+              eventCategory: 'Snippets',
+              eventAction: 'Delete'
+            })
           }
         }
       ])

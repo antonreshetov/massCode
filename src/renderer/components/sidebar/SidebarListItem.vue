@@ -85,12 +85,16 @@ export default {
           i.type = 'radio'
           i.checked = i.value === this.model.defaultLanguage
           i.click = e => {
-            // this.$emit('change:lang', e.value)
             const id = this.id
             const payload = e.value
             this.$store.dispatch('folders/updateFolderLanguage', {
               id,
               payload
+            })
+            this.$ga.event({
+              eventCategory: 'Folders',
+              eventAction: 'Set default language',
+              eventLabel: e.label
             })
           }
           return i
@@ -155,8 +159,11 @@ export default {
               cancelId: 1
             })
             if (buttonId === 0) {
-              console.log('delete folder')
               this.$store.dispatch('folders/deleteFolder', this.id)
+              this.$ga.event({
+                eventCategory: 'Folders',
+                eventAction: 'Delete'
+              })
             }
           }
         },
@@ -185,8 +192,11 @@ export default {
               cancelId: 1
             })
             if (buttonId === 0) {
-              console.log('delete trash')
               this.$store.dispatch('snippets/emptyTrash')
+              this.$ga.event({
+                eventCategory: 'Snippets',
+                eventAction: 'Empty trash'
+              })
             }
           }
         }

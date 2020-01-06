@@ -9309,6 +9309,11 @@ vm-browserify@^1.0.1:
   resolved "https://registry.yarnpkg.com/vm-browserify/-/vm-browserify-1.1.2.tgz#78641c488b8e6ca91a75f511e7a3b32a86e5dda0"
   integrity sha512-2ham8XPWTONajOR0ohOKOHXkm3+gaBmGut3SRuu75xLd/RRaY6vqgh8NBYYk7+RW3u5AtzPQZG8F10LHkl0lAQ==
 
+vue-analytics@^5.21.0:
+  version "5.21.0"
+  resolved "https://registry.yarnpkg.com/vue-analytics/-/vue-analytics-5.21.0.tgz#c2c19a8d6ad0db2edde7d0901532e2d38513c37b"
+  integrity sha512-rxxzWEsZ1OXDM6V350XsgK81IWxRCQs1wzwBfo/FUEGzZ0YlPm7ZJ34yuiW4mozuVXYGFdahSq1XASfjxHZsfQ==
+
 "vue-draggable-nested-tree@github:massCodeIO/vue-draggable-nested-tree":
   version "2.2.19"
   resolved "https://codeload.github.com/massCodeIO/vue-draggable-nested-tree/tar.gz/b4b6b2bda822aa47e95661748e7ef3e4342bcbc7"

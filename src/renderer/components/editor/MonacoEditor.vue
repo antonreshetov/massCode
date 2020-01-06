@@ -75,6 +75,11 @@ export default {
           i.click = e => {
             this.$emit('change:lang', e.value)
             this.setLanguage(e.value)
+            this.$ga.event({
+              eventCategory: 'Snippets',
+              eventAction: 'Set language',
+              eventLabel: e.label
+            })
           }
           return i
         })

@@ -137,6 +137,10 @@ export default {
       }
       this.localSnippet.content.push(fragment)
       this.active = index
+      this.$ga.event({
+        eventCategory: 'Snippets',
+        eventAction: 'New fragment'
+      })
     },
     onEditTab (v, index) {
       this.localSnippet.content[index].label = v
@@ -146,6 +150,10 @@ export default {
       if (this.active === index) {
         this.active = 0
       }
+      this.$ga.event({
+        eventCategory: 'Snippets',
+        eventAction: 'Delete fragment'
+      })
     },
     onTabContext (fragment) {
       menu.popup([

@@ -61,6 +61,10 @@ export default {
   methods: {
     onAddSnippet () {
       this.$store.dispatch('snippets/addSnippet', this.selectedId)
+      this.$ga.event({
+        eventCategory: 'Snippets',
+        eventAction: 'New snippet'
+      })
     }
   }
 }
