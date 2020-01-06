@@ -1,6 +1,7 @@
 import Vue from 'vue'
 import App from './App'
 import store from './store'
+import router from './router'
 import db from '@/datastore'
 import electronStore from '@@/store'
 import eventBus from '@/event-bus'
@@ -20,5 +21,6 @@ Vue.use(UiKit)
 /* eslint-disable no-new */
 new Vue({
   store,
+  router,
   render: h => h(App)
 }).$mount('#app')

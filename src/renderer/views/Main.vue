@@ -1,5 +1,6 @@
 <template>
   <div
+    v-if="app.init"
     class="main"
     :style="mainStyle"
   >

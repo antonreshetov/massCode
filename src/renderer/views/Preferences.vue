@@ -102,7 +102,7 @@ export default {
   created () {
     document.addEventListener('keydown', e => {
       if (e.keyCode === 27) {
-        if (this.app.view === 'preferences') {
+        if (this.$route.name === 'preferences') {
           this.close()
         }
       }
@@ -135,7 +135,7 @@ export default {
       await this.$store.dispatch('snippets/getSnippets', query)
     },
     close () {
-      this.$store.commit('app/SET_VIEW', 'main')
+      this.$router.push('/')
     }
   }
 }
@@ -169,8 +169,15 @@ export default {
     }
   }
   &__input {
-    width: 300px;
-    margin-right: var(--spacing-sm);
+    &.app-input {
+      width: 300px;
+      margin-right: var(--spacing-sm);
+    }
+  }
+  &__form {
+    &-item {
+      display: flex;
+    }
   }
   &__body {
   }

@@ -1,5 +1,6 @@
 import { ipcRenderer } from 'electron'
 import store from '@/store'
+import router from '@/router'
 import eventBus from '@/event-bus'
 
 ipcRenderer.on('menu:new-snippet', () => {
@@ -19,7 +20,7 @@ ipcRenderer.on('menu:new-folder', () => {
 })
 
 ipcRenderer.on('menu:preferences', () => {
-  store.commit('app/SET_VIEW', 'preferences')
+  router.push('/preferences')
 })
 
 ipcRenderer.on('menu:find-snippets', () => {

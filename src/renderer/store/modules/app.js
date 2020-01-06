@@ -3,22 +3,22 @@ import electronStore from '@@/store'
 export default {
   namespaced: true,
   state: {
+    init: false,
     theme: 'dark',
     sidebarWidth: 180,
     snippetListWidth: 220,
-    view: 'main',
     storagePath: null
   },
   getters: {},
   mutations: {
+    SET_INIT (state, bool) {
+      state.init = bool
+    },
     SET_SIDEBAR_WIDTH (state, width) {
       state.sidebarWidth = width
     },
     SET_SNIPPET_LIST_WIDTH (state, width) {
       state.snippetListWidth = width
-    },
-    SET_VIEW (state, view) {
-      state.view = view
     },
     SET_STORAGE_PATH (state, path) {
       state.storagePath = path

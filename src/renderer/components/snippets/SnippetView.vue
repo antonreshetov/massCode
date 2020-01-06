@@ -218,6 +218,7 @@ export default {
   }
 }
 .snippet-name {
+  width: 100%;
   input {
     font-size: var(--text-lg);
     font-weight: 600;
