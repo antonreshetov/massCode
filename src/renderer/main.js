@@ -7,7 +7,6 @@ import electronStore from '@@/store'
 import eventBus from '@/event-bus'
 import { clickOutside } from './directives'
 import UiKit from '@/components/uikit'
-import './plugins/ga'
 
 if (!process.env.IS_WEB) Vue.use(require('vue-electron'))
 

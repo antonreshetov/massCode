@@ -9123,6 +9123,15 @@ unique-string@^1.0.0:
   dependencies:
     crypto-random-string "^1.0.0"
 
+universal-analytics@^0.4.20:
+  version "0.4.20"
+  resolved "https://registry.yarnpkg.com/universal-analytics/-/universal-analytics-0.4.20.tgz#d6b64e5312bf74f7c368e3024a922135dbf24b03"
+  integrity sha512-gE91dtMvNkjO+kWsPstHRtSwHXz0l2axqptGYp5ceg4MsuurloM0PU3pdOfpb5zBXUvyjT4PwhWK2m39uczZuw==
+  dependencies:
+    debug "^3.0.0"
+    request "^2.88.0"
+    uuid "^3.0.0"
+
 universalify@^0.1.0:
   version "0.1.2"
   resolved "https://registry.yarnpkg.com/universalify/-/universalify-0.1.2.tgz#b646f69be3942dabcecc9d6639c80dc105efaa66"
@@ -9267,7 +9276,7 @@ utils-merge@1.0.1:
   resolved "https://registry.yarnpkg.com/utils-merge/-/utils-merge-1.0.1.tgz#9f95710f50a267947b2ccc124741c1028427e713"
   integrity sha1-n5VxD1CiZ5R7LMwSR0HBAoQn5xM=
 
-uuid@^3.0.1, uuid@^3.3.2:
+uuid@^3.0.0, uuid@^3.0.1, uuid@^3.3.2:
   version "3.3.3"
   resolved "https://registry.yarnpkg.com/uuid/-/uuid-3.3.3.tgz#4568f0216e78760ee1dbf3a4d2cf53e224112866"
   integrity sha512-pW0No1RGHgzlpHJO1nsVrHKpOEIxkGg1xB+v0ZmdNH5OAeAwzAVrCnI2/6Mtx+Uys6iaylxa+D3g4j63IKKjSQ==
@@ -9308,11 +9317,6 @@ vm-browserify@^1.0.1:
   version "1.1.2"
   resolved "https://registry.yarnpkg.com/vm-browserify/-/vm-browserify-1.1.2.tgz#78641c488b8e6ca91a75f511e7a3b32a86e5dda0"
   integrity sha512-2ham8XPWTONajOR0ohOKOHXkm3+gaBmGut3SRuu75xLd/RRaY6vqgh8NBYYk7+RW3u5AtzPQZG8F10LHkl0lAQ==
-
-vue-analytics@^5.21.0:
-  version "5.21.0"
-  resolved "https://registry.yarnpkg.com/vue-analytics/-/vue-analytics-5.21.0.tgz#c2c19a8d6ad0db2edde7d0901532e2d38513c37b"
-  integrity sha512-rxxzWEsZ1OXDM6V350XsgK81IWxRCQs1wzwBfo/FUEGzZ0YlPm7ZJ34yuiW4mozuVXYGFdahSq1XASfjxHZsfQ==
 
 "vue-draggable-nested-tree@github:massCodeIO/vue-draggable-nested-tree":
   version "2.2.19"

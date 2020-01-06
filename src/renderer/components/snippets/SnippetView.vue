@@ -56,6 +56,7 @@ import MonacoEditor from '@/components/editor/MonacoEditor.vue'
 import SnippetTabs from '@/components/snippets/SnippetTabs.vue'
 import SnippetTabsPane from '@/components/snippets/SnippetTabsPane.vue'
 import { menu, dialog } from '@@/lib'
+import { track } from '@@/lib/analytics'
 
 export default {
   name: 'SnippetView',
@@ -137,10 +138,7 @@ export default {
       }
       this.localSnippet.content.push(fragment)
       this.active = index
-      this.$ga.event({
-        eventCategory: 'Snippets',
-        eventAction: 'New fragment'
-      })
+      track('snippets/new-fragment')
     },
     onEditTab (v, index) {
       this.localSnippet.content[index].label = v
@@ -150,10 +148,7 @@ export default {
       if (this.active === index) {
         this.active = 0
       }
-      this.$ga.event({
-        eventCategory: 'Snippets',
-        eventAction: 'Delete fragment'
-      })
+      track('snippets/delete-fragment')
     },
     onTabContext (fragment) {
       menu.popup([

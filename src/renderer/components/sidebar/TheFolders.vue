@@ -42,6 +42,7 @@ import SidebarListItem from './SidebarListItem.vue'
 import { mapGetters } from 'vuex'
 import cloneDeep from 'lodash-es/cloneDeep'
 import { DraggableTree } from 'vue-draggable-nested-tree/dist/vue-draggable-nested-tree'
+import { track } from '@@/lib/analytics'
 
 export default {
   name: 'TheFolders',
@@ -77,10 +78,7 @@ export default {
   methods: {
     async onAddFolder () {
       this.$store.dispatch('folders/addFolder')
-      this.$ga.event({
-        eventCategory: 'Folders',
-        eventAction: 'New folder'
-      })
+      track('folders/new')
     },
     onDropTreeNode (e, folderId) {
       const data = e.dataTransfer.getData('payload')

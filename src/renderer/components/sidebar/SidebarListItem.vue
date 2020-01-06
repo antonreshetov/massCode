@@ -38,6 +38,7 @@
 import { mapGetters } from 'vuex'
 import { menu, dialog } from '@@/lib'
 import languages from '@/components/editor/languages'
+import { track } from '@@/lib/analytics'
 
 export default {
   name: 'SidebarListItem',
@@ -91,11 +92,7 @@ export default {
               id,
               payload
             })
-            this.$ga.event({
-              eventCategory: 'Folders',
-              eventAction: 'Set default language',
-              eventLabel: e.label
-            })
+            track(`folders/set-default-language/${e.label}`)
           }
           return i
         })
@@ -160,10 +157,7 @@ export default {
             })
             if (buttonId === 0) {
               this.$store.dispatch('folders/deleteFolder', this.id)
-              this.$ga.event({
-                eventCategory: 'Folders',
-                eventAction: 'Delete'
-              })
+              track('folders/delete')
             }
           }
         },
@@ -193,10 +187,7 @@ export default {
             })
             if (buttonId === 0) {
               this.$store.dispatch('snippets/emptyTrash')
-              this.$ga.event({
-                eventCategory: 'Snippets',
-                eventAction: 'Empty trash'
-              })
+              track('snippets/empty-trash')
             }
           }
         }

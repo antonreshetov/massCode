@@ -27,6 +27,7 @@
 <script>
 import AppInput from '@/components/uikit/AppInput.vue'
 import { mapGetters } from 'vuex'
+import { track } from '@@/lib/analytics'
 
 export default {
   name: 'ActionBar',
@@ -61,10 +62,7 @@ export default {
   methods: {
     onAddSnippet () {
       this.$store.dispatch('snippets/addSnippet', this.selectedId)
-      this.$ga.event({
-        eventCategory: 'Snippets',
-        eventAction: 'New snippet'
-      })
+      track('snippets/new')
     }
   }
 }

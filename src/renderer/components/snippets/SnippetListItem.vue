@@ -31,6 +31,7 @@
 import { mapGetters } from 'vuex'
 import { format, isSameDay } from 'date-fns'
 import { menu } from '@@/lib'
+import { track } from '@@/lib/analytics'
 
 export default {
   name: 'SnippetListItem',
@@ -107,10 +108,7 @@ export default {
             }
 
             this.$store.dispatch('snippets/updateSnippet', { id, payload })
-            this.$ga.event({
-              eventCategory: 'Snippets',
-              eventAction: 'Add to favorites'
-            })
+            track('snippets/add-to-favorites')
           }
         },
         {
@@ -125,10 +123,7 @@ export default {
             }
 
             this.$store.dispatch('snippets/updateSnippet', { id, payload })
-            this.$ga.event({
-              eventCategory: 'Snippets',
-              eventAction: 'Delete'
-            })
+            track('snippets/delete')
           }
         }
       ])

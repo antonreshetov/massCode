@@ -29,6 +29,7 @@ import { emmetHTML } from 'emmet-monaco-es'
 import { menu } from '@@/lib'
 import { mapState, mapGetters } from 'vuex'
 import languages from './languages'
+import { track } from '@@/lib/analytics'
 
 export default {
   name: 'MonacoEditor',
@@ -75,11 +76,7 @@ export default {
           i.click = e => {
             this.$emit('change:lang', e.value)
             this.setLanguage(e.value)
-            this.$ga.event({
-              eventCategory: 'Snippets',
-              eventAction: 'Set language',
-              eventLabel: e.label
-            })
+            track(`snippets/set-language/${e.label}`)
           }
           return i
         })
