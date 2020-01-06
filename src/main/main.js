@@ -9,17 +9,16 @@ const winURL =
     ? 'http://localhost:9080'
     : `file://${__dirname}/index.html`
 
-const bounds = {
-  x: undefined,
-  y: undefined,
-  height: 563,
-  width: 1000,
-  ...store.get('bounds')
-}
-
 function createMainWindow () {
+  const bounds = {
+    x: undefined,
+    y: undefined,
+    height: 563,
+    width: 1000,
+    ...store.get('bounds')
+  }
+
   mainWindow = new BrowserWindow({
-    ...bounds,
     title: 'massCode',
     useContentSize: true,
     titleBarStyle: 'hidden',
@@ -28,6 +27,7 @@ function createMainWindow () {
     }
   })
 
+  mainWindow.setBounds(bounds)
   mainWindow.loadURL(winURL)
 
   if (isDev) {
