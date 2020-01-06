@@ -1,7 +1,7 @@
-import { app, BrowserWindow, Menu } from 'electron'
+import { app, Menu } from 'electron'
+import { createMainWindow, mainWindow } from './main'
 import store from './store'
 import mainMenu from './lib/main-menu'
-
 const isDev = process.env.NODE_ENV === 'development'
 
 /**
@@ -14,50 +14,15 @@ if (!isDev) {
     .replace(/\\/g, '\\\\')
 }
 
-let mainWindow
-const winURL =
-  process.env.NODE_ENV === 'development'
-    ? 'http://localhost:9080'
-    : `file://${__dirname}/index.html`
-
-const bounds = {
-  x: undefined,
-  y: undefined,
-  height: 563,
-  width: 1000,
-  ...store.get('bounds')
-}
-
-function createWindow () {
-  /**
-   * Initial window options
-   */
-  mainWindow = new BrowserWindow({
-    ...bounds,
-    title: 'massCode',
-    useContentSize: true,
-    titleBarStyle: 'hidden',
-    webPreferences: {
-      nodeIntegration: true
-    }
-  })
-
-  mainWindow.loadURL(winURL)
-
-  if (isDev) {
-    mainWindow.webContents.openDevTools({ mode: 'detach' })
-  }
-
-  mainWindow.on('closed', () => {
-    mainWindow = null
-  })
-}
-
-app.on('ready', () => {
-  createWindow()
+function init () {
+  createMainWindow()
 
   const menu = Menu.buildFromTemplate(mainMenu(mainWindow))
   Menu.setApplicationMenu(menu)
+}
+
+app.on('ready', () => {
+  init()
 })
 
 app.on('window-all-closed', () => {
@@ -69,7 +34,7 @@ app.on('window-all-closed', () => {
 
 app.on('activate', () => {
   if (mainWindow === null) {
-    createWindow()
+    init()
   }
 })
 
