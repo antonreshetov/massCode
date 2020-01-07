@@ -1,5 +1,6 @@
 import ua from 'universal-analytics'
 import store from '../store'
+import { convertName } from '../util/platform'
 
 const pkg = require('../../../package.json')
 
@@ -40,7 +41,8 @@ function initAnalytics () {
 
   if (installedVersion !== version) {
     store.set('install', version)
-    track('install')
+    const os = convertName(process.platform)
+    track(`${os}/install`)
   }
 }
 
