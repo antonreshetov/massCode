@@ -32,7 +32,7 @@ jobs:
           replace-with: ''
 
       - name: Show tag
-        run: echo ${{ toJson(teps.tagName) }}
+        run: echo ${{ toJson(steps.tagName) }}
 
       # - name: yarn install
       #   run: |
