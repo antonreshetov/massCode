@@ -26,13 +26,13 @@ jobs:
       - name: Echo tag
         run: echo ${{ steps.previoustag.outputs.tag }}
 
-      - name: macOS
-        if: startsWith(matrix.os, 'macOS')
-        run: echo macOS
+      # - name: macOS
+      #   if: startsWith(matrix.os, 'macOS')
+      #   run: echo macOS
         
-      - name: macOS
-        if: startsWith(matrix.os, 'ubuntu')
-        run: echo ubuntu
+      # - name: Linux
+      #   if: startsWith(matrix.os, 'ubuntu')
+      #   run: echo ubuntu
 
       - name: yarn install
         run: |
@@ -53,5 +53,5 @@ jobs:
         uses: actions/upload-artifact@v1
         if: startsWith(matrix.os, 'ubuntu')
         with:
-          name: massCode-${{ steps.previoustag.outputs.tag }}-linux.zip
-          path: build/massCode-${{ steps.previoustag.outputs.tag }}-linux.zip
+          name: massCode-${{ steps.previoustag.outputs.tag }}.AppImage
+          path: build/massCode-${{ steps.previoustag.outputs.tag }}.AppImage
