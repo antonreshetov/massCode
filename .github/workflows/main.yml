@@ -2,8 +2,8 @@ name: CI
 
 on:
   push:
-    branches:
-      - gh-actions
+    tags:
+      - 'v*'
 
 jobs:
   build:
@@ -16,36 +16,6 @@ jobs:
 
     steps:
       - uses: actions/checkout@v1
-      
-      # - name: 'Get previous tag'
-      #   id: previoustag
-      #   uses: "WyriHaximus/github-action-get-previous-tag@master"
-      #   env:
-      #     GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
-      # - name: run
-      #   run: ls -l
-
-      # - name: 'Get current version'
-      #   id: getVersion
-        # run: echo ::set-output name=VERSION::$(grep '"version"' ./package.json | cut -d '"' -f 4)
-        # run: echo ::set-output name=VERSION::$(grep '"version"' package.json | cut -d '"' -f 4)
-        # run: echo ::set-output name=VERSION::$(node -p "require('./package.json').version")
-        # run: echo ::set-output name=VERSION::123
-        # run: |
-        #   echo (node -p "require('./package.json').version") > MY_VAR
-        #   echo $(cat MY_VAR)
-        #   echo "::set-env name=action_state::$(cat MY_VAR)"
-
-      # - name: Echo version
-      #   run: echo ${{ steps.getVersion.outputs.VERSION }}
-
-      # - name: Replace tag
-      #   uses: frabert/replace-string-action@v1.1
-      #   id: tagName
-      #   with:
-      #     pattern: 'v'
-      #     string: ${{ steps.previoustag.outputs.tag }}
-      #     replace-with: ''
 
       - name: Hardcode tag to file
         run: (node -p "require('./package.json').version") > TAG
@@ -85,6 +55,14 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      - uses: actions/checkout@v1
+
+      - name: Hardcode tag to file
+        run: (node -p "require('./package.json').version") > TAG
+
+      - name: Set action ENV
+        run: echo "::set-env name=TAG::$(cat TAG)"
+
       - name: Create Release
         id: create_release
         uses: actions/create-release@v1
