@@ -29,10 +29,11 @@ jobs:
         id: getVersion
         # run: echo ::set-output name=VERSION::$(grep '"version"' ./package.json | cut -d '"' -f 4)
         # run: echo ::set-output name=VERSION::$(grep '"version"' package.json | cut -d '"' -f 4)
-        run: echo ::set-output name=VERSION::$(node -p "require('./package.json').version")
+        # run: echo ::set-output name=VERSION::$(node -p "require('./package.json').version")
+        run: echo ::set-output name=VERSION::123
 
-      # - name: Echo version
-      #   run: echo ${{ steps.getVersion.outputs.VERSION }}
+      - name: Echo version
+        run: echo ${{ steps.getVersion.outputs.VERSION }}
 
       # - name: Replace tag
       #   uses: frabert/replace-string-action@v1.1
@@ -42,31 +43,31 @@ jobs:
       #     string: ${{ steps.previoustag.outputs.tag }}
       #     replace-with: ''
 
-      - name: yarn install
-        run: |
-          yarn install
+      # - name: yarn install
+      #   run: |
+      #     yarn install
 
-      - name: Build
-        run: |
-          yarn run build
+      # - name: Build
+      #   run: |
+      #     yarn run build
 
-      - name: Upload Mac artifacts
-        uses: actions/upload-artifact@v1
-        if: startsWith(matrix.os, 'macOS')
-        with:
-          name: massCode-${{ steps.getVersion.outputs.VERSION }}-mac.zip
-          path: build/massCode-${{ steps.getVersion.outputs.VERSION }}-mac.zip
+      # - name: Upload Mac artifacts
+      #   uses: actions/upload-artifact@v1
+      #   if: startsWith(matrix.os, 'macOS')
+      #   with:
+      #     name: massCode-${{ steps.getVersion.outputs.VERSION }}-mac.zip
+      #     path: build/massCode-${{ steps.getVersion.outputs.VERSION }}-mac.zip
 
-      - name: Upload Linux artifacts
-        uses: actions/upload-artifact@v1
-        if: startsWith(matrix.os, 'ubuntu')
-        with:
-          name: massCode-${{ steps.getVersion.outputs.VERSION }}.AppImage
-          path: build/massCode-${{ steps.getVersion.outputs.VERSION }}.AppImage
+      # - name: Upload Linux artifacts
+      #   uses: actions/upload-artifact@v1
+      #   if: startsWith(matrix.os, 'ubuntu')
+      #   with:
+      #     name: massCode-${{ steps.getVersion.outputs.VERSION }}.AppImage
+      #     path: build/massCode-${{ steps.getVersion.outputs.VERSION }}.AppImage
 
-      - name: Upload Win artifacts
-        uses: actions/upload-artifact@v1
-        if: startsWith(matrix.os, 'windows')
-        with:
-          name: massCode-${{ steps.getVersion.outputs.VERSION }}.exe
-          path: build/massCode Setup ${{ steps.getVersion.outputs.VERSION }}.exe
+      # - name: Upload Win artifacts
+      #   uses: actions/upload-artifact@v1
+      #   if: startsWith(matrix.os, 'windows')
+      #   with:
+      #     name: massCode-${{ steps.getVersion.outputs.VERSION }}.exe
+      #     path: build/massCode Setup ${{ steps.getVersion.outputs.VERSION }}.exe
