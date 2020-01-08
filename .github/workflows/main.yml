@@ -34,7 +34,6 @@ jobs:
 
       - name: Echo version
         run: |
-          echo %steps.getVersion.outputs.VERSION%
           echo ${ steps.getVersion.outputs.VERSION }
           echo ${{ steps.getVersion.outputs.VERSION }}
         shell: pwsh
