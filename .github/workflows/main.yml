@@ -12,7 +12,7 @@ jobs:
 
     strategy:
       matrix:
-        os: [macOS-10.14, ubuntu-18.04]
+        os: [macOS-10.14, ubuntu-18.04, windows-latest]
 
     steps:
       - uses: actions/checkout@v1
@@ -52,3 +52,10 @@ jobs:
         with:
           name: massCode-${{ steps.tagName.outputs.replaced }}.AppImage
           path: build/massCode-${{ steps.tagName.outputs.replaced }}.AppImage
+
+      - name: Upload Win artifacts
+        uses: actions/upload-artifact@v1
+        if: startsWith(matrix.os, 'windows')
+        with:
+          name: massCode-${{ steps.tagName.outputs.replaced }}.exe
+          path: build/massCode Setup ${{ steps.tagName.outputs.replaced }}.exe
