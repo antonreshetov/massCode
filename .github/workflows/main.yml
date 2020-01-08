@@ -23,9 +23,6 @@ jobs:
         env:
           GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
 
-      - name: Echo tag
-        run: echo ${{ steps.previoustag.outputs.tag }}
-
       # - name: macOS
       #   if: startsWith(matrix.os, 'macOS')
       #   run: echo macOS
@@ -46,12 +43,12 @@ jobs:
         uses: actions/upload-artifact@v1
         if: startsWith(matrix.os, 'macOS')
         with:
-          name: massCode-${{ steps.previoustag.outputs.tag }}-mac.zip
-          path: build/massCode-${{ steps.previoustag.outputs.tag }}-mac.zip
+          name: massCode-0.3.2-mac.zip
+          path: build/massCode-0.3.2-mac.zip
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v1
         if: startsWith(matrix.os, 'ubuntu')
         with:
-          name: massCode-${{ steps.previoustag.outputs.tag }}.AppImage
-          path: build/massCode-${{ steps.previoustag.outputs.tag }}.AppImage
+          name: massCode-0.3.2.AppImage
+          path: build/massCode-0.3.2.AppImage
