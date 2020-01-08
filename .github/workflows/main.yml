@@ -17,45 +17,52 @@ jobs:
     steps:
       - uses: actions/checkout@v1
       
-      - name: 'Get previous tag'
-        id: previoustag
-        uses: "WyriHaximus/github-action-get-previous-tag@master"
-        env:
-          GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
+      # - name: 'Get previous tag'
+      #   id: previoustag
+      #   uses: "WyriHaximus/github-action-get-previous-tag@master"
+      #   env:
+      #     GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
 
-      - name: Replace tag
-        uses: frabert/replace-string-action@v1.1
-        id: tagName
-        with:
-          pattern: 'v'
-          string: ${{ steps.previoustag.outputs.tag }}
-          replace-with: ''
+      - name: 'Get current version'
+        id: getVersion
+        run: echo ::set-output name=VERSION::$(grep '"version"' package.json | cut -d '"' -f 4)
 
-      - name: yarn install
-        run: |
-          yarn install
+      - name: Echo version
+        run: echo ${{ steps.get_version.outputs.VERSION }}
 
-      - name: Build
-        run: |
-          yarn run build
+      # - name: Replace tag
+      #   uses: frabert/replace-string-action@v1.1
+      #   id: tagName
+      #   with:
+      #     pattern: 'v'
+      #     string: ${{ steps.previoustag.outputs.tag }}
+      #     replace-with: ''
 
-      - name: Upload Mac artifacts
-        uses: actions/upload-artifact@v1
-        if: startsWith(matrix.os, 'macOS')
-        with:
-          name: massCode-${{ steps.tagName.outputs.replaced }}-mac.zip
-          path: build/massCode-${{ steps.tagName.outputs.replaced }}-mac.zip
+      # - name: yarn install
+      #   run: |
+      #     yarn install
 
-      - name: Upload Linux artifacts
-        uses: actions/upload-artifact@v1
-        if: startsWith(matrix.os, 'ubuntu')
-        with:
-          name: massCode-${{ steps.tagName.outputs.replaced }}.AppImage
-          path: build/massCode-${{ steps.tagName.outputs.replaced }}.AppImage
+      # - name: Build
+      #   run: |
+      #     yarn run build
 
-      - name: Upload Win artifacts
-        uses: actions/upload-artifact@v1
-        if: startsWith(matrix.os, 'windows')
-        with:
-          name: massCode-${{ steps.tagName.outputs.replaced }}.exe
-          path: build/massCode Setup ${{ steps.tagName.outputs.replaced }}.exe
+      # - name: Upload Mac artifacts
+      #   uses: actions/upload-artifact@v1
+      #   if: startsWith(matrix.os, 'macOS')
+      #   with:
+      #     name: massCode-${{ steps.tagName.outputs.replaced }}-mac.zip
+      #     path: build/massCode-${{ steps.tagName.outputs.replaced }}-mac.zip
+
+      # - name: Upload Linux artifacts
+      #   uses: actions/upload-artifact@v1
+      #   if: startsWith(matrix.os, 'ubuntu')
+      #   with:
+      #     name: massCode-${{ steps.tagName.outputs.replaced }}.AppImage
+      #     path: build/massCode-${{ steps.tagName.outputs.replaced }}.AppImage
+
+      # - name: Upload Win artifacts
+      #   uses: actions/upload-artifact@v1
+      #   if: startsWith(matrix.os, 'windows')
+      #   with:
+      #     name: massCode-${{ steps.tagName.outputs.replaced }}.exe
+      #     path: build/massCode Setup ${{ steps.tagName.outputs.replaced }}.exe
