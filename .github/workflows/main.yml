@@ -33,7 +33,9 @@ jobs:
         run: echo ::set-output name=VERSION::123
 
       - name: Echo version
-        run: echo 1
+        run: |
+          echo ${{ steps.getVersion.outputs.VERSION }}
+        shell: pwsh
 
       # - name: Replace tag
       #   uses: frabert/replace-string-action@v1.1
