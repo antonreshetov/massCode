@@ -11,8 +11,6 @@ const winURL =
 
 function createMainWindow () {
   const bounds = {
-    x: undefined,
-    y: undefined,
     height: 563,
     width: 1000,
     ...store.get('bounds')

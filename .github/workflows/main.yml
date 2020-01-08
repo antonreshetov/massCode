@@ -1,0 +1,120 @@
+name: CI
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  build:
+
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      matrix:
+        os: [macOS-10.14, ubuntu-18.04, windows-latest]
+
+    steps:
+      - uses: actions/checkout@v1
+
+      - name: Hardcode tag to file
+        run: (node -p "require('./package.json').version") > TAG
+
+      - name: Set action ENV
+        run: echo "::set-env name=TAG::$(cat TAG)"
+
+      - name: yarn install
+        run: yarn install
+
+      - name: Build
+        run: yarn run build
+          
+      - name: Upload Mac artifacts
+        uses: actions/upload-artifact@v1
+        if: startsWith(matrix.os, 'macOS')
+        with:
+          name: mac
+          path: build/massCode-${{ env.TAG }}-mac.zip
+
+      - name: Upload Linux artifacts
+        uses: actions/upload-artifact@v1
+        if: startsWith(matrix.os, 'ubuntu')
+        with:
+          name: linux
+          path: build/massCode-${{ env.TAG }}.AppImage
+
+      - name: Upload Win artifacts
+        uses: actions/upload-artifact@v1
+        if: startsWith(matrix.os, 'windows')
+        with:
+          name: win
+          path: build/massCode Setup ${{ env.TAG }}.exe
+  
+  assets:
+    needs: build
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v1
+
+      - name: Hardcode tag to file
+        run: (node -p "require('./package.json').version") > TAG
+
+      - name: Set action ENV
+        run: echo "::set-env name=TAG::$(cat TAG)"
+
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ github.ref }}
+          release_name: Release ${{ github.ref }}
+          draft: true
+          prerelease: false
+
+      - name: Dowload Mac Artifact
+        uses: actions/download-artifact@v1
+        with:
+          name: mac
+      
+      - name: Dowload Linux Artifact
+        uses: actions/download-artifact@v1
+        with:
+          name: linux
+
+      - name: Dowload Win Artifact
+        uses: actions/download-artifact@v1
+        with:
+          name: win
+
+      - name: Upload Release Mac Asset
+        uses: actions/upload-release-asset@v1.0.1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: mac/massCode-${{ env.TAG }}-mac.zip
+          asset_name: massCode-${{ env.TAG }}-mac.zip
+          asset_content_type: application/zip
+
+      - name: Upload Release Linux Asset
+        uses: actions/upload-release-asset@v1.0.1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: linux/massCode-${{ env.TAG }}.AppImage
+          asset_name: massCode-${{ env.TAG }}.AppImage
+          asset_content_type: application/vnd.appimage
+
+      - name: Upload Release Win Asset
+        uses: actions/upload-release-asset@v1.0.1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: win/massCode Setup ${{ env.TAG }}.exe
+          asset_name: massCode Setup ${{ env.TAG }}.exe
+          asset_content_type: application/octet-stream
