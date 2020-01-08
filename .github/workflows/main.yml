@@ -22,19 +22,15 @@ jobs:
       #   uses: "WyriHaximus/github-action-get-previous-tag@master"
       #   env:
       #     GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
-
-      # - name: 'Get current version'
-      #   id: getVersion
-      #   run: echo ::set-output name=VERSION::$(grep '"version"' package.json | cut -d '"' -f 4)
-
-      # - name: Echo version
-      #   run: echo ${{ steps.get_version.outputs.VERSION }}
+      - name: run
+        run: ls -l
 
       - name: 'Get current version'
-        uses: olegtarasov/get-tag@v1
-        id: tagName
+        id: getVersion
+        run: echo ::set-output name=VERSION::$(grep '"version"' ./package.json | cut -d '"' -f 4)
+
       - name: Echo version
-        run: echo ${{ steps.tagName.outputs.tag }}
+        run: echo ${{ steps.get_version.outputs.VERSION }}
 
       # - name: Replace tag
       #   uses: frabert/replace-string-action@v1.1
