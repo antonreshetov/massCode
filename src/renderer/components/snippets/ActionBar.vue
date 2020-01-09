@@ -16,6 +16,13 @@
         </template>
       </AppInput>
       <AppIcon
+        v-if="isSearched"
+        class="add-snippet"
+        name="x"
+        @click="onClearSearch"
+      />
+      <AppIcon
+        v-if="!isSearched"
         class="add-snippet"
         name="plus"
         @click="onAddSnippet"
@@ -42,7 +49,7 @@ export default {
 
   computed: {
     ...mapGetters('folders', ['selectedId']),
-    ...mapGetters('snippets', ['searchQuery']),
+    ...mapGetters('snippets', ['searchQuery', 'isSearched']),
     query: {
       get () {
         return this.searchQuery
@@ -63,6 +70,10 @@ export default {
     onAddSnippet () {
       this.$store.dispatch('snippets/addSnippet', this.selectedId)
       track('snippets/new')
+    },
+    onClearSearch () {
+      this.$store.commit('snippets/SET_SEARCH', false)
+      this.$store.commit('snippets/SET_SEARCH_QUERY', null)
     }
   }
 }
