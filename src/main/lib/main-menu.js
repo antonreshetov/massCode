@@ -132,6 +132,19 @@ export default mainWindow => {
     ]
   }
 
+  const editor = {
+    label: 'Editor',
+    submenu: [
+      {
+        label: 'Copy Snippet to Clipboard',
+        accelerator: 'Shift+CommandOrControl+C',
+        click () {
+          mainWindow.webContents.send('menu:copy-snippet')
+        }
+      }
+    ]
+  }
+
   const window = {
     label: 'Window',
     submenu: [
@@ -168,5 +181,5 @@ export default mainWindow => {
     ]
   }
 
-  return [massCode, file, edit, window, help]
+  return [massCode, file, edit, editor, window, help]
 }

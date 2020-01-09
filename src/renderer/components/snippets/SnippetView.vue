@@ -12,7 +12,10 @@
       />
       <div class="snippet-view__actions">
         <div class="snippet-view__actions-item">
-          <AppIcon name="clipboard" />
+          <AppIcon
+            name="clipboard"
+            @click="onCopySnippet"
+          />
         </div>
       </div>
       <div class="snippet-view__actions">
@@ -93,6 +96,9 @@ export default {
     this.setWatcher()
     this.$bus.$on('snippet:new-fragment', () => {
       this.onAddTab()
+    })
+    this.$bus.$on('menu:copy-snippet', () => {
+      this.onCopySnippet()
     })
   },
 
@@ -178,6 +184,16 @@ export default {
           }
         }
       ])
+    },
+    async onCopySnippet () {
+      const snippet = this.selected.content[this.active].value
+      await navigator.clipboard.writeText(snippet)
+      if (process.platform === 'darwin' || process.platform === 'linux') {
+        /* eslint-disable no-new */
+        new Notification('massCode', {
+          body: 'Snippet is copied'
+        })
+      }
     }
   }
 }

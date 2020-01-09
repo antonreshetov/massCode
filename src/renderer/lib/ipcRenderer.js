@@ -32,3 +32,8 @@ ipcRenderer.on('menu:find-snippets', () => {
   eventBus.$emit('menu:find-snippets')
   track('snippets/search')
 })
+
+ipcRenderer.on('menu:copy-snippet', () => {
+  eventBus.$emit('menu:copy-snippet')
+  track('snippets/copied')
+})
