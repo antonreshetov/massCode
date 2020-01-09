@@ -115,6 +115,20 @@ export default {
           type: 'separator'
         },
         {
+          label: 'Duplicate',
+          click: () => {
+            const snippet = Object.assign({}, this.model)
+            snippet.createAt = new Date()
+            snippet.updatedAt = new Date()
+            delete snippet._id
+
+            this.$store.dispatch('snippets/addSnippet', {
+              folderId: snippet.folderId,
+              snippet
+            })
+          }
+        },
+        {
           label: 'Delete',
           click: () => {
             const id = this.model._id

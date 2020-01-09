@@ -113,23 +113,25 @@ export default {
       commit('SET_SELECTED_ID', snippet._id)
       electronStore.set('selectedSnippetId', snippet._id)
     },
-    addSnippet ({ commit, dispatch, rootGetters }, folderId) {
+    addSnippet ({ commit, dispatch, rootGetters }, { folderId, snippet }) {
       const ids = rootGetters['folders/selectedIds']
       const defaultLanguage = rootGetters['folders/defaultLanguage']
       const defaultQuery = { folderId: { $in: ids } }
       const query = defaultLibraryQuery(defaultQuery, folderId)
 
-      const snippet = {
-        name: 'Untitled snippet',
-        folderId: folderId,
-        content: [
-          { label: 'Fragment 1', language: defaultLanguage, value: '' }
-        ],
-        tags: [],
-        isFavorites: false,
-        isDeleted: false,
-        createdAt: new Date(),
-        updatedAt: new Date()
+      if (!snippet) {
+        snippet = {
+          name: 'Untitled snippet',
+          folderId: folderId,
+          content: [
+            { label: 'Fragment 1', language: defaultLanguage, value: '' }
+          ],
+          tags: [],
+          isFavorites: false,
+          isDeleted: false,
+          createdAt: new Date(),
+          updatedAt: new Date()
+        }
       }
 
       if (folderId === 'trash') {

@@ -6,7 +6,7 @@ import { track } from '@@/lib/analytics'
 
 ipcRenderer.on('menu:new-snippet', () => {
   const folderId = store.getters['folders/selectedId']
-  store.dispatch('snippets/addSnippet', folderId)
+  store.dispatch('snippets/addSnippet', { folderId })
   track('snippets/new')
 })
 

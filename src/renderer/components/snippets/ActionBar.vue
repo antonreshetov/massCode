@@ -68,7 +68,7 @@ export default {
 
   methods: {
     onAddSnippet () {
-      this.$store.dispatch('snippets/addSnippet', this.selectedId)
+      this.$store.dispatch('snippets/addSnippet', { folderId: this.selectedId })
       track('snippets/new')
     },
     onClearSearch () {
