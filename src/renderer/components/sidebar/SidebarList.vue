@@ -32,6 +32,7 @@ export default {
 <style lang="scss">
 .sidebar-list {
   margin-bottom: var(--spacing-xs);
+  height: 100%;
   &__header {
     display: flex;
     align-items: center;

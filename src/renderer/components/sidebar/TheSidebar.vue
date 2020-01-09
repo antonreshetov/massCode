@@ -51,5 +51,9 @@ export default {
   padding-top: var(--title-bar-height);
   position: relative;
   background-color: var(--color-contrast-lower);
+  display: grid;
+  grid-template-rows: 150px 1fr;
+  height: 100%;
+  overflow: hidden;
 }
 </style>

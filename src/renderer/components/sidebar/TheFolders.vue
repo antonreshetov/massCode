@@ -43,6 +43,7 @@ import { mapGetters } from 'vuex'
 import cloneDeep from 'lodash-es/cloneDeep'
 import { DraggableTree } from 'vue-draggable-nested-tree/dist/vue-draggable-nested-tree'
 import { track } from '@@/lib/analytics'
+import PerfectScrollbar from 'perfect-scrollbar'
 
 export default {
   name: 'TheFolders',
@@ -57,7 +58,8 @@ export default {
     return {
       localFolders: [],
       draggable: true,
-      editableFolderId: null
+      editableFolderId: null,
+      ps: null
     }
   },
 
@@ -72,7 +74,12 @@ export default {
     this.localFolders = cloneDeep(this.folders)
     this.$watch('folders', () => {
       this.localFolders = cloneDeep(this.folders)
+      this.ps.update()
     })
+  },
+
+  mounted () {
+    this.initPS()
   },
 
   methods: {
@@ -93,11 +100,16 @@ export default {
     onTreeChange (node, newTree, oldTree) {
       const folders = newTree.getPureData()
       this.$store.dispatch('folders/updateFolders', folders)
+      this.ps.update()
     },
     onNodeToggle (data, store) {
       store.toggleOpen(data)
       const folders = this.tree.getPureData()
       this.$store.dispatch('folders/updateFolders', folders)
+    },
+    initPS () {
+      const el = document.querySelector('.folders .tree')
+      this.ps = new PerfectScrollbar(el)
     }
   }
 }
@@ -105,5 +117,15 @@ export default {
 
 <style lang="scss" scoped>
 .folders {
+  overflow: hidden;
+  .sidebar-list {
+    display: grid;
+    grid-template-rows: 24px 1fr;
+    overflow: hidden;
+    .tree {
+      position: relative;
+      overflow-y: scroll;
+    }
+  }
 }
 </style>

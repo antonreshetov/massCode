@@ -33,6 +33,7 @@ import SnippetListItem from './SnippetListItem.vue'
 import ActionBar from './ActionBar.vue'
 import interact from 'interactjs'
 import { mapState, mapGetters } from 'vuex'
+import PerfectScrollbar from 'perfect-scrollbar'
 
 export default {
   name: 'SnippetList',
@@ -45,7 +46,8 @@ export default {
   data () {
     return {
       focus: false,
-      animation: ''
+      animation: '',
+      ps: null
     }
   },
 
@@ -83,6 +85,7 @@ export default {
     sortedSnippets () {
       this.$nextTick(() => {
         this.animation = 'list'
+        this.ps.update()
       })
     }
   },
@@ -100,9 +103,14 @@ export default {
         this.$store.dispatch('app/setSnippetListWidth', width)
       }
     })
+    this.initPS()
   },
 
-  methods: {}
+  methods: {
+    initPS () {
+      this.ps = new PerfectScrollbar(this.$refs.wrapper)
+    }
+  }
 }
 </script>
 
@@ -120,6 +128,7 @@ export default {
   }
   &__wrapper {
     overflow-y: scroll;
+    position: relative;
     height: calc(100vh - var(--action-bar-height));
   }
 }
