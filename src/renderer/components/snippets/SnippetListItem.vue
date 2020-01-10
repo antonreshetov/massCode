@@ -142,6 +142,12 @@ export default {
             }
 
             this.$store.dispatch('snippets/updateSnippet', { id, payload })
+            const firstSnippet = this.snippetsBySort[0]
+
+            if (firstSnippet) {
+              this.$store.dispatch('snippets/setSelected', firstSnippet)
+            }
+
             track('snippets/delete')
           }
         },
