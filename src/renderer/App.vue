@@ -42,6 +42,7 @@ export default {
       const selectedFolderId = this.$electronStore.get('selectedFolderId')
       const selectedSnippetId = this.$electronStore.get('selectedSnippetId')
       const theme = this.$electronStore.get('theme')
+      const snippetsSort = this.$electronStore.get('snippetsSort')
 
       if (snippetListWidth) {
         this.$store.commit('app/SET_SNIPPET_LIST_WIDTH', snippetListWidth)
@@ -73,6 +74,10 @@ export default {
 
       if (theme) {
         this.$store.dispatch('app/setTheme', theme)
+      }
+
+      if (snippetsSort) {
+        this.$store.dispatch('snippets/setSort', snippetsSort)
       }
 
       this.$store.commit('app/SET_INIT', true)

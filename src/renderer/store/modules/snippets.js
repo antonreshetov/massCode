@@ -11,10 +11,26 @@ export default {
     searched: [],
     search: false,
     searchQuery: null,
-    newSnippetId: null
+    newSnippetId: null,
+    sort: 'updateAt'
   },
   getters: {
-    snippets (state) {
+    snippetsBySort (state) {
+      if (state.sort === 'createdAt') {
+        return [...state.snippets].sort((a, b) =>
+          a.createdAt > b.createdAt ? -1 : 1
+        )
+      }
+      if (state.sort === 'updateAt') {
+        return [...state.snippets].sort((a, b) =>
+          a.updatedAt > b.updatedAt ? -1 : 1
+        )
+      }
+      if (state.sort === 'name') {
+        return [...state.snippets].sort((a, b) =>
+          a.name.toLowerCase() < b.name.toLowerCase() ? -1 : 1
+        )
+      }
       return state.snippets
     },
     snippetsFavorites (state) {
@@ -39,6 +55,9 @@ export default {
     },
     newSnippetId (state) {
       return state.newSnippetId
+    },
+    sort (state) {
+      return state.sort
     },
     isSelected (state) {
       return !!state.selected
@@ -68,6 +87,9 @@ export default {
     },
     SET_SEARCH_QUERY (state, query) {
       state.searchQuery = query
+    },
+    SET_SORT (state, sort) {
+      state.sort = sort
     }
   },
   actions: {
@@ -216,6 +238,10 @@ export default {
         }
         commit('SET_SEARCHED', results)
       })
+    },
+    setSort ({ commit }, sort) {
+      commit('SET_SORT', sort)
+      electronStore.set('snippetsSort', sort)
     }
   }
 }

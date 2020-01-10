@@ -12,7 +12,7 @@
     >
       <TransitionGroup :name="animation">
         <SnippetListItem
-          v-for="(i, index) in sortedSnippets"
+          v-for="(i, index) in snippetsList"
           :id="i.label"
           :key="i._id"
           :index="index"
@@ -53,11 +53,14 @@ export default {
 
   computed: {
     ...mapState(['app']),
-    ...mapGetters('snippets', ['snippets', 'snippetsSearched', 'isSearched']),
+    ...mapGetters('snippets', [
+      'snippetsSearched',
+      'isSearched',
+      'snippetsBySort'
+    ]),
     ...mapGetters('folders', ['selectedId', 'selectedIds', 'allSnippetsId']),
-    sortedSnippets () {
-      const snippets = this.isSearched ? this.snippetsSearched : this.snippets
-      return [...snippets].sort((a, b) => b.updatedAt - a.updatedAt)
+    snippetsList () {
+      return this.isSearched ? this.snippetsSearched : this.snippetsBySort
     }
   },
 

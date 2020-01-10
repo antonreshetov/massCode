@@ -63,7 +63,12 @@ export default {
   },
 
   computed: {
-    ...mapGetters('snippets', ['selected']),
+    ...mapGetters('snippets', [
+      'snippets',
+      'selected',
+      'snippetsBySort',
+      'sort'
+    ]),
     isSelected () {
       if (!this.selected) return null
 
@@ -139,6 +144,38 @@ export default {
             this.$store.dispatch('snippets/updateSnippet', { id, payload })
             track('snippets/delete')
           }
+        },
+        {
+          type: 'separator'
+        },
+        {
+          label: 'Sort By',
+          submenu: [
+            {
+              label: 'Date Modified',
+              type: 'radio',
+              checked: this.sort === 'updateAt',
+              click: () => {
+                this.$store.dispatch('snippets/setSort', 'updateAt')
+              }
+            },
+            {
+              label: 'Date Created',
+              type: 'radio',
+              checked: this.sort === 'createAt',
+              click: () => {
+                this.$store.dispatch('snippets/setSort', 'createAt')
+              }
+            },
+            {
+              label: 'Name',
+              type: 'radio',
+              checked: this.sort === 'name',
+              click: () => {
+                this.$store.dispatch('snippets/setSort', 'name')
+              }
+            }
+          ]
         }
       ])
       contextMenu.addListener('menu-will-close', () => {
