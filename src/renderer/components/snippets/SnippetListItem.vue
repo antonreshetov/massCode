@@ -131,6 +131,7 @@ export default {
               folderId: snippet.folderId,
               snippet
             })
+            track('snippets/duplicate')
           }
         },
         {
@@ -163,6 +164,7 @@ export default {
               checked: this.sort === 'updateAt',
               click: () => {
                 this.$store.dispatch('snippets/setSort', 'updateAt')
+                track('snippets/sort/updateAt')
               }
             },
             {
@@ -171,6 +173,7 @@ export default {
               checked: this.sort === 'createAt',
               click: () => {
                 this.$store.dispatch('snippets/setSort', 'createAt')
+                track('snippets/sort/createAt')
               }
             },
             {
@@ -179,6 +182,7 @@ export default {
               checked: this.sort === 'name',
               click: () => {
                 this.$store.dispatch('snippets/setSort', 'name')
+                track('snippets/sort/name')
               }
             }
           ]
