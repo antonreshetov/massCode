@@ -6,11 +6,15 @@ export default {
   namespaced: true,
   state: {
     snippets: [],
+    snippetsLatest: [],
     selected: null,
     selectedId: null,
     searched: [],
+    searchedTray: [],
     search: false,
+    searchTray: false,
     searchQuery: null,
+    searchQueryTray: null,
     newSnippetId: null,
     sort: 'updateAt'
   },
@@ -33,6 +37,9 @@ export default {
       }
       return state.snippets
     },
+    snippetsLatest (state) {
+      return state.snippetsLatest
+    },
     snippetsFavorites (state) {
       return state.snippets.filter(i => i.isFavorites)
     },
@@ -42,8 +49,14 @@ export default {
     snippetsSearched (state) {
       return state.searched
     },
+    snippetsSearchedTray (state) {
+      return state.searchedTray
+    },
     searchQuery (state) {
       return state.searchQuery
+    },
+    searchQueryTray (state) {
+      return state.searchQueryTray
     },
     selected (state) {
       return state.selected
@@ -64,11 +77,17 @@ export default {
     },
     isSearched (state) {
       return state.search
+    },
+    isSearchedTray (state) {
+      return state.searchTray
     }
   },
   mutations: {
     SET_SNIPPETS (state, snippets) {
       state.snippets = snippets
+    },
+    SET_LATEST_SNIPPETS (state, snippets) {
+      state.snippetsLatest = snippets
     },
     SET_SELECTED (state, snippet) {
       state.selected = snippet
@@ -82,11 +101,20 @@ export default {
     SET_SEARCHED (state, snippets) {
       state.searched = snippets
     },
+    SET_SEARCHED_TRAY (state, snippets) {
+      state.searchedTray = snippets
+    },
     SET_SEARCH (state, bool) {
       state.search = bool
     },
+    SET_SEARCH_TRAY (state, bool) {
+      state.searchTray = bool
+    },
     SET_SEARCH_QUERY (state, query) {
       state.searchQuery = query
+    },
+    SET_SEARCH_QUERY_TRAY (state, query) {
+      state.searchQueryTray = query
     },
     SET_SORT (state, sort) {
       state.sort = sort
@@ -128,6 +156,46 @@ export default {
             resolve()
           })
         })
+      })
+    },
+    async getLatestSnippets ({ commit, dispatch }, limit = 20) {
+      const query = {
+        isDeleted: false
+      }
+
+      return new Promise((resolve, reject) => {
+        db.snippets
+          .find(query)
+          .sort({ updatedAt: -1 })
+          .limit(limit)
+          .exec((err, snippets) => {
+            if (err) return
+            // Добавляем связь folder по его id у snippet
+            db.masscode.findOne({ _id: 'folders' }, (err, doc) => {
+              if (err) return
+
+              const { list } = doc
+
+              snippets.map(snippet => {
+                function findFolderById (folders, id) {
+                  folders.forEach(i => {
+                    if (i.id === id) snippet.folder = i
+
+                    if (i.children && i.children.length) {
+                      findFolderById(i.children, id)
+                    }
+                  })
+                }
+
+                findFolderById(list, snippet.folderId)
+
+                return snippet
+              })
+
+              commit('SET_LATEST_SNIPPETS', snippets)
+              resolve()
+            })
+          })
       })
     },
     setSelected ({ commit }, snippet) {
@@ -184,11 +252,14 @@ export default {
       const defaultQuery = { folderId: { $in: ids } }
       const query = defaultLibraryQuery(defaultQuery, folderId)
 
-      db.snippets.update({ _id: id }, payload, {}, (err, num) => {
-        if (err) return
-        dispatch('getSnippets', query)
+      return new Promise((resolve, reject) => {
+        db.snippets.update({ _id: id }, payload, {}, async (err, num) => {
+          if (err) return
+          await dispatch('getSnippets', query)
+          resolve()
+        })
+        commit('SET_NEW', null)
       })
-      commit('SET_NEW', null)
     },
     emptyTrash ({ dispatch, rootGetters }) {
       const ids = rootGetters['folders/selectedIds']
@@ -237,6 +308,32 @@ export default {
           commit('SET_SELECTED_ID', selectedSnippetId)
         }
         commit('SET_SEARCHED', results)
+      })
+    },
+    searchSnippetsTray ({ commit }, query) {
+      db.snippets.find({}, (err, doc) => {
+        if (err) return
+        query = query.toLowerCase()
+
+        const results = doc
+          .filter(snippet =>
+            snippet.content.some(content =>
+              content.value
+                ? content.value.toLowerCase().includes(query)
+                : false
+            )
+          )
+          .sort((a, b) => b.updatedAt - a.updatedAt)
+
+        if (query) {
+          commit('SET_SEARCH_TRAY', true)
+          commit('SET_SEARCH_QUERY_TRAY', query)
+        } else {
+          commit('SET_SEARCH_TRAY', false)
+          commit('SET_SEARCH_QUERY_TRAY', null)
+        }
+
+        commit('SET_SEARCHED_TRAY', results)
       })
     },
     setSort ({ commit }, sort) {

@@ -82,10 +82,10 @@ export default {
       }
 
       await this.$store.dispatch('snippets/getSnippets', query)
-      const firstSnippet = this.sortedSnippets[0]
+      const firstSnippet = this.snippetsList[0]
       this.$store.commit('snippets/SET_SELECTED', firstSnippet)
     },
-    sortedSnippets () {
+    snippetsList () {
       this.$nextTick(() => {
         this.animation = 'list'
         this.ps.update()

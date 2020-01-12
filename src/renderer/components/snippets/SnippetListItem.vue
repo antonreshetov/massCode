@@ -131,17 +131,21 @@ export default {
               folderId: snippet.folderId,
               snippet
             })
+            track('snippets/duplicate')
           }
         },
         {
           label: 'Delete',
-          click: () => {
+          click: async () => {
             const id = this.model._id
             const payload = {
               $set: { isDeleted: true }
             }
 
-            this.$store.dispatch('snippets/updateSnippet', { id, payload })
+            await this.$store.dispatch('snippets/updateSnippet', {
+              id,
+              payload
+            })
             const firstSnippet = this.snippetsBySort[0]
 
             if (firstSnippet) {
@@ -163,6 +167,7 @@ export default {
               checked: this.sort === 'updateAt',
               click: () => {
                 this.$store.dispatch('snippets/setSort', 'updateAt')
+                track('snippets/sort/updateAt')
               }
             },
             {
@@ -171,6 +176,7 @@ export default {
               checked: this.sort === 'createAt',
               click: () => {
                 this.$store.dispatch('snippets/setSort', 'createAt')
+                track('snippets/sort/createAt')
               }
             },
             {
@@ -179,6 +185,7 @@ export default {
               checked: this.sort === 'name',
               click: () => {
                 this.$store.dispatch('snippets/setSort', 'name')
+                track('snippets/sort/name')
               }
             }
           ]
