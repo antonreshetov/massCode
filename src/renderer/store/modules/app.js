@@ -3,6 +3,7 @@ import electronStore from '@@/store'
 export default {
   namespaced: true,
   state: {
+    os: process.platform,
     init: false,
     theme: 'dark',
     sidebarWidth: 180,
