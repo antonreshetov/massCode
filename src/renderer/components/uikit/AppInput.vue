@@ -138,8 +138,8 @@ export default {
     @include form-input-default();
     padding: 0 var(--spacing-xs);
     &[disabled] {
-      cursor: no-drop;
-      background-color: var(--color-contrast-low);
+      background-color: var(--color-contrast-lower);
+      color: var(--color-contrast-medium);
     }
     &[type='number'] {
       &::-webkit-inner-spin-button,
