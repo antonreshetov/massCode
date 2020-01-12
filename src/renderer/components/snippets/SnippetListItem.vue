@@ -136,13 +136,16 @@ export default {
         },
         {
           label: 'Delete',
-          click: () => {
+          click: async () => {
             const id = this.model._id
             const payload = {
               $set: { isDeleted: true }
             }
 
-            this.$store.dispatch('snippets/updateSnippet', { id, payload })
+            await this.$store.dispatch('snippets/updateSnippet', {
+              id,
+              payload
+            })
             const firstSnippet = this.snippetsBySort[0]
 
             if (firstSnippet) {

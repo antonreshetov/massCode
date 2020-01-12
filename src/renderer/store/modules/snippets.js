@@ -184,11 +184,14 @@ export default {
       const defaultQuery = { folderId: { $in: ids } }
       const query = defaultLibraryQuery(defaultQuery, folderId)
 
-      db.snippets.update({ _id: id }, payload, {}, (err, num) => {
-        if (err) return
-        dispatch('getSnippets', query)
+      return new Promise((resolve, reject) => {
+        db.snippets.update({ _id: id }, payload, {}, async (err, num) => {
+          if (err) return
+          await dispatch('getSnippets', query)
+          resolve()
+        })
+        commit('SET_NEW', null)
       })
-      commit('SET_NEW', null)
     },
     emptyTrash ({ dispatch, rootGetters }) {
       const ids = rootGetters['folders/selectedIds']
