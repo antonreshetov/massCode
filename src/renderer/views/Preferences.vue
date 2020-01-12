@@ -53,6 +53,12 @@
               </AppFormItem>
             </AppForm>
           </AppMenuItem>
+          <AppMenuItem
+            label="Assistant"
+            value="assistant"
+          >
+            <Assistant v-if="active == 'assistant'" />
+          </AppMenuItem>
         </AppMenu>
       </div>
     </div>
@@ -64,9 +70,14 @@ import { mapState, mapGetters } from 'vuex'
 import { dialog } from '@@/lib'
 import db from '@/datastore'
 import { defaultLibraryQuery } from '@/util/helpers'
+import Assistant from '@/components/preferences/Assistant.vue'
 
 export default {
   name: 'Preferences',
+
+  components: {
+    Assistant
+  },
 
   data () {
     return {

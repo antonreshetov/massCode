@@ -1,5 +1,6 @@
-import { app, Menu } from 'electron'
+import { app, Menu, ipcMain } from 'electron'
 import { createMainWindow, mainWindow } from './main'
+import { createTray, destroyTray } from './tray'
 import store from './store'
 import mainMenu from './lib/main-menu'
 import { initAnalytics } from './lib/analytics'
@@ -22,8 +23,16 @@ function init () {
   Menu.setApplicationMenu(menu)
 }
 
+function initTray () {
+  if (process.platform !== 'darwin') return
+
+  const isAssistant = store.get('preferences.assistant.enable')
+  if (isAssistant) createTray()
+}
+
 app.on('ready', () => {
   init()
+  initTray()
   initAnalytics()
 })
 
@@ -38,6 +47,10 @@ app.on('activate', () => {
   if (mainWindow === null) {
     init()
   }
+})
+
+ipcMain.on('preferences:assistant', (e, enable) => {
+  enable ? initTray() : destroyTray()
 })
 
 /**
