@@ -32,6 +32,10 @@ function createMainWindow () {
     mainWindow.webContents.openDevTools({ mode: 'detach' })
   }
 
+  mainWindow.on('close', () => {
+    store.app.set('bounds', mainWindow.getBounds())
+  })
+
   mainWindow.on('closed', e => {
     mainWindow = null
   })
