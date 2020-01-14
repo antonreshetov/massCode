@@ -10,7 +10,7 @@ const isDev = process.env.NODE_ENV === 'development'
 function track (path) {
   if (isDev) return
 
-  const isAllowAnalytics = store.get('allowAnalytics')
+  const isAllowAnalytics = store.preferences.get('allowAnalytics')
 
   if (isAllowAnalytics) {
     const version = pkg.version
@@ -21,7 +21,7 @@ function track (path) {
 function trackEvent (category, action, label, value) {
   if (isDev) return
 
-  const isAllowAnalytics = store.get('allowAnalytics')
+  const isAllowAnalytics = store.preferences.get('allowAnalytics')
   const version = pkg.version
 
   if (isAllowAnalytics) {
@@ -32,15 +32,15 @@ function trackEvent (category, action, label, value) {
 function initAnalytics () {
   if (isDev) return
 
-  if (store.get('allowAnalytics') === undefined) {
-    store.set('allowAnalytics', true)
+  if (store.preferences.get('allowAnalytics') === undefined) {
+    store.preferences.set('allowAnalytics', true)
   }
 
   const version = pkg.version
-  const installedVersion = store.get('install')
+  const installedVersion = store.preferences.get('install')
 
   if (installedVersion !== version) {
-    store.set('install', version)
+    store.preferences.set('install', version)
     const os = convertName(process.platform)
     track(`${os}/install`)
   }

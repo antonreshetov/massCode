@@ -32,16 +32,16 @@ export default {
     setSidebarWidth ({ commit }, width) {
       width = Math.ceil(width)
       commit('SET_SIDEBAR_WIDTH', width)
-      electronStore.set('sidebarWidth', width)
+      electronStore.app.set('sidebarWidth', width)
     },
     setSnippetListWidth ({ commit }, width) {
       width = Math.ceil(width)
       commit('SET_SNIPPET_LIST_WIDTH', width)
-      electronStore.set('snippetListWidth', width)
+      electronStore.app.set('snippetListWidth', width)
     },
     setTheme ({ commit }, theme) {
       commit('SET_THEME', theme)
-      electronStore.set('theme', theme)
+      electronStore.app.set('theme', theme)
     }
   }
 }

@@ -19,7 +19,7 @@ function createTray () {
   })
   createTrayWindow()
 
-  const shortcut = store.get('preferences.assistant.shortcut')
+  const shortcut = store.preferences.get('assistantShortcut')
 
   globalShortcut.register(shortcut, () => {
     showTray()
@@ -79,7 +79,7 @@ function showTray () {
 }
 
 function destroyTray () {
-  const shortcut = store.get('preferences.assistant.shortcut')
+  const shortcut = store.preferences.get('assistantShortcut')
 
   trayWindow.destroy()
   tray.destroy()

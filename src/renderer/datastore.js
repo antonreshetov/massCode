@@ -2,13 +2,12 @@ import Store from 'nedb'
 import path from 'path'
 import { remote } from 'electron'
 import electronStore from '@@/store'
-import store from '@/store'
 import fs from 'fs-extra'
 
 class DataStore {
   constructor () {
     this._defaultPath = remote.app.getPath('home') + '/massCode'
-    this._storedPath = electronStore.get('storagePath')
+    this._storedPath = electronStore.app.get('storagePath')
     this._path = this._storedPath || this._defaultPath
 
     this.init()
@@ -27,12 +26,10 @@ class DataStore {
       autoload: true,
       filename: path.join(this._path, '/masscode.db')
     })
-
-    store.commit('app/SET_STORAGE_PATH', this._path)
   }
 
   updatePath () {
-    this._storedPath = electronStore.get('storagePath')
+    this._storedPath = electronStore.app.get('storagePath')
     this._path = this._storedPath || this._defaultPath
     this.init()
   }
@@ -45,7 +42,7 @@ class DataStore {
   async move (to) {
     try {
       await fs.move(this._path, to, { overwrite: true })
-      electronStore.set('storagePath', to)
+      electronStore.app.set('storagePath', to)
       this.updatePath()
     } catch (err) {
       console.error(err)
