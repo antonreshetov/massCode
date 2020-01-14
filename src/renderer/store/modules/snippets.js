@@ -256,6 +256,7 @@ export default {
         db.snippets.update({ _id: id }, payload, {}, async (err, num) => {
           if (err) return
           await dispatch('getSnippets', query)
+          commit('SET_SELECTED', payload)
           resolve()
         })
         commit('SET_NEW', null)
