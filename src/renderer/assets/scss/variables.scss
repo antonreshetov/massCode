@@ -25,7 +25,7 @@
   --text-lg: calc(var(--text-base-size) * 1.8);
   --text-xl: calc(var(--text-base-size) * 2.4);
   --text-xxl: calc(var(--text-base-size) * 3.2);
-  --text-xxxl: calc(var(--text-base-size) 3.6);
+  --text-xxxl: calc(var(--text-base-size) * 3.6);
 }
 
 [data-theme='light'] {

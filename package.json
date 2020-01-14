@@ -74,6 +74,8 @@
     "fs-extra": "^8.1.0",
     "interactjs": "^1.8.0-alpha.6",
     "lodash-es": "^4.17.15",
+    "markdown-it": "^10.0.0",
+    "markdown-it-link-attributes": "^3.0.0",
     "monaco-editor": "^0.19.0",
     "monaco-editor-webpack-plugin": "^1.8.1",
     "mousetrap": "^1.6.3",
