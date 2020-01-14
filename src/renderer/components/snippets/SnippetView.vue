@@ -191,7 +191,8 @@ export default {
       if (process.platform === 'darwin' || process.platform === 'linux') {
         /* eslint-disable no-new */
         new Notification('massCode', {
-          body: 'Snippet is copied'
+          body: 'Snippet is copied',
+          silent: true
         })
       }
     }

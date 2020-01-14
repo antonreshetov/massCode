@@ -13,7 +13,7 @@ function createMainWindow () {
   const bounds = {
     height: 563,
     width: 1000,
-    ...store.get('bounds')
+    ...store.app.get('bounds')
   }
 
   mainWindow = new BrowserWindow({
@@ -31,6 +31,10 @@ function createMainWindow () {
   if (isDev) {
     mainWindow.webContents.openDevTools({ mode: 'detach' })
   }
+
+  mainWindow.on('close', () => {
+    store.app.set('bounds', mainWindow.getBounds())
+  })
 
   mainWindow.on('closed', e => {
     mainWindow = null

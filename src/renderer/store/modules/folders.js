@@ -64,7 +64,7 @@ export default {
       const libraryItems = ['inBox', 'favorites', 'allSnippets', 'trash']
 
       commit('SET_SELECTED_ID', id)
-      electronStore.set('selectedFolderId', id)
+      electronStore.app.set('selectedFolderId', id)
 
       if (libraryItems.includes(id)) {
         commit('SET_SELECTED', null)
