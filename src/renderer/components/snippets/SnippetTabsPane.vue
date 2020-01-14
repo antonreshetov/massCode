@@ -2,6 +2,9 @@
   <div
     v-if="isShow"
     class="snippet-tabs-pane"
+    :class="{
+      'snippet-tabs-pane--split': split
+    }"
   >
     <slot />
   </div>
@@ -15,6 +18,10 @@ export default {
     index: {
       type: Number,
       default: null
+    },
+    split: {
+      type: Boolean,
+      default: false
     }
   },
 
@@ -35,5 +42,9 @@ export default {
 <style lang="scss">
 .snippet-tabs-pane {
   height: 100%;
+  &--split {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+  }
 }
 </style>

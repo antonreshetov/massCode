@@ -8,7 +8,8 @@ export default {
     theme: 'dark',
     sidebarWidth: 180,
     snippetListWidth: 220,
-    storagePath: null
+    storagePath: null,
+    markdownPreview: false
   },
   getters: {},
   mutations: {
@@ -26,6 +27,9 @@ export default {
     },
     SET_THEME (state, theme) {
       state.theme = theme
+    },
+    SET_MARKDOWN_PREVIEW (state, bool) {
+      state.markdownPreview = bool
     }
   },
   actions: {

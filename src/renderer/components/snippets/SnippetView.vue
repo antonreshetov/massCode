@@ -11,6 +11,18 @@
         class="snippet-name"
       />
       <div class="snippet-view__actions">
+        <div
+          v-if="isMarkdown"
+          class="snippet-view__actions-item eye"
+          :class="{
+            active: app.markdownPreview
+          }"
+        >
+          <AppIcon
+            name="eye"
+            @click="onMarkdownPreview"
+          />
+        </div>
         <div class="snippet-view__actions-item">
           <AppIcon
             name="clipboard"
@@ -39,12 +51,19 @@
           :key="i.index"
           :label="i.label"
           :index="index"
+          :split="false"
         >
           <MonacoEditor
+            v-show="!app.markdownPreview || !isMarkdown"
             v-model="i.value"
             :language="i.language"
             :is-tabs="localSnippet.content.length > 1"
             @change:lang="onChangeLanguage($event, index)"
+          />
+          <MarkdownPreview
+            v-if="i.language === 'markdown'"
+            :model="i.value"
+            :is-tabs="localSnippet.content.length > 1"
           />
         </SnippetTabsPane>
       </SnippetTabs>
@@ -53,9 +72,10 @@
 </template>
 
 <script>
-import { mapGetters } from 'vuex'
+import { mapGetters, mapState } from 'vuex'
 import cloneDeep from 'lodash-es/cloneDeep'
 import MonacoEditor from '@/components/editor/MonacoEditor.vue'
+import MarkdownPreview from '@/components/editor/MarkdownPreview.vue'
 import SnippetTabs from '@/components/snippets/SnippetTabs.vue'
 import SnippetTabsPane from '@/components/snippets/SnippetTabsPane.vue'
 import { menu, dialog } from '@@/lib'
@@ -66,6 +86,7 @@ export default {
 
   components: {
     MonacoEditor,
+    MarkdownPreview,
     SnippetTabs,
     SnippetTabsPane
   },
@@ -79,9 +100,13 @@ export default {
   },
 
   computed: {
+    ...mapState(['app']),
     ...mapGetters('snippets', ['selected', 'newSnippetId']),
     isNew () {
       return this.newSnippetId === this.localSnippet._id
+    },
+    isMarkdown () {
+      return this.selected.content[this.active].language === 'markdown'
     }
   },
 
@@ -195,6 +220,9 @@ export default {
           silent: true
         })
       }
+    },
+    onMarkdownPreview () {
+      this.$store.commit('app/SET_MARKDOWN_PREVIEW', !this.app.markdownPreview)
     }
   }
 }
@@ -224,6 +252,14 @@ export default {
       display: flex;
       align-items: center;
       justify-content: center;
+      &.active {
+        svg {
+          stroke: var(--color-primary);
+        }
+      }
+      &.eye {
+        margin-right: 6px;
+      }
       &:hover {
         svg {
           stroke: var(--color-contrast-high);
