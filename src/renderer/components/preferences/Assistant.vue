@@ -30,14 +30,15 @@
 <script>
 import { mapState } from 'vuex'
 import { ipcRenderer } from 'electron'
+import electronStore from '@@/store'
 
 export default {
   name: 'Assistant',
 
   data () {
     return {
-      assistant: this.$electronStore.get('preferences.assistant.enable'),
-      shortcut: this.$electronStore.get('preferences.assistant.shortcut'),
+      assistant: electronStore.preferences.get('assistant'),
+      shortcut: electronStore.preferences.get('assistantShortcut'),
       disabled: true
     }
   },
@@ -50,7 +51,7 @@ export default {
       },
       set (v) {
         this.assistant = v
-        this.$electronStore.set('preferences.assistant.enable', v)
+        electronStore.preferences.set('assistant', v)
 
         ipcRenderer.send('preferences:assistant', v)
       }
@@ -59,7 +60,7 @@ export default {
 
   watch: {
     shortcut (newVal) {
-      const old = this.$electronStore.get('preferences.assistant.shortcut')
+      const old = electronStore.preferences.get('assistantShortcut')
       if (old !== newVal) {
         this.disabled = false
       } else {
@@ -70,8 +71,8 @@ export default {
 
   methods: {
     onApply () {
-      const old = this.$electronStore.get('preferences.assistant.shortcut')
-      this.$electronStore.set('preferences.assistant.shortcut', this.shortcut)
+      const old = electronStore.preferences.get('assistantShortcut')
+      electronStore.preferences.set('assistantShortcut', this.shortcut)
       ipcRenderer.send('preferences:assistant:shortcut', {
         old,
         new: this.shortcut

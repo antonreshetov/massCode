@@ -13,7 +13,7 @@ function createMainWindow () {
   const bounds = {
     height: 563,
     width: 1000,
-    ...store.get('bounds')
+    ...store.app.get('bounds')
   }
 
   mainWindow = new BrowserWindow({

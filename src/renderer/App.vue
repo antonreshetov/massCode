@@ -12,8 +12,8 @@
 import shortid from 'shortid'
 import { mapGetters, mapState } from 'vuex'
 import { defaultLibraryQuery } from '@/util/helpers'
-import '@/datastore'
 import '@/lib/ipcRenderer'
+import electronStore from '@@/store'
 
 export default {
   name: 'App',
@@ -37,12 +37,15 @@ export default {
     async initState () {
       await this.setDefaultDataStore()
 
-      const snippetListWidth = this.$electronStore.get('snippetListWidth')
-      const sidebarWidth = this.$electronStore.get('sidebarWidth')
-      const selectedFolderId = this.$electronStore.get('selectedFolderId')
-      const selectedSnippetId = this.$electronStore.get('selectedSnippetId')
-      const theme = this.$electronStore.get('theme')
-      const snippetsSort = this.$electronStore.get('snippetsSort')
+      const storagePath = electronStore.preferences.get('storagePath')
+      const snippetListWidth = electronStore.app.get('snippetListWidth')
+      const sidebarWidth = electronStore.app.get('sidebarWidth')
+      const selectedFolderId = electronStore.app.get('selectedFolderId')
+      const selectedSnippetId = electronStore.app.get('selectedSnippetId')
+      const theme = electronStore.preferences.get('theme')
+      const snippetsSort = electronStore.app.get('snippetsSort')
+
+      this.$store.commit('app/SET_STORAGE_PATH', storagePath)
 
       if (snippetListWidth) {
         this.$store.commit('app/SET_SNIPPET_LIST_WIDTH', snippetListWidth)

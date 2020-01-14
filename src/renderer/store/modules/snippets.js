@@ -201,7 +201,7 @@ export default {
     setSelected ({ commit }, snippet) {
       commit('SET_SELECTED', snippet)
       commit('SET_SELECTED_ID', snippet._id)
-      electronStore.set('selectedSnippetId', snippet._id)
+      electronStore.app.set('selectedSnippetId', snippet._id)
     },
     addSnippet ({ commit, dispatch, rootGetters }, { folderId, snippet }) {
       const ids = rootGetters['folders/selectedIds']
@@ -302,7 +302,7 @@ export default {
         } else {
           commit('SET_SEARCH', false)
           commit('SET_SEARCH_QUERY', null)
-          const selectedSnippetId = electronStore.get('selectedSnippetId')
+          const selectedSnippetId = electronStore.app.get('selectedSnippetId')
           const snippet = state.snippets.find(i => i._id === selectedSnippetId)
           commit('SET_SELECTED', snippet)
           commit('SET_SELECTED_ID', selectedSnippetId)
@@ -338,7 +338,7 @@ export default {
     },
     setSort ({ commit }, sort) {
       commit('SET_SORT', sort)
-      electronStore.set('snippetsSort', sort)
+      electronStore.app.set('snippetsSort', sort)
     }
   }
 }

@@ -26,7 +26,7 @@ function init () {
 function initTray () {
   if (process.platform !== 'darwin') return
 
-  const isAssistant = store.get('preferences.assistant.enable')
+  const isAssistant = store.preferences.get('assistant')
   if (isAssistant) createTray()
 }
 
@@ -40,7 +40,7 @@ app.on('window-all-closed', () => {
   if (process.platform !== 'darwin') {
     app.quit()
   }
-  store.set('bounds', mainWindow.getBounds())
+  store.app.set('bounds', mainWindow.getBounds())
 })
 
 app.on('activate', () => {
