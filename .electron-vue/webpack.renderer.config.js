@@ -142,9 +142,7 @@ let rendererConfig = {
     }),
     new webpack.HotModuleReplacementPlugin(),
     new webpack.NoEmitOnErrorsPlugin(),
-    new MonacoWebpackPlugin({
-      languages: ['javascript', 'typescript', 'css', 'html', 'json']
-    })
+    new MonacoWebpackPlugin()
   ],
   optimization: {
     minimizer: []
