@@ -28,6 +28,9 @@ const app = new Store({
     },
     install: {
       default: null
+    },
+    updateAvailable: {
+      default: false
     }
   }
 })

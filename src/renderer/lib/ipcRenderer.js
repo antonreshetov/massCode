@@ -37,3 +37,7 @@ ipcRenderer.on('menu:copy-snippet', () => {
   eventBus.$emit('menu:copy-snippet')
   track('snippets/copied')
 })
+
+ipcRenderer.on('update-available', () => {
+  store.commit('app/SET_UPDATE_AVAILABLE', true)
+})

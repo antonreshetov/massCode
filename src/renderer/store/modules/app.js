@@ -9,7 +9,8 @@ export default {
     sidebarWidth: 180,
     snippetListWidth: 220,
     storagePath: null,
-    markdownPreview: false
+    markdownPreview: false,
+    updateAvailable: false
   },
   getters: {},
   mutations: {
@@ -30,6 +31,9 @@ export default {
     },
     SET_MARKDOWN_PREVIEW (state, bool) {
       state.markdownPreview = bool
+    },
+    SET_UPDATE_AVAILABLE (state, bool) {
+      state.updateAvailable = bool
     }
   },
   actions: {

@@ -4,6 +4,8 @@ import { createTray, destroyTray } from './tray'
 import store from './store'
 import mainMenu from './lib/main-menu'
 import { initAnalytics } from './lib/analytics'
+import { checkForUpdatesAndNotify } from './lib/update-check'
+
 const isDev = process.env.NODE_ENV === 'development'
 
 /**
@@ -34,6 +36,7 @@ app.on('ready', () => {
   init()
   initTray()
   initAnalytics()
+  checkForUpdatesAndNotify()
 })
 
 app.on('window-all-closed', () => {

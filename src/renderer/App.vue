@@ -5,6 +5,13 @@
   >
     <div class="app-title-bar" />
     <RouterView />
+    <div
+      v-if="app.updateAvailable"
+      class="update-available"
+      @click="onClickUpdate"
+    >
+      Update available
+    </div>
   </div>
 </template>
 
@@ -14,6 +21,8 @@ import { mapGetters, mapState } from 'vuex'
 import { defaultLibraryQuery } from '@/util/helpers'
 import '@/lib/ipcRenderer'
 import electronStore from '@@/store'
+import { shell } from 'electron'
+import { track } from '@@/lib/analytics'
 
 export default {
   name: 'App',
@@ -104,6 +113,10 @@ export default {
       })
 
       await this.$store.dispatch('folders/getFolders')
+    },
+    onClickUpdate () {
+      shell.openExternal('https://masscode.io/download')
+      track('click/update')
     }
   }
 }
@@ -120,5 +133,19 @@ export default {
   -webkit-user-select: none;
   -webkit-app-region: drag;
   z-index: 1010;
+}
+.update-available {
+  position: absolute;
+  top: 2px;
+  right: var(--spacing-xs);
+  font-size: var(--text-xs);
+  text-transform: uppercase;
+  font-weight: 500;
+  color: var(--color-text);
+  &:hover {
+    text-decoration: underline;
+    // color: var(--color-primary);
+  }
+  z-index: 1020;
 }
 </style>
