@@ -20,11 +20,14 @@ export default {
   },
   actions: {
     getTags ({ commit }) {
-      db.tags.find({}, (err, doc) => {
-        if (err) return
+      db.tags
+        .find({})
+        .sort({ name: 1 })
+        .exec((err, doc) => {
+          if (err) return
 
-        commit('SET_TAGS', doc)
-      })
+          commit('SET_TAGS', doc)
+        })
     },
     async addTag ({ commit }, tag) {
       return new Promise((resolve, reject) => {
