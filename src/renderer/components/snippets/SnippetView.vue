@@ -4,39 +4,49 @@
     class="snippet-view"
   >
     <div class="snippet-view__title">
-      <AppInput
-        ref="input"
-        v-model="localSnippet.name"
-        ghost
-        class="snippet-name"
-      />
-      <div class="snippet-view__actions">
-        <div
-          v-if="isMarkdown"
-          class="snippet-view__actions-item eye"
-          :class="{
-            active: app.markdownPreview
-          }"
-        >
-          <AppIcon
-            name="eye"
-            @click="onMarkdownPreview"
-          />
-        </div>
-        <div class="snippet-view__actions-item">
-          <AppIcon
-            name="clipboard"
-            @click="onCopySnippet"
-          />
+      <div class="snippet-view__header">
+        <AppInput
+          ref="input"
+          v-model="localSnippet.name"
+          ghost
+          class="snippet-name"
+        />
+        <div class="snippet-view__actions">
+          <div
+            v-if="isMarkdown"
+            class="snippet-view__actions-item eye"
+            :class="{
+              active: app.markdownPreview
+            }"
+          >
+            <AppIcon
+              name="eye"
+              @click="onMarkdownPreview"
+            />
+          </div>
+          <div class="snippet-view__actions-item">
+            <AppIcon
+              name="clipboard"
+              @click="onCopySnippet"
+            />
+          </div>
+          <div
+            class="snippet-view__actions-item"
+            @click="onAddTab"
+          >
+            <AppIcon name="plus" />
+          </div>
         </div>
       </div>
-      <div class="snippet-view__actions">
-        <div
-          class="snippet-view__actions-item"
-          @click="onAddTab"
-        >
-          <AppIcon name="plus" />
-        </div>
+      <div class="snippet-view__tags">
+        <AppInputTags
+          v-model="inputTag"
+          :tags="selected.tagsPopulated"
+          :autocomplete="autocompleteTag"
+          @before-adding-tag="onAddTag"
+          @before-deleting-tag="onRemoveTag"
+          @tag:select="onAddTagFromAutocomplete"
+        />
       </div>
     </div>
     <div class="snippet-view__body">
@@ -95,18 +105,30 @@ export default {
     return {
       localSnippet: null,
       unWatch: null,
-      active: 0
+      active: 0,
+      inputTag: ''
     }
   },
 
   computed: {
     ...mapState(['app']),
     ...mapGetters('snippets', ['selected', 'newSnippetId']),
+    ...mapGetters('tags', ['tags']),
     isNew () {
       return this.newSnippetId === this.localSnippet._id
     },
     isMarkdown () {
       return this.selected.content[this.active].language === 'markdown'
+    },
+    autocompleteTag () {
+      return this.tags
+        .filter(
+          i =>
+            !this.selected.tagsPopulated.some(
+              tag => tag.text.toLowerCase() === i.text.toLowerCase()
+            )
+        )
+        .filter(i => i.text.toLowerCase().includes(this.inputTag.toLowerCase()))
     }
   },
 
@@ -223,6 +245,37 @@ export default {
     },
     onMarkdownPreview () {
       this.$store.commit('app/SET_MARKDOWN_PREVIEW', !this.app.markdownPreview)
+    },
+    async onAddTag (e) {
+      const { tag, addTag } = e
+      const newTag = await this.$store.dispatch('tags/addTag', {
+        name: tag.text
+      })
+
+      if (newTag) {
+        addTag()
+        const payload = {
+          snippetId: this.selected._id,
+          tagId: newTag._id
+        }
+        this.$store.dispatch('snippets/addTag', payload)
+      }
+    },
+    async onRemoveTag (e) {
+      const { tag, deleteTag } = e
+      const payload = {
+        snippetId: this.selected._id,
+        tagId: tag._id
+      }
+      this.$store.dispatch('snippets/removeTag', payload)
+      deleteTag()
+    },
+    onAddTagFromAutocomplete (e) {
+      const payload = {
+        snippetId: this.selected._id,
+        tagId: e._id
+      }
+      this.$store.dispatch('snippets/addTag', payload)
     }
   }
 }
@@ -232,11 +285,17 @@ export default {
 .snippet-view {
   display: grid;
   grid-template-rows:
-    var(--snippets-view-header-height)
+    var(--snippets-view-header-full-height)
     1fr;
   overflow: hidden;
+  &__header {
+    display: flex;
+    width: 100%;
+    overflow: hidden;
+  }
   &__title {
     display: flex;
+    flex-flow: column;
   }
   &__title,
   &__footer {
@@ -245,7 +304,7 @@ export default {
   }
   &__actions {
     display: flex;
-    align-items: center;
+    padding-top: 4px;
     &-item {
       height: 24px;
       width: 24px;
@@ -278,8 +337,8 @@ export default {
   input {
     font-size: var(--text-lg);
     font-weight: 600;
-    height: 40px;
-    line-height: 40px;
+    height: 30px;
+    line-height: 30px;
   }
 }
 </style>

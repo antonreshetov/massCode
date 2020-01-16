@@ -35,7 +35,8 @@ export default {
 
   computed: {
     ...mapState(['app']),
-    ...mapGetters('folders', ['selectedIds'])
+    ...mapGetters('folders', ['selectedIds']),
+    ...mapGetters('snippets', ['snippetsBySort'])
   },
 
   created () {
@@ -70,18 +71,16 @@ export default {
         const defaultQuery = { folderId: { $in: this.selectedIds } }
         const query = defaultLibraryQuery(defaultQuery, selectedFolderId)
 
-        this.$store.dispatch('snippets/getSnippets', query)
+        await this.$store.dispatch('snippets/getSnippets', query)
       } else {
-        this.$store.dispatch('snippets/getSnippets', { folderId: null })
+        await this.$store.dispatch('snippets/getSnippets', { folderId: null })
       }
 
       if (selectedSnippetId) {
-        this.$db.snippets.findOne({ _id: selectedSnippetId }, (err, doc) => {
-          if (err) return
-          if (doc) {
-            this.$store.dispatch('snippets/setSelected', doc)
-          }
-        })
+        const snippet = this.snippetsBySort.find(
+          i => i._id === selectedSnippetId
+        )
+        if (snippet) this.$store.dispatch('snippets/setSelected', snippet)
       }
 
       if (theme) {
@@ -91,6 +90,8 @@ export default {
       if (snippetsSort) {
         this.$store.dispatch('snippets/setSort', snippetsSort)
       }
+
+      this.$store.dispatch('tags/getTags')
 
       this.$store.commit('app/SET_INIT', true)
     },

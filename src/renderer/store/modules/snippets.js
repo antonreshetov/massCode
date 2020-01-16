@@ -121,42 +121,71 @@ export default {
     }
   },
   actions: {
-    getSnippets ({ commit }, query = {}) {
+    async getSnippets ({ commit }, query = {}) {
       const defaultQuery = {
         isDeleted: false,
         ...query
       }
 
-      return new Promise((resolve, reject) => {
-        db.snippets.find(defaultQuery, (err, snippets) => {
-          if (err) return
-          // Добавляем связь folder по его id у snippet
-          db.masscode.findOne({ _id: 'folders' }, (err, doc) => {
+      function getSnippets () {
+        return new Promise((resolve, reject) => {
+          db.snippets.find(defaultQuery, (err, snippets) => {
             if (err) return
-
-            const { list } = doc
-
-            snippets.map(snippet => {
-              function findFolderById (folders, id) {
-                folders.forEach(i => {
-                  if (i.id === id) snippet.folder = i
-
-                  if (i.children && i.children.length) {
-                    findFolderById(i.children, id)
-                  }
-                })
-              }
-
-              findFolderById(list, snippet.folderId)
-
-              return snippet
-            })
-
-            commit('SET_SNIPPETS', snippets)
-            resolve()
+            resolve(snippets)
           })
         })
+      }
+
+      function getFolders () {
+        return new Promise((resolve, reject) => {
+          db.masscode.findOne({ _id: 'folders' }, (err, doc) => {
+            if (err) return
+            resolve(doc.list)
+          })
+        })
+      }
+
+      function getTags () {
+        return new Promise((resolve, reject) => {
+          db.tags.find({}, (err, doc) => {
+            if (err) return
+            resolve(doc)
+          })
+        })
+      }
+
+      const snippets = await getSnippets()
+      const folders = await getFolders()
+      const tags = await getTags()
+
+      // Добавляем связь folder
+      snippets.map(snippet => {
+        function findFolderById (folders, id) {
+          folders.forEach(i => {
+            if (i.id === id) snippet.folder = i
+
+            if (i.children && i.children.length) {
+              findFolderById(i.children, id)
+            }
+          })
+        }
+
+        findFolderById(folders, snippet.folderId)
+
+        return snippet
       })
+
+      // Добавляем связь tags
+      snippets.map(snippet => {
+        snippet.tagsPopulated = []
+        snippet.tags.forEach(tagId => {
+          const foundedTag = tags.find(tag => tag._id === tagId)
+          foundedTag.text = foundedTag.name
+          snippet.tagsPopulated.push(foundedTag)
+        })
+      })
+
+      commit('SET_SNIPPETS', snippets)
     },
     async getLatestSnippets ({ commit, dispatch }, limit = 20) {
       const query = {
@@ -340,6 +369,14 @@ export default {
     setSort ({ commit }, sort) {
       commit('SET_SORT', sort)
       electronStore.app.set('snippetsSort', sort)
+    },
+    async addTag ({ dispatch }, { snippetId, tagId }) {
+      db.snippets.update({ _id: snippetId }, { $addToSet: { tags: tagId } })
+      await dispatch('getSnippets')
+    },
+    async removeTag ({ dispatch }, { snippetId, tagId }) {
+      db.snippets.update({ _id: snippetId }, { $pull: { tags: tagId } })
+      await dispatch('getSnippets')
     }
   }
 }
