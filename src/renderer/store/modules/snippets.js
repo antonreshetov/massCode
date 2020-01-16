@@ -7,7 +7,6 @@ export default {
   state: {
     snippets: [],
     snippetsLatest: [],
-    selected: null,
     selectedId: null,
     searched: [],
     searchedTray: [],
@@ -59,12 +58,10 @@ export default {
       return state.searchQueryTray
     },
     selected (state) {
-      return state.selected
+      return state.snippets.find(i => i._id === state.selectedId)
     },
     selectedId (state) {
-      if (state.selected) {
-        return state.selected._id
-      }
+      return state.selectedId
     },
     newSnippetId (state) {
       return state.newSnippetId
@@ -73,7 +70,7 @@ export default {
       return state.sort
     },
     isSelected (state) {
-      return !!state.selected
+      return !!state.selectedId
     },
     isSearched (state) {
       return state.search
@@ -88,9 +85,6 @@ export default {
     },
     SET_LATEST_SNIPPETS (state, snippets) {
       state.snippetsLatest = snippets
-    },
-    SET_SELECTED (state, snippet) {
-      state.selected = snippet
     },
     SET_SELECTED_ID (state, id) {
       state.selectedId = id
@@ -228,7 +222,6 @@ export default {
       })
     },
     setSelected ({ commit }, snippet) {
-      commit('SET_SELECTED', snippet)
       commit('SET_SELECTED_ID', snippet._id)
       electronStore.app.set('selectedSnippetId', snippet._id)
     },
@@ -271,7 +264,7 @@ export default {
       db.snippets.insert(snippet, (err, snippet) => {
         if (err) return
         dispatch('getSnippets', query)
-        commit('SET_SELECTED', snippet)
+        commit('SET_SELECTED_ID', snippet._id)
         commit('SET_NEW', snippet._id)
       })
     },
@@ -285,7 +278,6 @@ export default {
         db.snippets.update({ _id: id }, payload, {}, async (err, num) => {
           if (err) return
           await dispatch('getSnippets', query)
-          commit('SET_SELECTED', payload)
           resolve()
         })
         commit('SET_NEW', null)
@@ -323,18 +315,14 @@ export default {
 
           if (results.length) {
             const first = results[0]
-            commit('SET_SELECTED', first)
             commit('SET_SELECTED_ID', first._id)
           } else {
-            commit('SET_SELECTED', null)
             commit('SET_SELECTED_ID', null)
           }
         } else {
           commit('SET_SEARCH', false)
           commit('SET_SEARCH_QUERY', null)
           const selectedSnippetId = electronStore.app.get('selectedSnippetId')
-          const snippet = state.snippets.find(i => i._id === selectedSnippetId)
-          commit('SET_SELECTED', snippet)
           commit('SET_SELECTED_ID', selectedSnippetId)
         }
         commit('SET_SEARCHED', results)
