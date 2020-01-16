@@ -67,6 +67,10 @@ export default {
     open: {
       type: Boolean,
       default: false
+    },
+    tag: {
+      type: Boolean,
+      default: false
     }
   },
 
@@ -80,6 +84,7 @@ export default {
 
   computed: {
     ...mapGetters('folders', ['selectedId', 'editableId']),
+    ...mapGetters('tags', { selectedTagId: 'selectedId' }),
     languagesMenu () {
       return languages
         .map(i => {
@@ -108,6 +113,9 @@ export default {
     },
     isSelected () {
       if (!this.selectedId) return null
+      if (this.tag) {
+        return this.selectedTagId === this.id
+      }
       return this.selectedId === this.id
     },
     isEditable () {
@@ -123,7 +131,15 @@ export default {
 
   methods: {
     onClick () {
-      this.$store.dispatch('folders/setSelectedFolder', this.id)
+      if (!this.tag) {
+        this.$store.dispatch('folders/setSelectedFolder', this.id)
+      } else {
+        this.$store.commit('tags/SET_SELECTED_ID', this.id)
+        // this.$store.dispatch('snippets/getSnippets', {
+        //   tags: { $elemMatch: this.id }
+        //   // tags: { $in: }
+        // })
+      }
     },
     onContext () {
       const libraryItems = ['inBox', 'favorites', 'allSnippets', 'trash']

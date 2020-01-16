@@ -118,10 +118,10 @@ export default {
 <style lang="scss" scoped>
 .folders {
   overflow: hidden;
+  height: 100%;
   .sidebar-list {
     display: grid;
-    grid-template-rows: 24px 1fr;
-    overflow: hidden;
+    grid-template-rows: 30px 1fr;
     .tree {
       position: relative;
       overflow-y: scroll;
