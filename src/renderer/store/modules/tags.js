@@ -3,7 +3,8 @@ import db from '@/datastore'
 export default {
   namespaced: true,
   state: {
-    list: []
+    list: [],
+    selectedId: null
   },
   getters: {
     tags (state) {
@@ -11,11 +12,17 @@ export default {
         i.text = i.name
         return i
       })
+    },
+    selectedId (state) {
+      return state.selectedId
     }
   },
   mutations: {
     SET_TAGS (state, tags) {
       state.list = tags
+    },
+    SET_SELECTED_ID (state, id) {
+      state.selectedId = id
     }
   },
   actions: {
