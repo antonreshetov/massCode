@@ -41,7 +41,7 @@
       <div class="snippet-view__tags">
         <AppInputTags
           v-model="inputTag"
-          :tags="selected.tagsPopulated"
+          :tags="selectedTags"
           :autocomplete="autocompleteTag"
           @before-adding-tag="onAddTag"
           @before-deleting-tag="onRemoveTag"
@@ -51,7 +51,7 @@
     </div>
     <div class="snippet-view__body">
       <SnippetTabs
-        v-model="active"
+        v-model="activeTab"
         :tabs="localSnippet.content"
         @tab:edit="onEditTab"
         @tab:delete="onDeleteTab"
@@ -71,7 +71,7 @@
             @change:lang="onChangeLanguage($event, index)"
           />
           <MarkdownPreview
-            v-if="i.language === 'markdown'"
+            v-if="i.language === 'markdown' && i.value"
             :model="i.value"
             :is-tabs="localSnippet.content.length > 1"
           />
@@ -105,30 +105,50 @@ export default {
     return {
       localSnippet: null,
       unWatch: null,
-      active: 0,
       inputTag: ''
     }
   },
 
   computed: {
     ...mapState(['app']),
-    ...mapGetters('snippets', ['selected', 'newSnippetId']),
+    ...mapGetters('snippets', ['selected', 'newSnippetId', 'activeFragment']),
     ...mapGetters('tags', ['tags']),
     isNew () {
       return this.newSnippetId === this.localSnippet._id
     },
     isMarkdown () {
-      return this.selected.content[this.active].language === 'markdown'
+      const index = this.activeTab
+      if (this.selected.content[index]) {
+        return this.selected.content[index].language === 'markdown'
+      }
+      return null
+    },
+    selectedTags () {
+      if (this.selected) {
+        return this.selected.tagsPopulated
+      }
+      return []
     },
     autocompleteTag () {
       return this.tags
         .filter(
           i =>
-            !this.selected.tagsPopulated.some(
+            !this.selectedTags.some(
               tag => tag.text.toLowerCase() === i.text.toLowerCase()
             )
         )
         .filter(i => i.text.toLowerCase().includes(this.inputTag.toLowerCase()))
+    },
+    activeTab: {
+      get () {
+        return this.activeFragment.index
+      },
+      set (index) {
+        this.$store.commit('snippets/SET_ACTIVE_FRAGMENT', {
+          snippetId: this.localSnippet._id,
+          index
+        })
+      }
     }
   },
 
@@ -138,7 +158,6 @@ export default {
       this.unWatch()
       this.cloneSnippet()
       this.setWatcher()
-      this.active = 0
     })
     this.setWatcher()
     this.$bus.$on('snippet:new-fragment', () => {
@@ -171,8 +190,10 @@ export default {
       )
     },
     cloneSnippet () {
-      this.localSnippet = cloneDeep(this.selected)
-      this.localSnippet.updatedAt = new Date()
+      if (this.selected) {
+        this.localSnippet = cloneDeep(this.selected)
+        this.localSnippet.updatedAt = new Date()
+      }
     },
     onChangeLanguage (lang, index) {
       this.localSnippet.content[index].language = lang
@@ -190,7 +211,10 @@ export default {
         value: null
       }
       this.localSnippet.content.push(fragment)
-      this.active = index
+      this.$store.commit('snippets/SET_ACTIVE_FRAGMENT', {
+        snippetId: this.localSnippet._id,
+        index
+      })
       track('snippets/new-fragment')
     },
     onEditTab (v, index) {
@@ -198,8 +222,11 @@ export default {
     },
     onDeleteTab (index) {
       this.localSnippet.content.splice(index, 1)
-      if (this.active === index) {
-        this.active = 0
+      if (this.activeTab === index) {
+        this.$store.commit('snippets/SET_ACTIVE_FRAGMENT', {
+          snippetId: this.localSnippet._id,
+          index: 0
+        })
       }
       track('snippets/delete-fragment')
     },
@@ -224,8 +251,11 @@ export default {
             })
             if (buttonId === 0) {
               this.localSnippet.content.splice(fragment.index, 1)
-              if (this.active === fragment.index) {
-                this.active = 0
+              if (this.activeTab === fragment.index) {
+                this.$store.commit('snippets/SET_ACTIVE_FRAGMENT', {
+                  snippetId: this.localSnippet._id,
+                  index: 0
+                })
               }
             }
           }
@@ -233,7 +263,7 @@ export default {
       ])
     },
     async onCopySnippet () {
-      const snippet = this.selected.content[this.active].value
+      const snippet = this.selected.content[this.activeTab].value
       await navigator.clipboard.writeText(snippet)
       if (process.platform === 'darwin' || process.platform === 'linux') {
         /* eslint-disable no-new */
