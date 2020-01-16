@@ -54,11 +54,6 @@ export default {
 
   computed: {
     ...mapGetters('tags', ['tags']),
-    // autocomplete () {
-    //   return this.tags.filter(i =>
-    //     i.text.toLowerCase().includes(this.$attrs.value.toLowerCase())
-    //   )
-    // },
     isResult () {
       return this.autocomplete.length > 0
     }
@@ -77,7 +72,6 @@ export default {
   mounted () {
     this.checkTagsHeight()
     this.appendEl = this.$el.querySelector('.ti-new-tag-input')
-    console.log(this.$refs.tagsInput)
   },
 
   methods: {
