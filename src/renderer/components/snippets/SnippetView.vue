@@ -118,7 +118,7 @@ export default {
     },
     isMarkdown () {
       const index = this.activeTab
-      if (this.selected.content[index]) {
+      if (this.selected && this.selected.content[index]) {
         return this.selected.content[index].language === 'markdown'
       }
       return null
