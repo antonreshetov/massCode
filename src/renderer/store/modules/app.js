@@ -10,7 +10,8 @@ export default {
     snippetListWidth: 220,
     storagePath: null,
     markdownPreview: false,
-    updateAvailable: false
+    updateAvailable: false,
+    showTags: false
   },
   getters: {},
   mutations: {
@@ -34,6 +35,9 @@ export default {
     },
     SET_UPDATE_AVAILABLE (state, bool) {
       state.updateAvailable = bool
+    },
+    SET_SHOW_TAGS (state, bool) {
+      state.showTags = bool
     }
   },
   actions: {
