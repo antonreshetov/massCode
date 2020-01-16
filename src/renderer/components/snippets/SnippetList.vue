@@ -123,6 +123,7 @@ export default {
       this.$nextTick(() => {
         this.animation = 'list'
         this.ps.update()
+        this.$refs.wrapper.scrollTop = 0
       })
     }
   },
@@ -145,7 +146,9 @@ export default {
 
   methods: {
     initPS () {
-      this.ps = new PerfectScrollbar(this.$refs.wrapper)
+      this.ps = new PerfectScrollbar(this.$refs.wrapper, {
+        suppressScrollX: true
+      })
     }
   }
 }
@@ -165,6 +168,7 @@ export default {
   }
   &__wrapper {
     overflow-y: scroll;
+    overflow-x: hidden;
     position: relative;
     height: calc(100vh - var(--action-bar-height));
   }
