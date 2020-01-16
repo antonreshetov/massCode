@@ -92,6 +92,10 @@ export default {
     onSelect () {
       this.focus = true
       this.$store.dispatch('snippets/setSelected', this.model)
+      this.$store.commit('snippets/SET_ACTIVE_FRAGMENT', {
+        snippetId: this.model._id,
+        index: 0
+      })
     },
     onDrag (e) {
       const payload = JSON.stringify({ value: this.model._id })

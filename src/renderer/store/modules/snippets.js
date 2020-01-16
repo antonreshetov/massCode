@@ -15,7 +15,8 @@ export default {
     searchQuery: null,
     searchQueryTray: null,
     newSnippetId: null,
-    sort: 'updateAt'
+    sort: 'updateAt',
+    activeFragment: { snippetId: null, index: 0 }
   },
   getters: {
     snippetsBySort (state) {
@@ -69,6 +70,9 @@ export default {
     sort (state) {
       return state.sort
     },
+    activeFragment (state) {
+      return state.activeFragment
+    },
     isSelected (state) {
       return !!state.selectedId
     },
@@ -112,6 +116,9 @@ export default {
     },
     SET_SORT (state, sort) {
       state.sort = sort
+    },
+    SET_ACTIVE_FRAGMENT (state, payload) {
+      state.activeFragment = payload
     }
   },
   actions: {

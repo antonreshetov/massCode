@@ -59,6 +59,7 @@ export default {
       'snippetsBySort'
     ]),
     ...mapGetters('folders', ['selectedId', 'selectedIds', 'allSnippetsId']),
+    ...mapGetters('tags', { selectedTagId: 'selectedId' }),
     snippetsList () {
       return this.isSearched ? this.snippetsSearched : this.snippetsBySort
     }
@@ -83,7 +84,40 @@ export default {
 
       await this.$store.dispatch('snippets/getSnippets', query)
       const firstSnippet = this.snippetsList[0]
-      this.$store.commit('snippets/SET_SELECTED', firstSnippet)
+
+      if (firstSnippet) {
+        this.$store.commit('snippets/SET_SELECTED_ID', firstSnippet._id)
+        this.$store.commit('snippets/SET_ACTIVE_FRAGMENT', {
+          snippetId: firstSnippet._id,
+          index: 0
+        })
+      } else {
+        this.$store.commit('snippets/SET_SELECTED_ID', null)
+        this.$store.commit('snippets/SET_ACTIVE_FRAGMENT', {
+          snippetId: null,
+          index: 0
+        })
+      }
+    },
+
+    async selectedTagId (id) {
+      await this.$store.dispatch('snippets/getSnippets', {
+        tags: { $elemMatch: id }
+      })
+      const firstSnippet = this.snippetsList[0]
+      if (firstSnippet) {
+        this.$store.commit('snippets/SET_SELECTED_ID', firstSnippet._id)
+        this.$store.commit('snippets/SET_ACTIVE_FRAGMENT', {
+          snippetId: firstSnippet._id,
+          index: 0
+        })
+      } else {
+        this.$store.commit('snippets/SET_SELECTED_ID', null)
+        this.$store.commit('snippets/SET_ACTIVE_FRAGMENT', {
+          snippetId: null,
+          index: 0
+        })
+      }
     },
     snippetsList () {
       this.$nextTick(() => {
