@@ -2,6 +2,7 @@
   --sidebar-width: 180px;
   --snippets-list-width: 220px;
   --snippets-view-header-height: 60px;
+  --snippets-view-header-full-height: calc(var(--snippets-view-header-height) + var(--snippets-tags-height));
   --snippets-view-footer-height: 30px;
   --snippet-tab-header-height: 40px;
   --snippet-tab-height: 30px;

@@ -12,10 +12,29 @@
       }
     }
   }
+  &__rail-x {
+    background-color: rgba(121, 121, 121, .5);
+    width: 4px;
+    &:hover {
+      height: 4px;
+      background-color: transparent !important;
+      opacity: 0.4 !important;
+      #{$r}__thumb-x {
+        height: 4px;
+        right: 0;
+      }
+    }
+  }
   &__thumb-y {
     border-radius: 0;
     background-color: rgba(121, 121, 121, .8);
     width: 5px;
+    right: 0;
+  }
+  &__thumb-x {
+    border-radius: 0;
+    background-color: rgba(121, 121, 121, .8);
+    height: 4px;
     right: 0;
   }
 }
