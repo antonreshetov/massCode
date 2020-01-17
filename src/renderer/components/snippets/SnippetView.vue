@@ -302,8 +302,10 @@ export default {
           snippetId: this.selected._id,
           tagId: newTag._id
         }
+        track('tags/new')
         this.$store.dispatch('snippets/addTag', payload)
       }
+      track('tags/new-snippet-tag')
     },
     async onRemoveTag (e) {
       const { tag, deleteTag } = e
@@ -313,6 +315,7 @@ export default {
       }
       this.$store.dispatch('snippets/removeTag', payload)
       deleteTag()
+      track('tags/delete-snippet-tag')
     },
     onAddTagFromAutocomplete (e) {
       const payload = {

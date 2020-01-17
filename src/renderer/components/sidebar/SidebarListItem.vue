@@ -227,6 +227,7 @@ export default {
             })
             if (buttonId === 0) {
               this.$store.dispatch('tags/removeTag', this.id)
+              track('tags/delete')
             }
           }
         }
