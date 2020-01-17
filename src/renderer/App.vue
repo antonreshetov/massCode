@@ -11,7 +11,6 @@
 <script>
 import shortid from 'shortid'
 import { mapGetters, mapState } from 'vuex'
-import { defaultLibraryQuery } from '@/util/helpers'
 import '@/lib/ipcRenderer'
 import electronStore from '@@/store'
 
@@ -26,7 +25,11 @@ export default {
 
   computed: {
     ...mapState(['app']),
-    ...mapGetters('folders', ['selectedIds']),
+    ...mapGetters('folders', [
+      'selectedIds',
+      'defaultQueryBySystemFolder',
+      'isSystemFolder'
+    ]),
     ...mapGetters('snippets', ['snippetsBySort'])
   },
 
@@ -61,9 +64,12 @@ export default {
 
         let query = {}
 
+        if (this.isSystemFolder) {
+          query = this.defaultQueryBySystemFolder
+        }
+
         if (this.selectedIds) {
-          const defaultQuery = { folderId: { $in: this.selectedIds } }
-          query = defaultLibraryQuery(defaultQuery, selectedFolderId)
+          query = { folderId: { $in: this.selectedIds } }
         }
 
         await this.$store.dispatch('snippets/getSnippets', query)
