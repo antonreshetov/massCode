@@ -67,6 +67,7 @@
     }
   },
   "dependencies": {
+    "@johmun/vue-tags-input": "^2.1.0",
     "axios": "^0.19.1",
     "date-fns": "^2.8.1",
     "electron-store": "^5.1.0",
@@ -82,6 +83,7 @@
     "mousetrap": "^1.6.3",
     "nedb": "^1.8.0",
     "perfect-scrollbar": "^1.4.0",
+    "popper.js": "^1.16.0",
     "shortid": "^2.2.15",
     "universal-analytics": "^0.4.20",
     "vue": "^2.5.16",

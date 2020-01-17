@@ -1,7 +1,6 @@
 <template>
   <div class="sidebar">
     <TheLibrary />
-    <TheFolders />
     <div
       ref="gutter"
       class="gutter-line"
@@ -11,7 +10,6 @@
 
 <script>
 import TheLibrary from '../sidebar/TheLibrary.vue'
-import TheFolders from '../sidebar/TheFolders.vue'
 import interact from 'interactjs'
 import { mapState } from 'vuex'
 
@@ -19,7 +17,6 @@ export default {
   name: 'TheSidebar',
 
   components: {
-    TheFolders,
     TheLibrary
   },
 
@@ -52,8 +49,13 @@ export default {
   position: relative;
   background-color: var(--color-contrast-lower);
   display: grid;
-  grid-template-rows: 150px 1fr;
   height: 100%;
   overflow: hidden;
+  &__actions {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    padding: 0 var(--spacing-xs);
+  }
 }
 </style>

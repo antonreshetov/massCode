@@ -10,9 +10,14 @@ export default {
     snippetListWidth: 220,
     storagePath: null,
     markdownPreview: false,
-    updateAvailable: false
+    updateAvailable: false,
+    showTags: false
   },
-  getters: {},
+  getters: {
+    isTagsShow (state) {
+      return state.showTags
+    }
+  },
   mutations: {
     SET_INIT (state, bool) {
       state.init = bool
@@ -34,6 +39,9 @@ export default {
     },
     SET_UPDATE_AVAILABLE (state, bool) {
       state.updateAvailable = bool
+    },
+    SET_SHOW_TAGS (state, bool) {
+      state.showTags = bool
     }
   },
   actions: {
@@ -50,6 +58,33 @@ export default {
     setTheme ({ commit }, theme) {
       commit('SET_THEME', theme)
       electronStore.app.set('theme', theme)
+    },
+    async setShowTags ({ commit, dispatch, rootGetters }, bool) {
+      if (bool) {
+        commit('SET_SHOW_TAGS', true)
+        const selectedTagId = rootGetters['tags/selectedId']
+        await dispatch(
+          'snippets/getSnippets',
+          { tags: { $elemMatch: selectedTagId } },
+          { root: true }
+        )
+      } else {
+        commit('SET_SHOW_TAGS', false)
+        const selectedFolderIds = rootGetters['folders/selectedIds']
+        await dispatch(
+          'snippets/getSnippets',
+          { folderId: { $in: selectedFolderIds } },
+          { root: true }
+        )
+      }
+
+      const firstSnippet = rootGetters['snippets/snippetsBySort'][0]
+
+      if (firstSnippet) {
+        dispatch('snippets/setSelected', firstSnippet, { root: true })
+      } else {
+        dispatch('snippets/setSelected', null, { root: true })
+      }
     }
   }
 }

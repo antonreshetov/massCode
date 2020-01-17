@@ -8,6 +8,8 @@ import AppInput from './AppInput.vue'
 import AppMenu from './AppMenu.vue'
 import AppMenuItem from './AppMenuItem.vue'
 import AppSelect from './AppSelect.vue'
+import AppInputTags from './AppInputTags.vue'
+import AppPopper from './AppPopper.vue'
 
 const components = [
   AppButton,
@@ -19,7 +21,9 @@ const components = [
   AppInput,
   AppMenu,
   AppMenuItem,
-  AppSelect
+  AppSelect,
+  AppInputTags,
+  AppPopper
 ]
 
 export default {

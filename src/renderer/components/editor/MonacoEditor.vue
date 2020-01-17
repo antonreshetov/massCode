@@ -92,12 +92,12 @@ export default {
     editorStyles () {
       let style = {
         height:
-          'calc(100vh - var(--snippets-view-header-height) - var(--snippets-view-footer-height))'
+          'calc(100vh - var(--snippets-view-header-full-height) - var(--snippets-view-footer-height))'
       }
       if (this.isTabs) {
         style = {
           height:
-            'calc(100vh - var(--snippets-view-header-height) - var(--snippet-tab-header-height) - var(--snippets-view-footer-height))'
+            'calc(100vh - var(--snippets-view-header-full-height) - var(--snippet-tab-header-height) - var(--snippets-view-footer-height))'
         }
       }
       return style

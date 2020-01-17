@@ -7,7 +7,6 @@ export default {
   state: {
     snippets: [],
     snippetsLatest: [],
-    selected: null,
     selectedId: null,
     searched: [],
     searchedTray: [],
@@ -16,7 +15,8 @@ export default {
     searchQuery: null,
     searchQueryTray: null,
     newSnippetId: null,
-    sort: 'updateAt'
+    sort: 'updateAt',
+    activeFragment: { snippetId: null, index: 0 }
   },
   getters: {
     snippetsBySort (state) {
@@ -59,12 +59,10 @@ export default {
       return state.searchQueryTray
     },
     selected (state) {
-      return state.selected
+      return state.snippets.find(i => i._id === state.selectedId)
     },
     selectedId (state) {
-      if (state.selected) {
-        return state.selected._id
-      }
+      return state.selectedId
     },
     newSnippetId (state) {
       return state.newSnippetId
@@ -72,8 +70,11 @@ export default {
     sort (state) {
       return state.sort
     },
+    activeFragment (state) {
+      return state.activeFragment
+    },
     isSelected (state) {
-      return !!state.selected
+      return !!state.selectedId
     },
     isSearched (state) {
       return state.search
@@ -88,9 +89,6 @@ export default {
     },
     SET_LATEST_SNIPPETS (state, snippets) {
       state.snippetsLatest = snippets
-    },
-    SET_SELECTED (state, snippet) {
-      state.selected = snippet
     },
     SET_SELECTED_ID (state, id) {
       state.selectedId = id
@@ -118,45 +116,77 @@ export default {
     },
     SET_SORT (state, sort) {
       state.sort = sort
+    },
+    SET_ACTIVE_FRAGMENT (state, payload) {
+      state.activeFragment = payload
     }
   },
   actions: {
-    getSnippets ({ commit }, query = {}) {
+    async getSnippets ({ commit }, query = {}) {
       const defaultQuery = {
         isDeleted: false,
         ...query
       }
 
-      return new Promise((resolve, reject) => {
-        db.snippets.find(defaultQuery, (err, snippets) => {
-          if (err) return
-          // Добавляем связь folder по его id у snippet
-          db.masscode.findOne({ _id: 'folders' }, (err, doc) => {
+      function getSnippets () {
+        return new Promise((resolve, reject) => {
+          db.snippets.find(defaultQuery, (err, snippets) => {
             if (err) return
-
-            const { list } = doc
-
-            snippets.map(snippet => {
-              function findFolderById (folders, id) {
-                folders.forEach(i => {
-                  if (i.id === id) snippet.folder = i
-
-                  if (i.children && i.children.length) {
-                    findFolderById(i.children, id)
-                  }
-                })
-              }
-
-              findFolderById(list, snippet.folderId)
-
-              return snippet
-            })
-
-            commit('SET_SNIPPETS', snippets)
-            resolve()
+            resolve(snippets)
           })
         })
+      }
+
+      function getFolders () {
+        return new Promise((resolve, reject) => {
+          db.masscode.findOne({ _id: 'folders' }, (err, doc) => {
+            if (err) return
+            resolve(doc.list)
+          })
+        })
+      }
+
+      function getTags () {
+        return new Promise((resolve, reject) => {
+          db.tags.find({}, (err, doc) => {
+            if (err) return
+            resolve(doc)
+          })
+        })
+      }
+
+      const snippets = await getSnippets()
+      const folders = await getFolders()
+      const tags = await getTags()
+
+      // Добавляем связь folder
+      snippets.map(snippet => {
+        function findFolderById (folders, id) {
+          folders.forEach(i => {
+            if (i.id === id) snippet.folder = i
+
+            if (i.children && i.children.length) {
+              findFolderById(i.children, id)
+            }
+          })
+        }
+
+        findFolderById(folders, snippet.folderId)
+
+        return snippet
       })
+
+      // Добавляем связь tags
+      snippets.map(snippet => {
+        snippet.tagsPopulated = []
+        snippet.tags.forEach(tagId => {
+          const foundedTag = tags.find(tag => tag._id === tagId)
+          foundedTag.text = foundedTag.name
+          snippet.tagsPopulated.push(foundedTag)
+        })
+      })
+
+      commit('SET_SNIPPETS', snippets)
     },
     async getLatestSnippets ({ commit, dispatch }, limit = 20) {
       const query = {
@@ -199,9 +229,13 @@ export default {
       })
     },
     setSelected ({ commit }, snippet) {
-      commit('SET_SELECTED', snippet)
-      commit('SET_SELECTED_ID', snippet._id)
-      electronStore.app.set('selectedSnippetId', snippet._id)
+      if (snippet) {
+        commit('SET_SELECTED_ID', snippet._id)
+        electronStore.app.set('selectedSnippetId', snippet._id)
+      } else {
+        commit('SET_SELECTED_ID', null)
+        electronStore.app.delete('selectedSnippetId')
+      }
     },
     addSnippet ({ commit, dispatch, rootGetters }, { folderId, snippet }) {
       const ids = rootGetters['folders/selectedIds']
@@ -242,21 +276,28 @@ export default {
       db.snippets.insert(snippet, (err, snippet) => {
         if (err) return
         dispatch('getSnippets', query)
-        commit('SET_SELECTED', snippet)
+        commit('SET_SELECTED_ID', snippet._id)
         commit('SET_NEW', snippet._id)
       })
     },
     updateSnippet ({ commit, dispatch, rootGetters }, { id, payload }) {
       const ids = rootGetters['folders/selectedIds']
       const folderId = rootGetters['folders/selectedId']
+      const isTagsShow = rootGetters['app/isTagsShow']
       const defaultQuery = { folderId: { $in: ids } }
       const query = defaultLibraryQuery(defaultQuery, folderId)
 
       return new Promise((resolve, reject) => {
         db.snippets.update({ _id: id }, payload, {}, async (err, num) => {
           if (err) return
-          await dispatch('getSnippets', query)
-          commit('SET_SELECTED', payload)
+          if (!isTagsShow) {
+            await dispatch('getSnippets', query)
+          } else {
+            const selectedTagId = rootGetters['tags/selectedId']
+            await dispatch('getSnippets', {
+              tags: { $elemMatch: selectedTagId }
+            })
+          }
           resolve()
         })
         commit('SET_NEW', null)
@@ -294,18 +335,14 @@ export default {
 
           if (results.length) {
             const first = results[0]
-            commit('SET_SELECTED', first)
             commit('SET_SELECTED_ID', first._id)
           } else {
-            commit('SET_SELECTED', null)
             commit('SET_SELECTED_ID', null)
           }
         } else {
           commit('SET_SEARCH', false)
           commit('SET_SEARCH_QUERY', null)
           const selectedSnippetId = electronStore.app.get('selectedSnippetId')
-          const snippet = state.snippets.find(i => i._id === selectedSnippetId)
-          commit('SET_SELECTED', snippet)
           commit('SET_SELECTED_ID', selectedSnippetId)
         }
         commit('SET_SEARCHED', results)
@@ -340,6 +377,30 @@ export default {
     setSort ({ commit }, sort) {
       commit('SET_SORT', sort)
       electronStore.app.set('snippetsSort', sort)
+    },
+    async addTag ({ dispatch, rootGetters }, { snippetId, tagId }) {
+      db.snippets.update({ _id: snippetId }, { $addToSet: { tags: tagId } })
+      const isTagsShow = rootGetters['app/isTagsShow']
+
+      if (!isTagsShow) {
+        const selectedFolderIds = rootGetters['folders/selectedIds']
+        await dispatch('getSnippets', { folderId: { $in: selectedFolderIds } })
+      } else {
+        const selectedTagId = rootGetters['tags/selectedId']
+        await dispatch('getSnippets', { tags: { $elemMatch: selectedTagId } })
+      }
+    },
+    async removeTag ({ dispatch, rootGetters }, { snippetId, tagId }) {
+      db.snippets.update({ _id: snippetId }, { $pull: { tags: tagId } })
+      const isTagsShow = rootGetters['app/isTagsShow']
+
+      if (!isTagsShow) {
+        const selectedFolderIds = rootGetters['folders/selectedIds']
+        await dispatch('getSnippets', { folderId: { $in: selectedFolderIds } })
+      } else {
+        const selectedTagId = rootGetters['tags/selectedId']
+        await dispatch('getSnippets', { tags: { $elemMatch: selectedTagId } })
+      }
     }
   }
 }
