@@ -135,23 +135,23 @@ export default {
         this.$store.dispatch('folders/setSelectedFolder', this.id)
       } else {
         this.$store.commit('tags/SET_SELECTED_ID', this.id)
-        // this.$store.dispatch('snippets/getSnippets', {
-        //   tags: { $elemMatch: this.id }
-        //   // tags: { $in: }
-        // })
       }
     },
     onContext () {
-      const libraryItems = ['inBox', 'favorites', 'allSnippets', 'trash']
-      const isLibrary = libraryItems.includes(this.id)
+      if (!this.tag) {
+        const libraryItems = ['inBox', 'favorites', 'allSnippets', 'trash']
+        const isLibrary = libraryItems.includes(this.id)
 
-      if (this.id === 'trash') {
-        this.trashContext()
+        if (this.id === 'trash') {
+          this.trashContext()
+        }
+
+        if (isLibrary) return
+
+        this.folderContext()
+      } else {
+        this.tagContext()
       }
-
-      if (isLibrary) return
-
-      this.folderContext()
     },
     folderContext () {
       this.context = true
@@ -204,6 +204,29 @@ export default {
             if (buttonId === 0) {
               this.$store.dispatch('snippets/emptyTrash')
               track('snippets/empty-trash')
+            }
+          }
+        }
+      ])
+      contextMenu.addListener('menu-will-close', () => {
+        this.context = false
+      })
+    },
+    tagContext () {
+      this.context = true
+      const contextMenu = menu.popup([
+        {
+          label: 'Delete',
+          click: () => {
+            const buttonId = dialog.showMessageBoxSync({
+              message: 'Are you sure you want to permanently delete the tag?',
+              detail: 'You cannot undo this action.',
+              buttons: ['Delete', 'Cancel'],
+              defaultId: 0,
+              cancelId: 1
+            })
+            if (buttonId === 0) {
+              this.$store.dispatch('tags/removeTag', this.id)
             }
           }
         }
