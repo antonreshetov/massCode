@@ -71,11 +71,16 @@ export default {
       } else {
         commit('SET_SHOW_TAGS', false)
         const selectedFolderIds = rootGetters['folders/selectedIds']
-        await dispatch(
-          'snippets/getSnippets',
-          { folderId: { $in: selectedFolderIds } },
-          { root: true }
-        )
+
+        if (selectedFolderIds) {
+          await dispatch(
+            'snippets/getSnippets',
+            { folderId: { $in: selectedFolderIds } },
+            { root: true }
+          )
+        } else {
+          dispatch('snippets/setSelected', null, { root: true })
+        }
       }
 
       const firstSnippet = rootGetters['snippets/snippetsBySort'][0]
