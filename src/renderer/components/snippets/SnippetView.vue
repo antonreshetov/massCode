@@ -7,7 +7,7 @@
       <div class="snippet-view__header">
         <AppInput
           ref="input"
-          v-model="localSnippet.name"
+          v-model="name"
           ghost
           class="snippet-name"
         />
@@ -52,12 +52,12 @@
     <div class="snippet-view__body">
       <SnippetTabs
         v-model="activeTab"
-        :tabs="localSnippet.content"
+        :tabs="fragments"
         @tab:edit="onEditTab"
         @tab:delete="onDeleteTab"
       >
         <SnippetTabsPane
-          v-for="(i, index) in localSnippet.content"
+          v-for="(i, index) in fragments"
           :key="i.index"
           :label="i.label"
           :index="index"
@@ -67,13 +67,13 @@
             v-show="!app.markdownPreview || !isMarkdown"
             v-model="i.value"
             :language="i.language"
-            :is-tabs="localSnippet.content.length > 1"
+            :is-tabs="fragments.length > 1"
             @change:lang="onChangeLanguage($event, index)"
           />
           <MarkdownPreview
             v-if="i.language === 'markdown' && i.value"
             :model="i.value"
-            :is-tabs="localSnippet.content.length > 1"
+            :is-tabs="fragments.length > 1"
           />
         </SnippetTabsPane>
       </SnippetTabs>
@@ -113,8 +113,22 @@ export default {
     ...mapState(['app']),
     ...mapGetters('snippets', ['selected', 'newSnippetId', 'activeFragment']),
     ...mapGetters('tags', ['tags']),
+    name: {
+      get () {
+        return this.localSnippet ? this.localSnippet.name : ''
+      },
+      set (v) {
+        this.localSnippet.name = v
+      }
+    },
+    fragments () {
+      return this.localSnippet ? this.localSnippet.content : []
+    },
     isNew () {
-      return this.newSnippetId === this.localSnippet._id
+      if (this.selected) {
+        return this.newSnippetId === this.selected._id
+      }
+      return false
     },
     isMarkdown () {
       const index = this.activeTab
