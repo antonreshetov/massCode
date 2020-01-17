@@ -36,9 +36,8 @@ export default {
           commit('SET_TAGS', doc)
         })
     },
-    async addTag ({ commit }, tag) {
+    async addTag ({ dispatch }, tag) {
       return new Promise((resolve, reject) => {
-        console.log(tag)
         db.tags.findOne({ name: tag.name }, (err, doc) => {
           if (err) return
 
@@ -47,6 +46,7 @@ export default {
               if (err) return
               resolve(doc)
             })
+            dispatch('getTags')
           } else {
             resolve(null)
           }
