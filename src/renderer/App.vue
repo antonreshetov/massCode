@@ -68,8 +68,12 @@ export default {
       if (selectedFolderId) {
         this.$store.dispatch('folders/setSelectedFolder', selectedFolderId)
 
-        const defaultQuery = { folderId: { $in: this.selectedIds } }
-        const query = defaultLibraryQuery(defaultQuery, selectedFolderId)
+        let query = {}
+
+        if (this.selectedIds) {
+          const defaultQuery = { folderId: { $in: this.selectedIds } }
+          query = defaultLibraryQuery(defaultQuery, selectedFolderId)
+        }
 
         await this.$store.dispatch('snippets/getSnippets', query)
       } else {
