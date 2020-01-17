@@ -32,7 +32,7 @@ export default {
           .find({})
           .sort({ name: 1 })
           .exec((err, doc) => {
-            if (err) return
+            if (err) reject(err)
 
             commit('SET_TAGS', doc)
             resolve(doc)
@@ -46,7 +46,7 @@ export default {
 
           if (!doc) {
             db.tags.insert(tag, (err, doc) => {
-              if (err) return
+              if (err) reject(err)
               resolve(doc)
             })
             dispatch('getTags')
