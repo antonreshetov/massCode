@@ -7,7 +7,7 @@ import fs from 'fs-extra'
 class DataStore {
   constructor () {
     this._defaultPath = remote.app.getPath('home') + '/massCode'
-    this._storedPath = electronStore.app.get('storagePath')
+    this._storedPath = electronStore.preferences.get('storagePath')
     this._path = this._storedPath || this._defaultPath
 
     this.init()
@@ -29,20 +29,20 @@ class DataStore {
   }
 
   updatePath () {
-    this._storedPath = electronStore.app.get('storagePath')
+    this._storedPath = electronStore.preferences.get('storagePath')
     this._path = this._storedPath || this._defaultPath
     this.init()
   }
 
   import (from) {
-    electronStore.set('storagePath', from)
+    electronStore.preferences.set('storagePath', from)
     this.updatePath()
   }
 
   async move (to) {
     try {
       await fs.move(this._path, to, { overwrite: true })
-      electronStore.app.set('storagePath', to)
+      electronStore.preferences.set('storagePath', to)
       this.updatePath()
     } catch (err) {
       console.error(err)
