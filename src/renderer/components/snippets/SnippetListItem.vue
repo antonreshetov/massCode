@@ -154,6 +154,8 @@ export default {
 
             if (firstSnippet) {
               this.$store.dispatch('snippets/setSelected', firstSnippet)
+            } else {
+              this.$store.dispatch('snippets/setSelected', null)
             }
 
             track('snippets/delete')
