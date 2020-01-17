@@ -229,8 +229,13 @@ export default {
       })
     },
     setSelected ({ commit }, snippet) {
-      commit('SET_SELECTED_ID', snippet._id)
-      electronStore.app.set('selectedSnippetId', snippet._id)
+      if (snippet) {
+        commit('SET_SELECTED_ID', snippet._id)
+        electronStore.app.set('selectedSnippetId', snippet._id)
+      } else {
+        commit('SET_SELECTED_ID', null)
+        electronStore.app.delete('selectedSnippetId')
+      }
     },
     addSnippet ({ commit, dispatch, rootGetters }, { folderId, snippet }) {
       const ids = rootGetters['folders/selectedIds']
