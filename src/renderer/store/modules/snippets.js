@@ -283,13 +283,21 @@ export default {
     updateSnippet ({ commit, dispatch, rootGetters }, { id, payload }) {
       const ids = rootGetters['folders/selectedIds']
       const folderId = rootGetters['folders/selectedId']
+      const isTagsShow = rootGetters['app/isTagsShow']
       const defaultQuery = { folderId: { $in: ids } }
       const query = defaultLibraryQuery(defaultQuery, folderId)
 
       return new Promise((resolve, reject) => {
         db.snippets.update({ _id: id }, payload, {}, async (err, num) => {
           if (err) return
-          await dispatch('getSnippets', query)
+          if (!isTagsShow) {
+            await dispatch('getSnippets', query)
+          } else {
+            const selectedTagId = rootGetters['tags/selectedId']
+            await dispatch('getSnippets', {
+              tags: { $elemMatch: selectedTagId }
+            })
+          }
           resolve()
         })
         commit('SET_NEW', null)
@@ -370,13 +378,29 @@ export default {
       commit('SET_SORT', sort)
       electronStore.app.set('snippetsSort', sort)
     },
-    async addTag ({ dispatch }, { snippetId, tagId }) {
+    async addTag ({ dispatch, rootGetters }, { snippetId, tagId }) {
       db.snippets.update({ _id: snippetId }, { $addToSet: { tags: tagId } })
-      await dispatch('getSnippets')
+      const isTagsShow = rootGetters['app/isTagsShow']
+
+      if (!isTagsShow) {
+        const selectedFolderIds = rootGetters['folders/selectedIds']
+        await dispatch('getSnippets', { folderId: { $in: selectedFolderIds } })
+      } else {
+        const selectedTagId = rootGetters['tags/selectedId']
+        await dispatch('getSnippets', { tags: { $elemMatch: selectedTagId } })
+      }
     },
-    async removeTag ({ dispatch }, { snippetId, tagId }) {
+    async removeTag ({ dispatch, rootGetters }, { snippetId, tagId }) {
       db.snippets.update({ _id: snippetId }, { $pull: { tags: tagId } })
-      await dispatch('getSnippets')
+      const isTagsShow = rootGetters['app/isTagsShow']
+
+      if (!isTagsShow) {
+        const selectedFolderIds = rootGetters['folders/selectedIds']
+        await dispatch('getSnippets', { folderId: { $in: selectedFolderIds } })
+      } else {
+        const selectedTagId = rootGetters['tags/selectedId']
+        await dispatch('getSnippets', { tags: { $elemMatch: selectedTagId } })
+      }
     }
   }
 }
