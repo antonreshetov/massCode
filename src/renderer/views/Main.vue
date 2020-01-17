@@ -10,6 +10,13 @@
       v-if="isSelected"
       @edit="onEdit"
     />
+    <div
+      v-if="app.updateAvailable"
+      class="update-available"
+      @click="onClickUpdate"
+    >
+      Update available
+    </div>
   </div>
 </template>
 
@@ -18,6 +25,8 @@ import TheSidebar from '../components/sidebar/TheSidebar.vue'
 import SnippetList from '../components/snippets/SnippetList.vue'
 import SnippetView from '../components/snippets/SnippetView.vue'
 import { mapState, mapGetters } from 'vuex'
+import { shell } from 'electron'
+import { track } from '@@/lib/analytics'
 
 export default {
   name: 'Main',
@@ -45,6 +54,10 @@ export default {
   methods: {
     onEdit () {
       this.$refs.list.$refs.wrapper.scrollTop = 0
+    },
+    onClickUpdate () {
+      shell.openExternal('https://masscode.io/download')
+      track('click/update')
     }
   }
 }
@@ -56,5 +69,18 @@ export default {
   height: 100vh;
   background-color: var(--color-bg);
   overflow: hidden;
+}
+.update-available {
+  position: absolute;
+  top: 2px;
+  right: var(--spacing-xs);
+  font-size: var(--text-xs);
+  text-transform: uppercase;
+  font-weight: 500;
+  color: var(--color-text);
+  &:hover {
+    text-decoration: underline;
+  }
+  z-index: 1020;
 }
 </style>
