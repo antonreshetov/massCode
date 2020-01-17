@@ -131,7 +131,7 @@ export default {
       function getSnippets () {
         return new Promise((resolve, reject) => {
           db.snippets.find(defaultQuery, (err, snippets) => {
-            if (err) return
+            if (err) reject(err)
             resolve(snippets)
           })
         })
@@ -140,7 +140,7 @@ export default {
       function getFolders () {
         return new Promise((resolve, reject) => {
           db.masscode.findOne({ _id: 'folders' }, (err, doc) => {
-            if (err) return
+            if (err) reject(err)
             resolve(doc.list)
           })
         })
@@ -149,7 +149,7 @@ export default {
       function getTags () {
         return new Promise((resolve, reject) => {
           db.tags.find({}, (err, doc) => {
-            if (err) return
+            if (err) reject(err)
             resolve(doc)
           })
         })
