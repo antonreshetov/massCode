@@ -38,7 +38,7 @@ export default {
     },
     tabs: {
       type: Array,
-      default: null
+      default: () => []
     }
   },
 
