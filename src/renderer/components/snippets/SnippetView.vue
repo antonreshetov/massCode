@@ -293,7 +293,7 @@ export default {
     async onAddTag (e) {
       const { tag, addTag } = e
       const newTag = await this.$store.dispatch('tags/addTag', {
-        name: tag.text
+        name: tag.text.trim()
       })
 
       if (newTag) {
