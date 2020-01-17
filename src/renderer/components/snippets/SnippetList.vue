@@ -58,7 +58,13 @@ export default {
       'isSearched',
       'snippetsBySort'
     ]),
-    ...mapGetters('folders', ['selectedId', 'selectedIds', 'allSnippetsId']),
+    ...mapGetters('folders', [
+      'selectedId',
+      'selectedIds',
+      'allSnippetsId',
+      'isSystemFolder',
+      'defaultQueryBySystemFolder'
+    ]),
     ...mapGetters('tags', { selectedTagId: 'selectedId' }),
     snippetsList () {
       return this.isSearched ? this.snippetsSearched : this.snippetsBySort
@@ -69,17 +75,8 @@ export default {
     async selectedId (id) {
       let query = { folderId: { $in: this.selectedIds } }
 
-      if (id === 'trash') {
-        query = { isDeleted: true }
-      }
-      if (id === 'favorites') {
-        query = { isFavorites: true }
-      }
-      if (id === 'allSnippets') {
-        query = {}
-      }
-      if (id === 'inBox') {
-        query = { folderId: null }
+      if (this.isSystemFolder) {
+        query = this.defaultQueryBySystemFolder
       }
 
       await this.$store.dispatch('snippets/getSnippets', query)

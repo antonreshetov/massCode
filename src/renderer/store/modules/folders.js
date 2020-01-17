@@ -29,6 +29,31 @@ export default {
       if (state.selected) {
         return state.selected.defaultLanguage
       }
+    },
+    defaultQueryBySystemFolder (state) {
+      let query
+      if (state.selectedId === 'trash') {
+        query = { isDeleted: true }
+      }
+      if (state.selectedId === 'favorites') {
+        query = { isFavorites: true }
+      }
+      if (state.selectedId === 'allSnippets') {
+        query = {}
+      }
+      if (state.selectedId === 'inBox') {
+        query = { folderId: null }
+      }
+
+      return query
+    },
+    isSystemFolder (state) {
+      return (
+        state.selectedId === 'trash' ||
+        state.selectedId === 'favorites' ||
+        state.selectedId === 'allSnippets' ||
+        state.selectedId === 'inBox'
+      )
     }
   },
   mutations: {

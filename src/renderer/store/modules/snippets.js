@@ -384,7 +384,16 @@ export default {
 
       if (!isTagsShow) {
         const selectedFolderIds = rootGetters['folders/selectedIds']
-        await dispatch('getSnippets', { folderId: { $in: selectedFolderIds } })
+        const isSystemFolder = rootGetters['folders/isSystemFolder']
+        const defaultQuery = rootGetters['folders/defaultQueryBySystemFolder']
+
+        let query = { folderId: { $in: selectedFolderIds } }
+
+        if (isSystemFolder) {
+          query = defaultQuery
+        }
+
+        await dispatch('getSnippets', query)
       } else {
         const selectedTagId = rootGetters['tags/selectedId']
         await dispatch('getSnippets', { tags: { $elemMatch: selectedTagId } })
@@ -396,7 +405,16 @@ export default {
 
       if (!isTagsShow) {
         const selectedFolderIds = rootGetters['folders/selectedIds']
-        await dispatch('getSnippets', { folderId: { $in: selectedFolderIds } })
+        const isSystemFolder = rootGetters['folders/isSystemFolder']
+        const defaultQuery = rootGetters['folders/defaultQueryBySystemFolder']
+
+        let query = { folderId: { $in: selectedFolderIds } }
+
+        if (isSystemFolder) {
+          query = defaultQuery
+        }
+
+        await dispatch('getSnippets', query)
       } else {
         const selectedTagId = rootGetters['tags/selectedId']
         await dispatch('getSnippets', { tags: { $elemMatch: selectedTagId } })
