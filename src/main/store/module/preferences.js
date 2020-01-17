@@ -1,5 +1,9 @@
 import Store from 'electron-store'
-import { homedir } from 'os'
+import { homedir, platform } from 'os'
+
+const isWin = platform() === 'win32'
+
+const defaultPath = isWin ? homedir() + '\\massCode' : homedir() + '/massCode'
 
 const preferences = new Store({
   name: 'preferences',
@@ -7,7 +11,7 @@ const preferences = new Store({
 
   schema: {
     storagePath: {
-      default: homedir() + '/massCode'
+      default: defaultPath
     },
     theme: {
       default: 'dark'
