@@ -2,7 +2,7 @@
   "name": "masscode",
   "version": "0.8.0",
   "author": "Anton Reshetov <reshetov.art@gmail.com>",
-  "description": "Snippets app",
+  "description": "A free and open source code snippets manager for developers",
   "license": "AGPL-3.0",
   "main": "./dist/electron/main.js",
   "scripts": {

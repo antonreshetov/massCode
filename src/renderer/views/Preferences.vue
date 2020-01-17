@@ -126,8 +126,10 @@ export default {
         properties: ['openDirectory', 'createDirectory']
       })
       if (dir) {
-        db.move(dir[0])
+        const path = dir[0]
+        db.move(path)
         this.updateData()
+        this.$store.commit('app/SET_STORAGE_PATH', path)
       }
     },
     async onOpenStorage () {
@@ -135,8 +137,10 @@ export default {
         properties: ['openDirectory']
       })
       if (dir) {
-        db.import(dir[0])
+        const path = dir[0]
+        db.import(path)
         this.updateData()
+        this.$store.commit('app/SET_STORAGE_PATH', path)
       }
     },
     async updateData () {
