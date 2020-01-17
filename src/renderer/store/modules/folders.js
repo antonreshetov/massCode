@@ -237,6 +237,7 @@ export default {
           if (err) return
 
           dispatch('getFolders')
+          dispatch('snippets/setSelected', null, { root: true })
         })
       })
     }
