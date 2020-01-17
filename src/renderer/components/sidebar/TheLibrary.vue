@@ -62,14 +62,21 @@ export default {
         { label: 'Favorites', id: 'favorites', icon: 'star' },
         { label: 'All Snippets', id: 'allSnippets', icon: 'archive' },
         { label: 'Trash', id: 'trash', icon: 'trash' }
-      ],
-      activeTitle: 0
+      ]
     }
   },
 
   computed: {
     ...mapState(['app']),
-    ...mapGetters('folders', ['system'])
+    ...mapGetters('folders', ['system', 'selectedIds']),
+    activeTitle: {
+      get () {
+        return this.app.showTags ? 1 : 0
+      },
+      set (v) {
+        this.$store.dispatch('app/setShowTags', !!v)
+      }
+    }
   },
 
   methods: {
