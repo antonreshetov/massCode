@@ -1,19 +1,22 @@
-import { app, shell } from 'electron'
+import { app, shell, dialog, BrowserWindow } from 'electron'
+import os from 'os'
 const { version, author } = require('../../../package.json')
 
-if (process.platform !== 'win32') {
+const isMac = process.platform === 'darwin'
+const year = new Date().getFullYear()
+
+if (isMac) {
   app.setAboutPanelOptions({
     applicationName: 'massCode',
     applicationVersion: version,
     version,
-    copyright: author
+    copyright: `${author}\n https://masscode.io \n©2019-${year}`
   })
 }
 
-export default mainWindow => {
-  const massCode = {
-    label: 'massCode',
-    submenu: [
+function creatMassCodeMenu (mainWindow) {
+  if (isMac) {
+    return [
       {
         label: 'About massCode',
         selector: 'orderFrontStandardAboutPanel:'
@@ -23,7 +26,7 @@ export default mainWindow => {
       },
       {
         label: 'Preferences',
-        accelerator: 'Command+,',
+        accelerator: 'CommandOrControl+,',
         click () {
           mainWindow.webContents.send('menu:preferences')
         }
@@ -54,6 +57,31 @@ export default mainWindow => {
         accelerator: 'CommandOrControl+Q'
       }
     ]
+  } else {
+    return [
+      {
+        label: 'Preferences',
+        accelerator: 'CommandOrControl+,',
+        click () {
+          mainWindow.webContents.send('menu:preferences')
+        }
+      },
+      {
+        type: 'separator'
+      },
+      {
+        label: 'Quit massCode',
+        role: 'quit',
+        accelerator: 'CommandOrControl+Q'
+      }
+    ]
+  }
+}
+
+export default mainWindow => {
+  const massCode = {
+    label: 'massCode',
+    submenu: creatMassCodeMenu(mainWindow)
   }
 
   const file = {
@@ -173,9 +201,44 @@ export default mainWindow => {
     role: 'help',
     submenu: [
       {
-        label: 'GitHub Repo',
+        label: 'Website',
+        click () {
+          shell.openExternal('https://masscode.io')
+        }
+      },
+      {
+        label: 'GitHub',
         click () {
           shell.openExternal('https://github.com/antonreshetov/massCode')
+        }
+      },
+      {
+        label: 'Donate',
+        click () {
+          shell.openExternal('https://masscode.io/donate')
+        }
+      },
+      {
+        type: 'separator'
+      },
+      {
+        label: 'About',
+        click () {
+          dialog.showMessageBox(BrowserWindow.getFocusedWindow(), {
+            title: 'massCode',
+            message: 'massCode',
+            type: 'info',
+            detail: `
+              Version: ${version}
+              Electron: ${process.versions.electron}
+              Chrome: ${process.versions.chrome}
+              Node.js: ${process.versions.node}
+              V8: ${process.versions.v8}
+              OS: ${os.type()} ${os.arch()} ${os.release()}
+
+              ©2019-${year} Anton Reshetov <reshetov-art@gmail.com>
+            `
+          })
         }
       }
     ]
