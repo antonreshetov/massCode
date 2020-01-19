@@ -1,7 +1,5 @@
 # massCode
 
-> Work in progress
-
 A free and open source code snippets manager for developers.
 
 <p align="center">
