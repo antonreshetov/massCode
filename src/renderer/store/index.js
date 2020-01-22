@@ -3,6 +3,7 @@ import Vuex from 'vuex'
 
 import app from './modules/app'
 import folders from './modules/folders'
+import preferences from './modules/preferences'
 import snippets from './modules/snippets'
 import tags from './modules/tags'
 
@@ -13,6 +14,7 @@ export default new Vuex.Store({
   modules: {
     app,
     folders,
+    preferences,
     snippets,
     tags
   }
