@@ -57,7 +57,7 @@ export default {
     },
     setTheme ({ commit }, theme) {
       commit('SET_THEME', theme)
-      electronStore.app.set('theme', theme)
+      electronStore.preferences.set('theme', theme)
     },
     async setShowTags ({ commit, dispatch, rootGetters }, bool) {
       if (bool) {
