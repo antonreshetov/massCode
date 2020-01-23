@@ -4,7 +4,9 @@
     :data-theme="app.theme"
   >
     <div class="app-title-bar" />
-    <RouterView />
+    <KeepAlive>
+      <RouterView />
+    </KeepAlive>
   </div>
 </template>
 

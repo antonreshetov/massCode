@@ -53,6 +53,13 @@
               </AppFormItem>
             </AppForm>
           </AppMenuItem>
+
+          <AppMenuItem
+            label="Editor"
+            value="editor"
+          >
+            <Editor v-if="active == 'editor'" />
+          </AppMenuItem>
           <AppMenuItem
             label="Assistant"
             value="assistant"
@@ -71,12 +78,14 @@ import { dialog } from '@@/lib'
 import db from '@/datastore'
 import { defaultLibraryQuery } from '@/util/helpers'
 import Assistant from '@/components/preferences/Assistant.vue'
+import Editor from '@/components/preferences/Editor.vue'
 
 export default {
   name: 'Preferences',
 
   components: {
-    Assistant
+    Assistant,
+    Editor
   },
 
   data () {
@@ -184,10 +193,10 @@ export default {
     }
   }
   &__input {
-    &.app-input {
-      width: 300px;
-      margin-right: var(--spacing-sm);
-    }
+    // &.app-input {
+    //   width: 300px;
+    //   margin-right: var(--spacing-sm);
+    // }
   }
   &__form {
     &-item {
@@ -195,6 +204,10 @@ export default {
     }
   }
   &__body {
+  }
+  .app-input {
+    width: 300px;
+    margin-right: var(--spacing-sm);
   }
 }
 </style>

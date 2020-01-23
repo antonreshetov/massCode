@@ -66,7 +66,7 @@ export default {
   },
 
   computed: {
-    ...mapState(['app']),
+    ...mapState(['app', 'preferences']),
     ...mapGetters('snippets', ['searchQuery']),
     languagesMenu () {
       return languages
@@ -107,6 +107,24 @@ export default {
   watch: {
     'app.theme' () {
       this.setTheme()
+    },
+    'preferences.renderWhitespace' (v) {
+      this.editor.updateOptions({ renderWhitespace: v })
+    },
+    'preferences.wordWrap' (v) {
+      this.editor.updateOptions({ wordWrap: v })
+    },
+    'preferences.tabSize' (v) {
+      this.editor.getModel().updateOptions({
+        tabSize: v,
+        insertSpaces: this.preferences.insertSpaces
+      })
+    },
+    'preferences.insertSpaces' (v) {
+      this.editor.getModel().updateOptions({
+        tabSize: this.preferences.tabSize,
+        insertSpaces: v
+      })
     }
   },
 
@@ -143,7 +161,6 @@ export default {
         minimap: {
           enabled: false
         },
-        tabSize: 4,
         matchBrackets: 'never',
         scrollbar: {
           useShadows: false,
@@ -152,12 +169,15 @@ export default {
         },
         automaticLayout: true,
         contextmenu: false,
-        scrollBeyondLastLine: false
+        scrollBeyondLastLine: false,
+        renderWhitespace: this.preferences.renderWhitespace,
+        wordWrap: this.preferences.wordWrap
       })
       // Обновление опций
-      this.editor
-        .getModel()
-        .updateOptions({ tabSize: 2, indentSize: 2, insertSpaces: true })
+      this.editor.getModel().updateOptions({
+        tabSize: this.preferences.tabSize,
+        insertSpaces: this.preferences.insertSpaces
+      })
       // Отслеживание изменений модели редактора для обновления v-model
       this.editor.onDidChangeModelContent(e => {
         const value = this.editor.getValue()

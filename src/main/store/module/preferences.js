@@ -22,6 +22,18 @@ const preferences = new Store({
     assistantShortcut: {
       default: 'Option+S'
     },
+    renderWhitespace: {
+      default: 'none'
+    },
+    wordWrap: {
+      default: 'off'
+    },
+    tabSize: {
+      default: 2
+    },
+    insertSpaces: {
+      default: true
+    },
     allowAnalytics: {
       default: true
     }
