@@ -6,8 +6,8 @@ export default {
     os: process.platform,
     init: false,
     theme: electronStore.preferences.get('theme'),
-    sidebarWidth: electronStore.app.get('sidebarWidth'),
-    snippetListWidth: electronStore.app.get('snippetListWidth'),
+    sidebarWidth: electronStore.app.get('sidebarWidth') || 180, // Принудительное значение если пришел null
+    snippetListWidth: electronStore.app.get('snippetListWidth') || 220, // Принудительное значение если пришел null
     storagePath: electronStore.preferences.get('storagePath'),
     markdownPreview: false,
     updateAvailable: false,
