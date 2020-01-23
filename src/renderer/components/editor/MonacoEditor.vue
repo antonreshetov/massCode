@@ -30,6 +30,7 @@ import { menu } from '@@/lib'
 import { mapState, mapGetters } from 'vuex'
 import languages from './languages'
 import { track } from '@@/lib/analytics'
+import prettier from 'prettier'
 
 export default {
   name: 'MonacoEditor',
@@ -101,6 +102,21 @@ export default {
         }
       }
       return style
+    },
+    isFormatAvailable () {
+      const available = [
+        'css',
+        'graphql',
+        'html',
+        'javascript',
+        'json',
+        'less',
+        'markdown',
+        'scss',
+        'typescript',
+        'yaml'
+      ]
+      return available.includes(this.language)
     }
   },
 
@@ -126,6 +142,12 @@ export default {
         insertSpaces: v
       })
     }
+  },
+
+  created () {
+    this.$bus.$on('menu:format-snippet', () => {
+      this.format()
+    })
   },
 
   mounted () {
@@ -272,6 +294,23 @@ export default {
         this.decorations,
         newDecorations
       )
+    },
+    format () {
+      if (!this.isFormatAvailable) return
+
+      let parser = this.language
+
+      if (this.language === 'javascript') parser = 'babel'
+      if (this.language === 'html') parser = 'vue'
+
+      const formated = prettier.format(this.value, {
+        parser,
+        semi: this.preferences.prettierSemi,
+        tabWidth: this.preferences.tabSize,
+        useTabs: !this.preferences.insertSpaces,
+        singleQuote: this.preferences.prettierQuotes
+      })
+      this.$emit('input', formated)
     }
   }
 }
