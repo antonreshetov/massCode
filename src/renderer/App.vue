@@ -1,8 +1,5 @@
 <template>
-  <div
-    id="app"
-    :data-theme="app.theme"
-  >
+  <div id="app">
     <div class="app-title-bar" />
     <KeepAlive>
       <RouterView />
@@ -34,8 +31,15 @@ export default {
     ...mapGetters('snippets', ['snippetsBySort'])
   },
 
+  watch: {
+    'app.theme' (v) {
+      document.body.setAttribute('data-theme', v)
+    }
+  },
+
   created () {
     this.initState()
+    document.body.setAttribute('data-theme', this.app.theme)
   },
 
   methods: {
