@@ -207,19 +207,33 @@ export default mainWindow => {
         }
       },
       {
-        label: 'GitHub',
+        label: 'Release Notes',
+        click () {
+          shell.openExternal('https://masscode.io/releases')
+        }
+      },
+      {
+        label: 'View in GitHub',
         click () {
           shell.openExternal('https://github.com/antonreshetov/massCode')
         }
+      },
+      {
+        label: 'Report Issue',
+        click () {
+          shell.openExternal(
+            'https://github.com/antonreshetov/massCode/issues/new'
+          )
+        }
+      },
+      {
+        type: 'separator'
       },
       {
         label: 'Donate',
         click () {
           shell.openExternal('https://masscode.io/donate')
         }
-      },
-      {
-        type: 'separator'
       },
       {
         label: 'About',
