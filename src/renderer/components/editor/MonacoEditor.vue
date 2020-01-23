@@ -68,7 +68,7 @@ export default {
 
   computed: {
     ...mapState(['app', 'preferences']),
-    ...mapGetters('snippets', ['searchQuery']),
+    ...mapGetters('snippets', ['searchQuery', 'selected']),
     languagesMenu () {
       return languages
         .map(i => {
@@ -124,6 +124,17 @@ export default {
     'app.theme' () {
       this.setTheme()
     },
+    'app.snippetListWidth' () {
+      this.updateLayout()
+    },
+    'app.sidebarWidth' () {
+      this.updateLayout()
+    },
+    selected () {
+      this.$nextTick(() => {
+        this.updateLayout()
+      })
+    },
     'preferences.renderWhitespace' (v) {
       this.editor.updateOptions({ renderWhitespace: v })
     },
@@ -171,6 +182,12 @@ export default {
       const footerHeight = 30
       this.editor.layout({ width, height: height - footerHeight - 60 })
     }
+    this.updateLayout()
+    window.addEventListener('resize', this.updateLayout)
+  },
+
+  beforeDestroy () {
+    window.removeEventListener('resize', this.updateLayout)
   },
 
   methods: {
@@ -189,7 +206,6 @@ export default {
           verticalScrollbarSize: 5,
           horizontalScrollbarSize: 5
         },
-        automaticLayout: true,
         contextmenu: false,
         scrollBeyondLastLine: false,
         renderWhitespace: this.preferences.renderWhitespace,
@@ -274,13 +290,6 @@ export default {
     onClickLanguage () {
       menu.popup(this.languagesMenu)
     },
-    calculateHeight () {
-      window.addEventListener('resize', () => {
-        const { height, width } = this.$refs.editor.getBoundingClientRect()
-        const footerHeight = 0
-        this.editor.layout({ width, height: height - footerHeight })
-      })
-    },
     searchHighlight (query) {
       const model = this.editor.getModel()
       const matches = model.findMatches(query, false, true, false)
@@ -311,6 +320,15 @@ export default {
         singleQuote: this.preferences.prettierQuotes
       })
       this.$emit('input', formated)
+    },
+    updateLayout () {
+      const snippetListWidth = this.app.snippetListWidth
+      const sidebarWidth = this.app.sidebarWidth
+      const editorHeight = this.$refs.editor.getBoundingClientRect().height
+      const width = window.innerWidth - snippetListWidth - sidebarWidth
+      const height = editorHeight
+
+      this.editor.layout({ width, height })
     }
   }
 }
