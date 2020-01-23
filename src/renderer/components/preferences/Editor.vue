@@ -1,5 +1,6 @@
 <template>
   <AppForm>
+    <h4>Editor</h4>
     <AppFormItem label="Tab size">
       <AppInput v-model="tabSize" />
       <div class="desc">
@@ -31,6 +32,23 @@
       />
       <div class="desc">
         Controls how lines should wrap.
+      </div>
+    </AppFormItem>
+    <h4>Format</h4>
+    <AppFormItem label="Semicolons">
+      <AppCheckbox v-model="prettierSemi">
+        Enable
+      </AppCheckbox>
+      <div class="desc">
+        Print semicolons at the ends of statements.
+      </div>
+    </AppFormItem>
+    <AppFormItem label="Quotes">
+      <AppCheckbox v-model="prettierQuotes">
+        Enable
+      </AppCheckbox>
+      <div class="desc">
+        Use single quotes instead of double quotes.
       </div>
     </AppFormItem>
   </AppForm>
@@ -94,9 +112,31 @@ export default {
       set (v) {
         this.$store.dispatch('preferences/setInsertSpaces', JSON.parse(v))
       }
+    },
+    prettierSemi: {
+      get () {
+        return this.preferences.prettierSemi
+      },
+      set (v) {
+        this.$store.dispatch('preferences/setPrettierSemi', v)
+      }
+    },
+    prettierQuotes: {
+      get () {
+        return this.preferences.prettierQuotes
+      },
+      set (v) {
+        this.$store.dispatch('preferences/setPrettierQuotes', v)
+      }
     }
   }
 }
 </script>
 
-<style lang="scss"></style>
+<style lang="scss">
+h4 {
+  &:first-of-type {
+    margin-top: 0;
+  }
+}
+</style>

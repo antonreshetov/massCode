@@ -30,6 +30,7 @@ import { menu } from '@@/lib'
 import { mapState, mapGetters } from 'vuex'
 import languages from './languages'
 import { track } from '@@/lib/analytics'
+import prettier from 'prettier'
 
 export default {
   name: 'MonacoEditor',
@@ -67,7 +68,7 @@ export default {
 
   computed: {
     ...mapState(['app', 'preferences']),
-    ...mapGetters('snippets', ['searchQuery']),
+    ...mapGetters('snippets', ['searchQuery', 'selected']),
     languagesMenu () {
       return languages
         .map(i => {
@@ -101,12 +102,38 @@ export default {
         }
       }
       return style
+    },
+    isFormatAvailable () {
+      const available = [
+        'css',
+        'graphql',
+        'html',
+        'javascript',
+        'json',
+        'less',
+        'markdown',
+        'scss',
+        'typescript',
+        'yaml'
+      ]
+      return available.includes(this.language)
     }
   },
 
   watch: {
     'app.theme' () {
       this.setTheme()
+    },
+    'app.snippetListWidth' () {
+      this.updateLayout()
+    },
+    'app.sidebarWidth' () {
+      this.updateLayout()
+    },
+    selected () {
+      this.$nextTick(() => {
+        this.updateLayout()
+      })
     },
     'preferences.renderWhitespace' (v) {
       this.editor.updateOptions({ renderWhitespace: v })
@@ -126,6 +153,12 @@ export default {
         insertSpaces: v
       })
     }
+  },
+
+  created () {
+    this.$bus.$on('menu:format-snippet', () => {
+      this.format()
+    })
   },
 
   mounted () {
@@ -149,6 +182,12 @@ export default {
       const footerHeight = 30
       this.editor.layout({ width, height: height - footerHeight - 60 })
     }
+    this.updateLayout()
+    window.addEventListener('resize', this.updateLayout)
+  },
+
+  beforeDestroy () {
+    window.removeEventListener('resize', this.updateLayout)
   },
 
   methods: {
@@ -167,7 +206,6 @@ export default {
           verticalScrollbarSize: 5,
           horizontalScrollbarSize: 5
         },
-        automaticLayout: true,
         contextmenu: false,
         scrollBeyondLastLine: false,
         renderWhitespace: this.preferences.renderWhitespace,
@@ -252,13 +290,6 @@ export default {
     onClickLanguage () {
       menu.popup(this.languagesMenu)
     },
-    calculateHeight () {
-      window.addEventListener('resize', () => {
-        const { height, width } = this.$refs.editor.getBoundingClientRect()
-        const footerHeight = 0
-        this.editor.layout({ width, height: height - footerHeight })
-      })
-    },
     searchHighlight (query) {
       const model = this.editor.getModel()
       const matches = model.findMatches(query, false, true, false)
@@ -272,6 +303,32 @@ export default {
         this.decorations,
         newDecorations
       )
+    },
+    format () {
+      if (!this.isFormatAvailable) return
+
+      let parser = this.language
+
+      if (this.language === 'javascript') parser = 'babel'
+      if (this.language === 'html') parser = 'vue'
+
+      const formated = prettier.format(this.value, {
+        parser,
+        semi: this.preferences.prettierSemi,
+        tabWidth: this.preferences.tabSize,
+        useTabs: !this.preferences.insertSpaces,
+        singleQuote: this.preferences.prettierQuotes
+      })
+      this.$emit('input', formated)
+    },
+    updateLayout () {
+      const snippetListWidth = this.app.snippetListWidth
+      const sidebarWidth = this.app.sidebarWidth
+      const editorHeight = this.$refs.editor.getBoundingClientRect().height
+      const width = window.innerWidth - snippetListWidth - sidebarWidth
+      const height = editorHeight
+
+      this.editor.layout({ width, height })
     }
   }
 }

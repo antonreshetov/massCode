@@ -34,6 +34,12 @@ const preferences = new Store({
     insertSpaces: {
       default: true
     },
+    prettierSemi: {
+      default: false
+    },
+    prettierQuotes: {
+      default: true
+    },
     allowAnalytics: {
       default: true
     }
