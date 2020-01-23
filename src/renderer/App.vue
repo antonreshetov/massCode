@@ -4,12 +4,13 @@
     :data-theme="app.theme"
   >
     <div class="app-title-bar" />
-    <RouterView />
+    <KeepAlive>
+      <RouterView />
+    </KeepAlive>
   </div>
 </template>
 
 <script>
-import shortid from 'shortid'
 import { mapGetters, mapState } from 'vuex'
 import '@/lib/ipcRenderer'
 import electronStore from '@@/store'
@@ -39,25 +40,8 @@ export default {
 
   methods: {
     async initState () {
-      await this.setDefaultDataStore()
-
-      const storagePath = electronStore.preferences.get('storagePath')
-      const snippetListWidth = electronStore.app.get('snippetListWidth')
-      const sidebarWidth = electronStore.app.get('sidebarWidth')
       const selectedFolderId = electronStore.app.get('selectedFolderId')
       const selectedSnippetId = electronStore.app.get('selectedSnippetId')
-      const theme = electronStore.preferences.get('theme')
-      const snippetsSort = electronStore.app.get('snippetsSort')
-
-      this.$store.commit('app/SET_STORAGE_PATH', storagePath)
-
-      if (snippetListWidth) {
-        this.$store.commit('app/SET_SNIPPET_LIST_WIDTH', snippetListWidth)
-      }
-
-      if (sidebarWidth) {
-        this.$store.commit('app/SET_SIDEBAR_WIDTH', sidebarWidth)
-      }
 
       if (selectedFolderId) {
         this.$store.dispatch('folders/setSelectedFolder', selectedFolderId)
@@ -84,37 +68,10 @@ export default {
         if (snippet) this.$store.dispatch('snippets/setSelected', snippet)
       }
 
-      if (theme) {
-        this.$store.dispatch('app/setTheme', theme)
-      }
-
-      if (snippetsSort) {
-        this.$store.dispatch('snippets/setSort', snippetsSort)
-      }
-
-      this.$store.dispatch('tags/getTags')
+      await this.$store.dispatch('tags/getTags')
+      await this.$store.dispatch('folders/getFolders')
 
       this.$store.commit('app/SET_INIT', true)
-    },
-    async setDefaultDataStore () {
-      const defaultFolder = {
-        list: [
-          {
-            id: shortid(),
-            name: 'Default',
-            open: false,
-            defaultLanguage: 'text'
-          }
-        ],
-        _id: 'folders'
-      }
-
-      this.$db.masscode.insert(defaultFolder, (err, doc) => {
-        if (err) return
-        this.$store.dispatch('folders/getFolders')
-      })
-
-      await this.$store.dispatch('folders/getFolders')
     }
   }
 }

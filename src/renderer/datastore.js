@@ -3,6 +3,7 @@ import path from 'path'
 import { remote } from 'electron'
 import electronStore from '@@/store'
 import fs from 'fs-extra'
+import shortid from 'shortid'
 
 class DataStore {
   constructor () {
@@ -51,5 +52,19 @@ class DataStore {
 }
 
 const db = new DataStore()
+
+const defaultFolder = {
+  list: [
+    {
+      id: shortid(),
+      name: 'Default',
+      open: false,
+      defaultLanguage: 'text'
+    }
+  ],
+  _id: 'folders'
+}
+
+db.masscode.insert(defaultFolder)
 
 export default db
