@@ -54,6 +54,7 @@ export default {
 
   computed: {
     ...mapGetters('tags', ['tags']),
+    ...mapGetters('snippets', ['selected']),
     isResult () {
       return this.autocomplete.length > 0
     }
@@ -66,6 +67,11 @@ export default {
       } else {
         this.showPopper = false
       }
+    },
+    selected () {
+      this.$nextTick(() => {
+        this.checkTagsHeight()
+      })
     }
   },
 
