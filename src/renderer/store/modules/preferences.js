@@ -6,7 +6,9 @@ export default {
     renderWhitespace: electronStore.preferences.get('renderWhitespace'),
     wordWrap: electronStore.preferences.get('wordWrap'),
     tabSize: electronStore.preferences.get('tabSize'),
-    insertSpaces: electronStore.preferences.get('insertSpaces')
+    insertSpaces: electronStore.preferences.get('insertSpaces'),
+    prettierSemi: electronStore.preferences.get('prettierSemi'),
+    prettierQuotes: electronStore.preferences.get('prettierQuotes')
   },
   getters: {},
   mutations: {
@@ -21,6 +23,12 @@ export default {
     },
     SET_INSERT_SPACES (state, bool) {
       state.insertSpaces = bool
+    },
+    SET_PRETTIER_SEMI (state, bool) {
+      state.prettierSemi = bool
+    },
+    SET_PRETTIER_QUOTES (state, bool) {
+      state.prettierQuotes = bool
     }
   },
   actions: {
@@ -39,6 +47,14 @@ export default {
     setInsertSpaces ({ commit }, bool) {
       commit('SET_INSERT_SPACES', bool)
       electronStore.preferences.set('insertSpaces', bool)
+    },
+    setPrettierSemi ({ commit }, bool) {
+      commit('SET_PRETTIER_SEMI', bool)
+      electronStore.preferences.set('prettierSemi', bool)
+    },
+    setPrettierQuotes ({ commit }, bool) {
+      commit('SET_PRETTIER_QUOTES', bool)
+      electronStore.preferences.set('prettierQuotes', bool)
     }
   }
 }

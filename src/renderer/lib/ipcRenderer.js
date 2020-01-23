@@ -38,6 +38,10 @@ ipcRenderer.on('menu:copy-snippet', () => {
   track('snippets/copied')
 })
 
+ipcRenderer.on('menu:format-snippet', () => {
+  eventBus.$emit('menu:format-snippet')
+})
+
 ipcRenderer.on('update-available', () => {
   store.commit('app/SET_UPDATE_AVAILABLE', true)
 })

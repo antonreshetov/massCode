@@ -169,6 +169,13 @@ export default mainWindow => {
         click () {
           mainWindow.webContents.send('menu:copy-snippet')
         }
+      },
+      {
+        label: 'Format',
+        accelerator: 'Shift+CommandOrControl+F',
+        click () {
+          mainWindow.webContents.send('menu:format-snippet')
+        }
       }
     ]
   }
