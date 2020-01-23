@@ -169,6 +169,7 @@ export default {
 .preferences {
   background-color: var(--color-bg);
   height: 100vh;
+  overflow: hidden;
   &__wrapper {
     padding-top: var(--title-bar-height);
     padding: 0 var(--spacing-lg);
@@ -176,6 +177,7 @@ export default {
     max-width: 1200px;
   }
   &__header {
+    height: var(--menu-header);
     display: flex;
     align-items: center;
     justify-content: space-between;

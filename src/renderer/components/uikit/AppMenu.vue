@@ -13,13 +13,18 @@
         {{ i.componentInstance.label }}
       </div>
     </div>
-    <div class="app-menu__body">
+    <div
+      ref="body"
+      class="app-menu__body"
+    >
       <slot />
     </div>
   </div>
 </template>
 
 <script>
+import PerfectScrollbar from 'perfect-scrollbar'
+
 export default {
   name: 'AppMenu',
 
@@ -38,12 +43,14 @@ export default {
 
   data () {
     return {
-      children: []
+      children: [],
+      ps: null
     }
   },
 
   mounted () {
     this.getChildren()
+    this.initPS()
   },
 
   methods: {
@@ -59,6 +66,11 @@ export default {
     },
     onSelect (value) {
       this.$emit('input', value)
+    },
+    initPS () {
+      this.ps = new PerfectScrollbar(this.$refs.body, {
+        suppressScrollX: true
+      })
     }
   }
 }
@@ -66,9 +78,9 @@ export default {
 
 <style lang="scss">
 .app-menu {
-  display: flex;
+  display: grid;
+  grid-template-columns: 200px 1fr;
   &__list {
-    width: 200px;
     margin-right: var(--spacing-md);
     &-item {
       padding: var(--spacing-xs);
@@ -82,7 +94,10 @@ export default {
     }
   }
   &__body {
-    flex-grow: 1;
+    position: relative;
+    height: calc(100vh - var(--menu-header));
+    overflow: scroll;
+    padding-bottom: var(--spacing-lg);
   }
 }
 </style>
