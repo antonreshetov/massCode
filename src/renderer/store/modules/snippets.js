@@ -15,7 +15,7 @@ export default {
     searchQuery: null,
     searchQueryTray: null,
     newSnippetId: null,
-    sort: 'updateAt',
+    sort: electronStore.app.get('snippetsSort'),
     activeFragment: { snippetId: null, index: 0 }
   },
   getters: {

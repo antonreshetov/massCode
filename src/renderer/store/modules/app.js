@@ -5,10 +5,10 @@ export default {
   state: {
     os: process.platform,
     init: false,
-    theme: 'dark',
-    sidebarWidth: 180,
-    snippetListWidth: 220,
-    storagePath: null,
+    theme: electronStore.preferences.get('theme'),
+    sidebarWidth: electronStore.app.get('sidebarWidth'),
+    snippetListWidth: electronStore.app.get('snippetListWidth'),
+    storagePath: electronStore.preferences.get('storagePath'),
     markdownPreview: false,
     updateAvailable: false,
     showTags: false

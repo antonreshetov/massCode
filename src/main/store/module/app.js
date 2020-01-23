@@ -9,10 +9,10 @@ const app = new Store({
       default: null
     },
     sidebarWidth: {
-      default: null
+      default: 180
     },
     snippetListWidth: {
-      default: null
+      default: 220
     },
     selectedFolderId: {
       default: null

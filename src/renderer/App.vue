@@ -43,23 +43,8 @@ export default {
     async initState () {
       await this.setDefaultDataStore()
 
-      const storagePath = electronStore.preferences.get('storagePath')
-      const snippetListWidth = electronStore.app.get('snippetListWidth')
-      const sidebarWidth = electronStore.app.get('sidebarWidth')
       const selectedFolderId = electronStore.app.get('selectedFolderId')
       const selectedSnippetId = electronStore.app.get('selectedSnippetId')
-      const theme = electronStore.preferences.get('theme')
-      const snippetsSort = electronStore.app.get('snippetsSort')
-
-      this.$store.commit('app/SET_STORAGE_PATH', storagePath)
-
-      if (snippetListWidth) {
-        this.$store.commit('app/SET_SNIPPET_LIST_WIDTH', snippetListWidth)
-      }
-
-      if (sidebarWidth) {
-        this.$store.commit('app/SET_SIDEBAR_WIDTH', sidebarWidth)
-      }
 
       if (selectedFolderId) {
         this.$store.dispatch('folders/setSelectedFolder', selectedFolderId)
@@ -84,14 +69,6 @@ export default {
           i => i._id === selectedSnippetId
         )
         if (snippet) this.$store.dispatch('snippets/setSelected', snippet)
-      }
-
-      if (theme) {
-        this.$store.dispatch('app/setTheme', theme)
-      }
-
-      if (snippetsSort) {
-        this.$store.dispatch('snippets/setSort', snippetsSort)
       }
 
       this.$store.dispatch('tags/getTags')
