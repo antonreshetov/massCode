@@ -3,10 +3,13 @@
     <SidebarList title="Folders">
       <DraggableTree
         ref="tree"
+        class="aaaaa"
         :data="localFolders"
         :indent="10"
         :space="0"
         :draggable="true"
+        :ondragstart="onDragNodeStart"
+        :ondragend="onDragNodeEnd"
         @change="onTreeChange"
       >
         <template v-slot="{ data, store }">
@@ -59,7 +62,8 @@ export default {
       localFolders: [],
       draggable: true,
       editableFolderId: null,
-      ps: null
+      ps: null,
+      ghostEl: null
     }
   },
 
@@ -110,6 +114,41 @@ export default {
     initPS () {
       const el = document.querySelector('.folders .tree')
       this.ps = new PerfectScrollbar(el)
+    },
+    onDragNodeStart (e) {
+      this.createGhostDrag(e)
+      document.addEventListener('mousemove', this.setGhostDragPosition)
+    },
+    onDragNodeEnd () {
+      document.removeEventListener('mousemove', this.setGhostDragPosition)
+      document.querySelector('.ghost-dragging-item').remove()
+    },
+    createGhostDrag (e) {
+      const el = document.createElement('div')
+      const style = {
+        minWidth: '100px',
+        height: '28px',
+        backgroundColor: 'var(--color-contrast-low)',
+        borderRadius: '3px',
+        display: 'flex',
+        alignItems: 'center',
+        position: 'fixed'
+      }
+
+      el.className = 'ghost-dragging-item'
+      el.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-folder">
+          <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path>
+        </svg>
+        ${e.name}`
+
+      Object.assign(el.style, style)
+      document.querySelector('#app').appendChild(el)
+
+      this.ghostEl = el
+    },
+    setGhostDragPosition (e) {
+      this.ghostEl.style.top = e.y + 'px'
+      this.ghostEl.style.left = e.x + 'px'
     }
   }
 }

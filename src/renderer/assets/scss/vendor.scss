@@ -55,3 +55,10 @@
 
 .draggable-placeholder{
 } 
+
+.tree-node {
+  -webkit-user-select: none;
+  &.dragging {
+    visibility: hidden;
+    }
+}

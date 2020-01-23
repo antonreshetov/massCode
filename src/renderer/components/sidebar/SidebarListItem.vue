@@ -261,7 +261,8 @@ export default {
 </script>
 
 <style lang="scss">
-.sidebar-list-item {
+.sidebar-list-item,
+.ghost-dragging-item {
   display: flex;
   align-items: center;
   padding: 4px calc(var(--spacing-sm) + 2px);
@@ -323,6 +324,12 @@ export default {
       width: 14px;
       height: 14px;
     }
+  }
+}
+.ghost-dragging-item {
+  padding: 4px var(--spacing-xs);
+  svg {
+    top: 0;
   }
 }
 </style>
