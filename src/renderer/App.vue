@@ -11,7 +11,6 @@
 </template>
 
 <script>
-import shortid from 'shortid'
 import { mapGetters, mapState } from 'vuex'
 import '@/lib/ipcRenderer'
 import electronStore from '@@/store'
@@ -41,8 +40,6 @@ export default {
 
   methods: {
     async initState () {
-      await this.setDefaultDataStore()
-
       const selectedFolderId = electronStore.app.get('selectedFolderId')
       const selectedSnippetId = electronStore.app.get('selectedSnippetId')
 
@@ -71,29 +68,10 @@ export default {
         if (snippet) this.$store.dispatch('snippets/setSelected', snippet)
       }
 
-      this.$store.dispatch('tags/getTags')
+      await this.$store.dispatch('tags/getTags')
+      await this.$store.dispatch('folders/getFolders')
 
       this.$store.commit('app/SET_INIT', true)
-    },
-    async setDefaultDataStore () {
-      const defaultFolder = {
-        list: [
-          {
-            id: shortid(),
-            name: 'Default',
-            open: false,
-            defaultLanguage: 'text'
-          }
-        ],
-        _id: 'folders'
-      }
-
-      this.$db.masscode.insert(defaultFolder, (err, doc) => {
-        if (err) return
-        this.$store.dispatch('folders/getFolders')
-      })
-
-      await this.$store.dispatch('folders/getFolders')
     }
   }
 }
