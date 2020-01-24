@@ -320,6 +320,7 @@ export default {
         singleQuote: this.preferences.prettierQuotes
       })
       this.$emit('input', formated)
+      track('snippets/format')
     },
     updateLayout () {
       const snippetListWidth = this.app.snippetListWidth
