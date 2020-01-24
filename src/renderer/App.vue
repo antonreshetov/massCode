@@ -1,5 +1,8 @@
 <template>
-  <div id="app">
+  <div
+    id="app"
+    :data-theme="theme"
+  >
     <div class="app-title-bar" />
     <KeepAlive>
       <RouterView />
@@ -28,18 +31,28 @@ export default {
       'defaultQueryBySystemFolder',
       'isSystemFolder'
     ]),
-    ...mapGetters('snippets', ['snippetsBySort'])
+    ...mapGetters('snippets', ['snippetsBySort']),
+    isTray () {
+      return this.$route.name === 'tray'
+    },
+    theme () {
+      return this.isTray ? this.app.theme : null
+    }
   },
 
   watch: {
     'app.theme' (v) {
-      document.body.setAttribute('data-theme', v)
+      if (!this.isTray) {
+        document.body.setAttribute('data-theme', this.app.theme)
+      }
     }
   },
 
   created () {
     this.initState()
-    document.body.setAttribute('data-theme', this.app.theme)
+    if (!this.isTray) {
+      document.body.setAttribute('data-theme', this.app.theme)
+    }
   },
 
   methods: {
