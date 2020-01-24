@@ -10,7 +10,7 @@ echo
 if [[ $REPLY =~ ^[Yy]$ ]]
 then
   git add -A
-  npm version $VERSION -m "release: $VERSION"
+  npm version $VERSION -m "build: release $VERSION"
   git push origin master
   git push origin --tags
 fi
