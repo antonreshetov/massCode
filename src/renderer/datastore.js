@@ -41,8 +41,20 @@ class DataStore {
   }
 
   async move (to) {
+    const src = [
+      path.resolve(this._path, 'masscode.db'),
+      path.resolve(this._path, 'snippets.db'),
+      path.resolve(this._path, 'tags.db')
+    ]
+    const dist = [
+      path.resolve(to, 'masscode.db'),
+      path.resolve(to, 'snippets.db'),
+      path.resolve(to, 'tags.db')
+    ]
     try {
-      await fs.move(this._path, to, { overwrite: true })
+      src.forEach((file, index) => {
+        fs.moveSync(file, dist[index])
+      })
       electronStore.preferences.set('storagePath', to)
       this.updatePath()
     } catch (err) {
