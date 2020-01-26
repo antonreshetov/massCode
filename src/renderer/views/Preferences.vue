@@ -76,7 +76,6 @@
 import { mapState, mapGetters } from 'vuex'
 import { dialog } from '@@/lib'
 import db from '@/datastore'
-import { defaultLibraryQuery } from '@/util/helpers'
 import Assistant from '@/components/preferences/Assistant.vue'
 import Editor from '@/components/preferences/Editor.vue'
 import { ipcRenderer } from 'electron'
@@ -163,10 +162,10 @@ export default {
       }
     },
     async updateData () {
+      this.$store.dispatch('snippets/setSelected', null)
+      this.$store.dispatch('folders/setSelectedFolder', 'allSnippets')
       await this.$store.dispatch('folders/getFolders')
-      const defaultQuery = { folderId: { $in: this.selectedIds } }
-      const query = defaultLibraryQuery(defaultQuery, this.selectedId)
-      await this.$store.dispatch('snippets/getSnippets', query)
+      await this.$store.dispatch('snippets/getSnippets')
     },
     close () {
       this.$router.push('/')
