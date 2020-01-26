@@ -88,6 +88,12 @@ export default {
     setSelectedFolder ({ state, commit, dispatch, getters }, id) {
       const libraryItems = ['inBox', 'favorites', 'allSnippets', 'trash']
 
+      if (!id) {
+        commit('SET_SELECTED_ID', null)
+        electronStore.app.delete('selectedFolderId')
+        return
+      }
+
       commit('SET_SELECTED_ID', id)
       electronStore.app.set('selectedFolderId', id)
 
