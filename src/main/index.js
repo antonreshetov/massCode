@@ -1,4 +1,4 @@
-import { app, Menu, ipcMain } from 'electron'
+import { app, Menu, ipcMain, dialog, BrowserWindow } from 'electron'
 import { createMainWindow, mainWindow } from './main'
 import { createTray, destroyTray } from './tray'
 import store from './store'
@@ -53,6 +53,10 @@ app.on('activate', () => {
 
 ipcMain.on('preferences:assistant', (e, enable) => {
   enable ? initTray() : destroyTray()
+})
+
+ipcMain.on('message', (e, options) => {
+  dialog.showMessageBox(BrowserWindow.getFocusedWindow(), options)
 })
 
 /**

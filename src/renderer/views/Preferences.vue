@@ -79,6 +79,7 @@ import db from '@/datastore'
 import { defaultLibraryQuery } from '@/util/helpers'
 import Assistant from '@/components/preferences/Assistant.vue'
 import Editor from '@/components/preferences/Editor.vue'
+import { ipcRenderer } from 'electron'
 
 export default {
   name: 'Preferences',
@@ -136,9 +137,18 @@ export default {
       })
       if (dir) {
         const path = dir[0]
-        db.move(path)
-        this.updateData()
-        this.$store.commit('app/SET_STORAGE_PATH', path)
+        try {
+          await db.move(path)
+          this.updateData()
+          this.$store.commit('app/SET_STORAGE_PATH', path)
+        } catch (err) {
+          ipcRenderer.send('message', {
+            message: 'Error',
+            type: 'error',
+            detail:
+              'Folder already contains db files. Please select another folder.'
+          })
+        }
       }
     },
     async onOpenStorage () {
