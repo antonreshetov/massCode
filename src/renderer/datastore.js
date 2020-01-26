@@ -40,26 +40,29 @@ class DataStore {
     this.updatePath()
   }
 
-  async move (to) {
-    const src = [
-      path.resolve(this._path, 'masscode.db'),
-      path.resolve(this._path, 'snippets.db'),
-      path.resolve(this._path, 'tags.db')
-    ]
-    const dist = [
-      path.resolve(to, 'masscode.db'),
-      path.resolve(to, 'snippets.db'),
-      path.resolve(to, 'tags.db')
-    ]
-    try {
-      src.forEach((file, index) => {
-        fs.moveSync(file, dist[index])
+  move (to) {
+    return new Promise((resolve, reject) => {
+      const dbFiles = ['masscode.db', 'snippets.db', 'tags.db']
+      const src = dbFiles.map(i => path.resolve(this._path, i))
+      const dist = dbFiles.map(i => path.resolve(to, i))
+
+      fs.readdir(to, (err, files) => {
+        if (err) reject(err)
+
+        const isExist = dbFiles.some(i => files.includes(i))
+
+        if (isExist) {
+          reject(new Error('Folder already contains db files.'))
+        }
+
+        src.forEach((file, index) => {
+          fs.moveSync(file, dist[index])
+        })
+        electronStore.preferences.set('storagePath', to)
+        this.updatePath()
+        resolve()
       })
-      electronStore.preferences.set('storagePath', to)
-      this.updatePath()
-    } catch (err) {
-      console.error(err)
-    }
+    })
   }
 }
 
