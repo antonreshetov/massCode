@@ -16,12 +16,16 @@ function createMainWindow () {
     ...store.app.get('bounds')
   }
 
+  const backgroundColor =
+    store.preferences.get('theme') === 'dark' ? '#333' : '#fff'
+
   mainWindow = new BrowserWindow({
     title: 'massCode',
     useContentSize: true,
     titleBarStyle: 'hidden',
     // Убираем хайлайт вокруг приложения на Mac
     transparent: process.platform === 'darwin',
+    backgroundColor,
     webPreferences: {
       nodeIntegration: true
     }
