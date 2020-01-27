@@ -15,42 +15,14 @@
             label="Storage"
             value="storage"
           >
-            <AppForm>
-              <AppFormItem label="Location">
-                <div class="preferences__form-item">
-                  <AppInput
-                    v-model="storagePath"
-                    :readonly="true"
-                    bordered
-                    size="small"
-                    class="preferences__input"
-                  />
-                  <AppButton @click="onChangeStorage">
-                    Move storage
-                  </AppButton>
-                  <AppButton @click="onOpenStorage">
-                    Open storage
-                  </AppButton>
-                </div>
-                <div class="desc">
-                  To use sync services like iCloud Drive, Google Drive of
-                  Dropbox, simply move storage to the corresponding synced
-                  folders.
-                </div>
-              </AppFormItem>
-            </AppForm>
+            <Storage v-if="active === 'storage'" />
           </AppMenuItem>
           <AppMenuItem
             label="Interface"
             value="interface"
           >
             <AppForm>
-              <AppFormItem label="Theme">
-                <AppSelect
-                  v-model="themeSelected"
-                  :options="themes"
-                />
-              </AppFormItem>
+              <Interface v-if="active === 'interface'" />
             </AppForm>
           </AppMenuItem>
 
@@ -73,50 +45,30 @@
 </template>
 
 <script>
-import { mapState, mapGetters } from 'vuex'
-import { dialog } from '@@/lib'
-import db from '@/datastore'
+import { mapState } from 'vuex'
+import Storage from '@/components/preferences/Storage.vue'
+import Interface from '@/components/preferences/Interface.vue'
 import Assistant from '@/components/preferences/Assistant.vue'
 import Editor from '@/components/preferences/Editor.vue'
-import { ipcRenderer } from 'electron'
 
 export default {
   name: 'Preferences',
 
   components: {
+    Storage,
+    Interface,
     Assistant,
     Editor
   },
 
   data () {
     return {
-      active: 'storage',
-      themes: [
-        { label: 'Light', value: 'light' },
-        { label: 'Dark', value: 'dark' }
-      ]
+      active: 'storage'
     }
   },
 
   computed: {
-    ...mapState(['app']),
-    ...mapGetters('folders', ['selectedId', 'selectedIds']),
-    storagePath: {
-      get () {
-        return this.app.storagePath
-      },
-      set (v) {
-        this.$store.commit('app/SET_STORAGE_PATH', v)
-      }
-    },
-    themeSelected: {
-      get () {
-        return this.app.theme
-      },
-      set (v) {
-        this.$store.dispatch('app/setTheme', v)
-      }
-    }
+    ...mapState(['app'])
   },
 
   created () {
@@ -130,43 +82,6 @@ export default {
   },
 
   methods: {
-    async onChangeStorage () {
-      const dir = dialog.showOpenDialogSync({
-        properties: ['openDirectory', 'createDirectory']
-      })
-      if (dir) {
-        const path = dir[0]
-        try {
-          await db.move(path)
-          this.updateData()
-          this.$store.commit('app/SET_STORAGE_PATH', path)
-        } catch (err) {
-          ipcRenderer.send('message', {
-            message: 'Error',
-            type: 'error',
-            detail:
-              'Folder already contains db files. Please select another folder.'
-          })
-        }
-      }
-    },
-    async onOpenStorage () {
-      const dir = dialog.showOpenDialogSync({
-        properties: ['openDirectory']
-      })
-      if (dir) {
-        const path = dir[0]
-        db.import(path)
-        this.updateData()
-        this.$store.commit('app/SET_STORAGE_PATH', path)
-      }
-    },
-    async updateData () {
-      this.$store.dispatch('snippets/setSelected', null)
-      this.$store.dispatch('folders/setSelectedFolder', 'allSnippets')
-      await this.$store.dispatch('folders/getFolders')
-      await this.$store.dispatch('snippets/getSnippets')
-    },
     close () {
       this.$router.push('/')
     }
