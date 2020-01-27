@@ -47,6 +47,7 @@ import { mapGetters } from 'vuex'
 import PerfectScrollbar from 'perfect-scrollbar'
 import '@/lib/ipcRenderer'
 import { ipcRenderer } from 'electron'
+import db from '@/datastore'
 
 export default {
   name: 'TrayView',
@@ -100,14 +101,13 @@ export default {
   },
 
   mounted () {
-    this.init()
     this.initPS()
   },
 
   methods: {
     async init () {
       // Загружаем последние изменения БД
-      this.$db.snippets.loadDatabase()
+      db.updatePath()
 
       await this.$store.dispatch('snippets/getLatestSnippets')
       if (this.ps) {
