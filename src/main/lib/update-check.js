@@ -4,12 +4,11 @@ import { mainWindow } from '../main'
 const pkg = require('../../../package.json')
 const isDev = process.env.NODE_ENV === 'development'
 
-async function checkForUpdatesAndNotify () {
+function checkForUpdatesAndNotify () {
   if (isDev) return
 
-  const currentVersion = pkg.version
-
-  setInterval(async () => {
+  async function check () {
+    const currentVersion = pkg.version
     const res = await axios.get(
       'https://github.com/antonreshetov/masscode/releases/latest'
     )
@@ -23,7 +22,10 @@ async function checkForUpdatesAndNotify () {
         mainWindow.webContents.send('update-available')
       }
     }
-  }, 1000 * 60 * 15)
+  }
+
+  check()
+  setInterval(check, 1000 * 60 * 15)
 }
 
 export { checkForUpdatesAndNotify }
