@@ -45,9 +45,15 @@ app.on('window-all-closed', () => {
   }
 })
 
+app.on('before-quit', () => {
+  mainWindow.removeAllListeners()
+})
+
 app.on('activate', () => {
   if (mainWindow === null) {
     init()
+  } else {
+    mainWindow.show()
   }
 })
 

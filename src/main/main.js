@@ -38,9 +38,21 @@ function createMainWindow () {
     mainWindow.webContents.openDevTools({ mode: 'detach' })
   }
 
-  mainWindow.on('close', () => {
-    store.app.set('bounds', mainWindow.getBounds())
-  })
+  if (process.platform === 'darwin') {
+    mainWindow.on('close', e => {
+      e.preventDefault()
+
+      if (mainWindow.isFullScreen()) {
+        mainWindow.once('leave-full-screen', () => {
+          mainWindow.hide()
+        })
+        mainWindow.setFullScreen(false)
+      } else {
+        mainWindow.hide()
+      }
+      store.app.set('bounds', mainWindow.getBounds())
+    })
+  }
 
   mainWindow.on('closed', e => {
     mainWindow = null
