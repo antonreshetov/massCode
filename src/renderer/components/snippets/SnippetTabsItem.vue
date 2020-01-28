@@ -77,7 +77,7 @@ export default {
           type: 'separator'
         },
         {
-          label: `Delete ${this.label}"`,
+          label: `Delete ${this.label}`,
           click: () => {
             const buttonId = dialog.showMessageBoxSync({
               message: `Are you sure you want to permanently delete "${this.label}"?`,
