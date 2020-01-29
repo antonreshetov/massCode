@@ -42,6 +42,10 @@ ipcRenderer.on('menu:format-snippet', () => {
   eventBus.$emit('menu:format-snippet')
 })
 
+ipcRenderer.on('menu:favorites', () => {
+  store.dispatch('folders/setSelectedFolder', 'favorites')
+})
+
 ipcRenderer.on('update-available', () => {
   store.commit('app/SET_UPDATE_AVAILABLE', true)
 })

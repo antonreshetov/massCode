@@ -3,6 +3,7 @@ import { createMainWindow, mainWindow } from './main'
 import { createTray, destroyTray } from './tray'
 import store from './store'
 import mainMenu from './lib/main-menu'
+import touchBar from './lib/touch-bar'
 import { initAnalytics } from './lib/analytics'
 import { checkForUpdatesAndNotify } from './lib/update-check'
 
@@ -37,6 +38,7 @@ app.on('ready', () => {
   initTray()
   initAnalytics()
   checkForUpdatesAndNotify()
+  mainWindow.setTouchBar(touchBar)
 })
 
 app.on('window-all-closed', () => {
