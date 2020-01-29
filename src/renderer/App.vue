@@ -57,6 +57,9 @@ export default {
 
   methods: {
     async initState () {
+      await this.$store.dispatch('tags/getTags')
+      await this.$store.dispatch('folders/getFolders')
+
       const selectedFolderId = electronStore.app.get('selectedFolderId')
       const selectedSnippetId = electronStore.app.get('selectedSnippetId')
 
@@ -84,9 +87,6 @@ export default {
         )
         if (snippet) this.$store.dispatch('snippets/setSelected', snippet)
       }
-
-      await this.$store.dispatch('tags/getTags')
-      await this.$store.dispatch('folders/getFolders')
 
       this.$store.commit('app/SET_INIT', true)
     }
