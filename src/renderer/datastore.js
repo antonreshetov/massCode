@@ -1,6 +1,6 @@
 import Store from 'nedb'
 import path from 'path'
-import { remote } from 'electron'
+import { remote, BrowserWindow } from 'electron'
 import electronStore from '@@/store'
 import fs from 'fs-extra'
 import shortid from 'shortid'
@@ -46,15 +46,25 @@ class DataStore {
       const src = dbFiles.map(i => path.resolve(this._path, i))
       const dist = dbFiles.map(i => path.resolve(to, i))
 
-      fs.readdir(to, (err, files) => {
+      fs.readdir(to, async (err, files) => {
         if (err) reject(err)
 
         const isExist = dbFiles.some(i => files.includes(i))
 
         if (isExist) {
-          reject(new Error('Folder already contains db files.'))
+          const confirmSaveFolder = await remote.dialog.showMessageBox(
+            BrowserWindow({ parent: top, modal: true, show: false }),
+            {
+              message:
+                'This folder already contains files. Do you really want to use this folder?',
+              buttons: ['Yes', 'Cancel'],
+              cancelId: 1
+            }
+          )
+          if (confirmSaveFolder.response === 1) {
+            reject(new Error('Folder already contains db files.'))
+          }
         }
-
         src.forEach((file, index) => {
           fs.moveSync(file, dist[index])
         })
