@@ -220,6 +220,12 @@ export default mainWindow => {
         }
       },
       {
+        label: 'Documentation',
+        click () {
+          shell.openExternal('https://masscode.io/documentation')
+        }
+      },
+      {
         label: 'View in GitHub',
         click () {
           shell.openExternal('https://github.com/antonreshetov/massCode')
