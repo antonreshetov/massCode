@@ -12,6 +12,7 @@ import MarkdownIt from 'markdown-it'
 import mila from 'markdown-it-link-attributes'
 import { shell } from 'electron'
 import PerfectScrollbar from 'perfect-scrollbar'
+import sanitizeHtml from 'sanitize-html'
 
 export default {
   name: 'MarkdownPreview',
@@ -36,7 +37,8 @@ export default {
 
   computed: {
     result () {
-      return this.md.render(this.model)
+      const raw = this.md.render(this.model)
+      return sanitizeHtml(raw)
     },
     previewStyles () {
       let style = {
