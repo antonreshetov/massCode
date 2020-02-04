@@ -8,6 +8,7 @@ import { initAnalytics } from './lib/analytics'
 import { checkForUpdatesAndNotify } from './lib/update-check'
 
 const isDev = process.env.NODE_ENV === 'development'
+let menu
 
 /**
  * Set `__static` path to static files in production
@@ -22,7 +23,7 @@ if (!isDev) {
 function init () {
   createMainWindow()
 
-  const menu = Menu.buildFromTemplate(mainMenu(mainWindow))
+  menu = Menu.buildFromTemplate(mainMenu(mainWindow))
   Menu.setApplicationMenu(menu)
 }
 
@@ -65,6 +66,11 @@ ipcMain.on('preferences:assistant', (e, enable) => {
 
 ipcMain.on('message', (e, options) => {
   dialog.showMessageBox(BrowserWindow.getFocusedWindow(), options)
+})
+
+// Переключение чекбокса у Editor/Preview Markdown
+ipcMain.on('menu:markdown-preview', (e, value) => {
+  menu.items[3].submenu.items[2].checked = value
 })
 
 /**

@@ -42,6 +42,10 @@ ipcRenderer.on('menu:format-snippet', () => {
   eventBus.$emit('menu:format-snippet')
 })
 
+ipcRenderer.on('menu:markdown-preview', (e, value) => {
+  store.commit('app/SET_MARKDOWN_PREVIEW', value)
+})
+
 ipcRenderer.on('menu:favorites', () => {
   store.dispatch('folders/setSelectedFolder', 'favorites')
 })

@@ -176,6 +176,15 @@ export default mainWindow => {
         click () {
           mainWindow.webContents.send('menu:format-snippet')
         }
+      },
+      {
+        label: 'Preview Markdown',
+        accelerator: 'Shift+CommandOrControl+M',
+        type: 'checkbox',
+        checked: false,
+        click (e) {
+          mainWindow.webContents.send('menu:markdown-preview', e.checked)
+        }
       }
     ]
   }

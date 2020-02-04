@@ -91,6 +91,7 @@ import SnippetTabs from '@/components/snippets/SnippetTabs.vue'
 import SnippetTabsPane from '@/components/snippets/SnippetTabsPane.vue'
 import { menu, dialog } from '@@/lib'
 import { track } from '@@/lib/analytics'
+import { ipcRenderer } from 'electron'
 
 export default {
   name: 'SnippetView',
@@ -292,6 +293,7 @@ export default {
     },
     onMarkdownPreview () {
       this.$store.commit('app/SET_MARKDOWN_PREVIEW', !this.app.markdownPreview)
+      ipcRenderer.send('menu:markdown-preview', this.app.markdownPreview)
     },
     async onAddTag (e) {
       const { tag, addTag } = e
