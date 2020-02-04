@@ -166,6 +166,15 @@ export default {
     }
   },
 
+  watch: {
+    isNew () {
+      this.$nextTick(() => {
+        this.$refs.input.$refs.input.focus()
+        this.$refs.input.$refs.input.select()
+      })
+    }
+  },
+
   created () {
     this.cloneSnippet()
     this.$watch('selected', () => {
@@ -180,13 +189,6 @@ export default {
     this.$bus.$on('menu:copy-snippet', () => {
       this.onCopySnippet()
     })
-  },
-
-  mounted () {
-    if (this.isNew) {
-      this.$refs.input.$refs.input.focus()
-      this.$refs.input.$refs.input.select()
-    }
   },
 
   methods: {
