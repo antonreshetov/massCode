@@ -41,6 +41,7 @@
       <div class="snippet-view__tags">
         <AppInputTags
           v-model="inputTag"
+          tabindex="-1"
           :tags="selectedTags"
           :autocomplete="autocompleteTag"
           @before-adding-tag="onAddTag"
