@@ -12,7 +12,7 @@ const winURL =
     : `file://${__dirname}/index.html#tray`
 
 function createTray () {
-  tray = new Tray(path.join(__static, '/tray.png'))
+  tray = new Tray(path.join(__static, '/trayTemplate.png'))
 
   tray.on('click', () => {
     showTray()
