@@ -42,14 +42,13 @@ class DataStore {
 
   move (to) {
     return new Promise((resolve, reject) => {
-      const dbFiles = ['masscode.db', 'snippets.db', 'tags.db']
-      const src = dbFiles.map(i => path.resolve(this._path, i))
-      const dist = dbFiles.map(i => path.resolve(to, i))
+      const src = this._dbFiles.map(i => path.resolve(this._path, i))
+      const dist = this._dbFiles.map(i => path.resolve(to, i))
 
       fs.readdir(to, (err, files) => {
         if (err) reject(err)
 
-        const isExist = dbFiles.some(i => files.includes(i))
+        const isExist = this._dbFiles.some(i => files.includes(i))
 
         if (isExist) {
           reject(new Error('Folder already contains db files.'))
