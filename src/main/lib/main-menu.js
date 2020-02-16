@@ -258,6 +258,12 @@ export default mainWindow => {
         }
       },
       {
+        label: 'Twitter',
+        click () {
+          shell.openExternal('https://twitter.com/anton_reshetov')
+        }
+      },
+      {
         label: 'About',
         click () {
           dialog.showMessageBox(BrowserWindow.getFocusedWindow(), {
