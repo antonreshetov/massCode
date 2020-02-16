@@ -1,4 +1,6 @@
 import electronStore from '@@/store'
+import { format } from 'date-fns'
+import db from '@/datastore'
 
 export default {
   namespaced: true,
@@ -9,6 +11,8 @@ export default {
     sidebarWidth: electronStore.app.get('sidebarWidth') || 180, // Принудительное значение если пришел null
     snippetListWidth: electronStore.app.get('snippetListWidth') || 220, // Принудительное значение если пришел null
     storagePath: electronStore.preferences.get('storagePath'),
+    backupPath: electronStore.preferences.get('backupPath'),
+    backups: [], // Временные метки
     markdownPreview: false,
     updateAvailable: false,
     showTags: false
@@ -16,6 +20,16 @@ export default {
   getters: {
     isTagsShow (state) {
       return state.showTags
+    },
+    backups (state) {
+      return state.backups
+        .map(i => {
+          return {
+            label: format(i, 'dd MMM yyyy, HH:mm:ss'),
+            date: i
+          }
+        })
+        .sort((a, b) => (a > b ? 1 : -1))
     }
   },
   mutations: {
@@ -42,6 +56,12 @@ export default {
     },
     SET_SHOW_TAGS (state, bool) {
       state.showTags = bool
+    },
+    SET_BACKUP_PATH (state, path) {
+      state.backupPath = path
+    },
+    SET_BACKUPS (state, backups) {
+      state.backups = backups
     }
   },
   actions: {
@@ -90,6 +110,10 @@ export default {
       } else {
         dispatch('snippets/setSelected', null, { root: true })
       }
+    },
+    async getBackups ({ commit }) {
+      const backups = await db.getBackupsDirsAsDate()
+      commit('SET_BACKUPS', backups)
     }
   }
 }
