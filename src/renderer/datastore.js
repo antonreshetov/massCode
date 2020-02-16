@@ -1,15 +1,12 @@
 import Store from 'nedb'
 import path from 'path'
-import { remote } from 'electron'
 import electronStore from '@@/store'
 import fs from 'fs-extra'
 import shortid from 'shortid'
 
 class DataStore {
   constructor () {
-    this._defaultPath = remote.app.getPath('home') + '/massCode'
-    this._storedPath = electronStore.preferences.get('storagePath')
-    this._path = this._storedPath || this._defaultPath
+    this._path = electronStore.preferences.get('storagePath')
 
     this.init()
   }
@@ -30,8 +27,7 @@ class DataStore {
   }
 
   updatePath () {
-    this._storedPath = electronStore.preferences.get('storagePath')
-    this._path = this._storedPath || this._defaultPath
+    this._path = electronStore.preferences.get('storagePath')
     this.init()
   }
 
