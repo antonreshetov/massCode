@@ -43,6 +43,7 @@ export default {
   }
   &__label {
     margin-right: var(--spacing-sm);
+    flex-shrink: 0;
   }
   &__body {
     flex-grow: 1;

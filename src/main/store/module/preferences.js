@@ -4,6 +4,7 @@ import { homedir, platform } from 'os'
 const isWin = platform() === 'win32'
 
 const defaultPath = isWin ? homedir() + '\\massCode' : homedir() + '/massCode'
+const backupPath = isWin ? `${defaultPath}\\backups` : `${defaultPath}/backups`
 
 const preferences = new Store({
   name: 'preferences',
@@ -12,6 +13,9 @@ const preferences = new Store({
   schema: {
     storagePath: {
       default: defaultPath
+    },
+    backupPath: {
+      default: backupPath
     },
     theme: {
       default: 'dark'
