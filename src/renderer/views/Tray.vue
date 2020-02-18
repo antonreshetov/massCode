@@ -7,6 +7,9 @@
         class="search__input"
         placeholder="Search..."
         ghost
+        @key:enter="onEnter"
+        @key:up.prevent="scrollByArrow"
+        @key:down.prevent="scrollByArrow"
       >
         <template slot="prefix">
           <AppIcon
@@ -26,13 +29,14 @@
       ref="body"
       class="tray__body"
     >
-      <TraySnippetList>
+      <TraySnippetList ref="list">
         <TraySnippetListItem
           v-for="(i, index) in snippetList"
           :id="i.label"
           :key="i._id"
           :index="index"
           :model="i"
+          @hover="aheadIndex = $event"
           @click="onSelect"
         />
       </TraySnippetList>
@@ -57,9 +61,18 @@ export default {
     TraySnippetListItem
   },
 
+  provide () {
+    return {
+      tray: this
+    }
+  },
+
   data () {
     return {
-      ps: null
+      ps: null,
+      aheadIndex: 0,
+      pointerPosTop: null,
+      viewportHeight: null
     }
   },
 
@@ -75,6 +88,7 @@ export default {
         return this.searchQueryTray
       },
       set (query) {
+        this.aheadIndex = 0
         this.$store.dispatch('snippets/searchSnippetsTray', query)
       }
     },
@@ -117,6 +131,7 @@ export default {
         this.searchFocus(true)
         this.scrollToTop()
       }
+      this.getViewportHeight()
     },
     async onSelect (snippet) {
       // Пока что выбирает только контент из первого фрагмента
@@ -130,6 +145,10 @@ export default {
         })
         ipcRenderer.send('tray:hide')
       }
+    },
+    onEnter () {
+      const snippet = this.snippetList[this.aheadIndex]
+      this.onSelect(snippet)
     },
     onClearSearch () {
       this.$store.commit('snippets/SET_SEARCH_TRAY', false)
@@ -145,6 +164,39 @@ export default {
     },
     scrollToTop () {
       this.$refs.body.scrollTop = 0
+    },
+    scrollByArrow (e) {
+      const itemHeight = this.$refs.list.$el.children[0].offsetHeight
+
+      if (e.keyCode === 38) {
+        if (this.aheadIndex > 0) this.aheadIndex--
+        this.getPointerPosTop()
+      }
+
+      if (e.keyCode === 40) {
+        if (this.aheadIndex < this.snippetList.length - 1) this.aheadIndex++
+        this.getPointerPosTop()
+      }
+
+      if (this.pointerPosTop < this.$refs.body.scrollTop) {
+        this.$refs.body.scrollTop = this.pointerPosTop
+      }
+
+      if (
+        this.pointerPosTop >
+        this.$refs.body.scrollTop + this.viewportHeight - itemHeight
+      ) {
+        this.$refs.body.scrollTop =
+          this.pointerPosTop - this.viewportHeight + itemHeight
+      }
+    },
+    getPointerPosTop () {
+      this.pointerPosTop = this.$refs.list.$el.children[
+        this.aheadIndex
+      ].offsetTop
+    },
+    getViewportHeight () {
+      this.viewportHeight = this.$refs.body.offsetHeight
     }
   }
 }
