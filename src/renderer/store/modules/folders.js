@@ -269,6 +269,7 @@ export default {
 
           dispatch('getFolders')
           dispatch('snippets/setSelected', null, { root: true })
+          dispatch('setSelectedFolder', 'allSnippets')
         })
       })
     }
