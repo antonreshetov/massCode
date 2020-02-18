@@ -1,6 +1,7 @@
 import db from '@/datastore'
 import electronStore from '@@/store'
 import { defaultLibraryQuery } from '@/util/helpers'
+import uniqBy from 'lodash-es/uniqBy'
 
 export default {
   namespaced: true,
@@ -314,20 +315,29 @@ export default {
         dispatch('getSnippets', query)
       })
     },
-    searchSnippets ({ state, commit, dispatch }, query) {
+    searchSnippets ({ commit }, query) {
       db.snippets.find({}, (err, doc) => {
         if (err) return
         query = query.toLowerCase()
 
-        const results = doc
-          .filter(snippet =>
-            snippet.content.some(content =>
-              content.value
-                ? content.value.toLowerCase().includes(query)
-                : false
-            )
+        doc = doc
+          .filter(snippet => !snippet.isDeleted)
+          .sort((a, b) => (a.updatedAt > b.updatedAt ? -1 : 1))
+
+        const resultBySnippetContent = doc.filter(snippet =>
+          snippet.content.some(content =>
+            content.value ? content.value.toLowerCase().includes(query) : false
           )
-          .sort((a, b) => b.updatedAt - a.updatedAt)
+        )
+
+        const resultBySnippetName = doc.filter(snippet =>
+          snippet.name.toLowerCase().includes(query)
+        )
+
+        const results = uniqBy(
+          [...resultBySnippetContent, ...resultBySnippetName],
+          '_id'
+        )
 
         if (query) {
           commit('SET_SEARCH', true)
@@ -353,15 +363,24 @@ export default {
         if (err) return
         query = query.toLowerCase()
 
-        const results = doc
-          .filter(snippet =>
-            snippet.content.some(content =>
-              content.value
-                ? content.value.toLowerCase().includes(query)
-                : false
-            )
+        doc = doc
+          .filter(snippet => !snippet.isDeleted)
+          .sort((a, b) => (a.updatedAt > b.updatedAt ? -1 : 1))
+
+        const resultBySnippetContent = doc.filter(snippet =>
+          snippet.content.some(content =>
+            content.value ? content.value.toLowerCase().includes(query) : false
           )
-          .sort((a, b) => b.updatedAt - a.updatedAt)
+        )
+
+        const resultBySnippetName = doc.filter(snippet =>
+          snippet.name.toLowerCase().includes(query)
+        )
+
+        const results = uniqBy(
+          [...resultBySnippetContent, ...resultBySnippetName],
+          '_id'
+        )
 
         if (query) {
           commit('SET_SEARCH_TRAY', true)
