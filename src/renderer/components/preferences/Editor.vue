@@ -43,7 +43,7 @@
         Print semicolons at the ends of statements.
       </div>
     </AppFormItem>
-    <AppFormItem label="Quotes">
+    <AppFormItem label="Single Quotes">
       <AppCheckbox v-model="prettierQuotes">
         Enable
       </AppCheckbox>
