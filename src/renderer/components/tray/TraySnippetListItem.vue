@@ -1,7 +1,9 @@
 <template>
   <div
     class="tray-snippet-list-item"
+    :class="{ 'is-selected': isSelected }"
     @click="onClick"
+    @mouseenter="onHover"
   >
     <div class="title">
       {{ model.name }}
@@ -42,6 +44,8 @@ export default {
     }
   },
 
+  inject: ['tray'],
+
   data () {
     return {}
   },
@@ -58,12 +62,18 @@ export default {
       }
 
       return date
+    },
+    isSelected () {
+      return this.index === this.tray.aheadIndex
     }
   },
 
   methods: {
     onClick () {
       this.$emit('click', this.model)
+    },
+    onHover () {
+      this.$emit('hover', this.index)
     }
   }
 }
@@ -92,17 +102,8 @@ export default {
   &:hover {
     background-color: var(--color-contrast-low);
   }
-  &--selected {
-    &::after {
-      border: 2px solid #fff;
-    }
-    &:not(.focus) {
-      &#{$r}--context {
-        &::after {
-          border: 2px solid var(--color-primary);
-        }
-      }
-    }
+  &.is-selected {
+    background-color: var(--color-contrast-low);
   }
 }
 

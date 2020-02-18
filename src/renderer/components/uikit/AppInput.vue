@@ -27,6 +27,7 @@
     >
       <slot name="prepend" />
     </div>
+    <!-- v-on="$listeners" приводит к падению Electron -->
     <input
       v-if="type !== 'textarea'"
       ref="input"
@@ -41,6 +42,9 @@
       :autocomplete="[autocomplete ? 'off' : 'on']"
       class="app-input__inner"
       @input="onInput"
+      @keydown.38="$emit('key:up', $event)"
+      @keydown.40="$emit('key:down', $event)"
+      @keypress.enter="$emit('key:enter', $event)"
     >
     <textarea
       v-else
