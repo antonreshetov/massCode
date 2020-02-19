@@ -87,7 +87,13 @@ export default {
   border-bottom: 1px solid var(--color-border);
   &__input {
     height: 40px;
-    line-height: 40px;
+    input {
+      height: 40px;
+    }
+  }
+  &__icon {
+    position: relative;
+    top: 2px;
   }
   svg {
     width: 18px;
@@ -97,7 +103,7 @@ export default {
   .add-snippet {
     margin-right: var(--spacing-xs);
     position: relative;
-    top: 1px;
+    top: 2px;
   }
 }
 </style>
