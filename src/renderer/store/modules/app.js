@@ -91,16 +91,21 @@ export default {
       } else {
         commit('SET_SHOW_TAGS', false)
         const selectedFolderIds = rootGetters['folders/selectedIds']
+        const defaultQueryBySystemFolder =
+          rootGetters['folders/defaultQueryBySystemFolder']
+        const isSystemFolder = rootGetters['folders/isSystemFolder']
 
-        if (selectedFolderIds) {
-          await dispatch(
-            'snippets/getSnippets',
-            { folderId: { $in: selectedFolderIds } },
-            { root: true }
-          )
-        } else {
-          dispatch('snippets/setSelected', null, { root: true })
+        let query = {}
+
+        if (isSystemFolder) {
+          query = defaultQueryBySystemFolder
         }
+
+        if (this.selectedIds) {
+          query = { folderId: { $in: selectedFolderIds } }
+        }
+
+        await dispatch('snippets/getSnippets', query, { root: true })
       }
 
       const firstSnippet = rootGetters['snippets/snippetsBySort'][0]
