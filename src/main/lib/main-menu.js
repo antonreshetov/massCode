@@ -117,11 +117,19 @@ export default mainWindow => {
       {
         label: 'Undo',
         accelerator: 'CommandOrControl+Z',
+        click (menuItem, focusedWin) {
+          mainWindow.webContents.send('menu:undo')
+          focusedWin.webContents.undo()
+        },
         selector: 'undo:'
       },
       {
         label: 'Redo',
         accelerator: 'Shift+CommandOrControl+Z',
+        click (menuItem, focusedWin) {
+          mainWindow.webContents.send('menu:redo')
+          focusedWin.webContents.redo()
+        },
         selector: 'redo:'
       },
       {

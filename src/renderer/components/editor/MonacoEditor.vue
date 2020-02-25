@@ -31,6 +31,7 @@ import { mapState, mapGetters } from 'vuex'
 import languages from './languages'
 import { track } from '@@/lib/analytics'
 import prettier from 'prettier'
+import { ipcRenderer } from 'electron'
 
 export default {
   name: 'MonacoEditor',
@@ -57,12 +58,13 @@ export default {
   data () {
     return {
       editor: null,
-      isInit: false,
       position: {
         lineNumber: 0,
         column: 0
       },
-      decorations: []
+      decorations: [],
+      isInit: false,
+      isFocused: false
     }
   },
 
@@ -225,6 +227,12 @@ export default {
       this.editor.onMouseDown(e => {
         this.position = e.target.position
       })
+      this.editor.onDidFocusEditorText(e => {
+        this.isFocused = true
+      })
+      this.editor.onDidBlurEditorText(e => {
+        this.isFocused = false
+      })
       this.editor.onDidChangeCursorPosition(e => {
         this.position = e.position
       })
@@ -233,6 +241,7 @@ export default {
         '-actions.find'
       )
 
+      this.bindUndoRedo()
       this.setTheme()
       emmetHTML(monaco)
     },
@@ -330,6 +339,18 @@ export default {
       const height = editorHeight
 
       this.editor.layout({ width, height })
+    },
+    bindUndoRedo () {
+      ipcRenderer.on('menu:undo', () => {
+        if (this.isFocused) {
+          this.editor.getModel().undo()
+        }
+      })
+      ipcRenderer.on('menu:redo', () => {
+        if (this.isFocused) {
+          this.editor.getModel().redo()
+        }
+      })
     }
   }
 }
