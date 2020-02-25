@@ -43,6 +43,8 @@ However, the amount of effort needed to maintain and develop new features for th
 
 The goal of creating this application was mostly my own growth as a developer. Also, I wanted this project to absorb the best of such applications already on the market (both free and paid). At the same time, I wanted this project to be an open source project.
 
+massCode allows you to organize snippets using multi-level folders as well as tags. Each snippet has fragments - tabs, which gives even greater level of organization
+
 A snippets manager must not only provide organization of snippets but also have a good code editor. That's why under the hood of massCode there's [Monaco editor](https://microsoft.github.io/monaco-editor/). Monaco is a modern code editor from Microsoft which is used in one of the most popular editor [VS Code](https://code.visualstudio.com/). The editor provides IntelliSense, validation for TypeScript, JavaScript, CSS, LESS, SCSS, JSON, HTML. It's also added a super productive [Emmet](https://emmet.io/) and [Prettier](https://prettier.io/) to code formatter.
 
 ## Development
