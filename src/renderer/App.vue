@@ -85,7 +85,10 @@ export default {
         const snippet = this.snippetsBySort.find(
           i => i._id === selectedSnippetId
         )
-        if (snippet) this.$store.dispatch('snippets/setSelected', snippet)
+        if (snippet) {
+          this.$store.dispatch('snippets/setSelected', snippet)
+          this.$store.commit('snippets/SET_SELECTED_SNIPPETS', [snippet])
+        }
       }
 
       this.$store.commit('app/SET_INIT', true)

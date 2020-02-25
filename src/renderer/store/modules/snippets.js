@@ -9,6 +9,7 @@ export default {
     snippets: [],
     snippetsLatest: [],
     selectedId: null,
+    selectedSnippets: [],
     searched: [],
     searchedTray: [],
     search: false,
@@ -65,6 +66,12 @@ export default {
     selectedId (state) {
       return state.selectedId
     },
+    selectedIndex (state, getters) {
+      return getters.snippetsBySort.findIndex(i => i._id === state.selectedId)
+    },
+    selectedSnippets (state) {
+      return state.selectedSnippets
+    },
     newSnippetId (state) {
       return state.newSnippetId
     },
@@ -93,6 +100,9 @@ export default {
     },
     SET_SELECTED_ID (state, id) {
       state.selectedId = id
+    },
+    SET_SELECTED_SNIPPETS (state, snippets) {
+      state.selectedSnippets = snippets
     },
     SET_NEW (state, snippet) {
       state.newSnippetId = snippet
@@ -281,26 +291,31 @@ export default {
         commit('SET_NEW', snippet._id)
       })
     },
-    updateSnippet ({ commit, dispatch, rootGetters }, { id, payload }) {
-      const ids = rootGetters['folders/selectedIds']
+    updateSnippets ({ commit, dispatch, rootGetters }, { ids, payload }) {
+      const foldersIds = rootGetters['folders/selectedIds']
       const folderId = rootGetters['folders/selectedId']
       const isTagsShow = rootGetters['app/isTagsShow']
-      const defaultQuery = { folderId: { $in: ids } }
+      const defaultQuery = { folderId: { $in: foldersIds } }
       const query = defaultLibraryQuery(defaultQuery, folderId)
 
       return new Promise((resolve, reject) => {
-        db.snippets.update({ _id: id }, payload, {}, async (err, num) => {
-          if (err) return
-          if (!isTagsShow) {
-            await dispatch('getSnippets', query)
-          } else {
-            const selectedTagId = rootGetters['tags/selectedId']
-            await dispatch('getSnippets', {
-              tags: { $elemMatch: selectedTagId }
-            })
+        db.snippets.update(
+          { _id: { $in: ids } },
+          payload,
+          { multi: true },
+          async (err, num) => {
+            if (err) return
+            if (!isTagsShow) {
+              await dispatch('getSnippets', query)
+            } else {
+              const selectedTagId = rootGetters['tags/selectedId']
+              await dispatch('getSnippets', {
+                tags: { $elemMatch: selectedTagId }
+              })
+            }
+            resolve()
           }
-          resolve()
-        })
+        )
         commit('SET_NEW', null)
       })
     },

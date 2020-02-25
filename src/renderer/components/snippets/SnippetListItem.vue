@@ -10,7 +10,7 @@
     tabindex="0"
     v-bind="$listeners"
     @dragstart="onDrag"
-    @click="onSelect"
+    @click="onClick"
     @contextmenu="onContext"
   >
     <div class="title">
@@ -64,15 +64,20 @@ export default {
 
   computed: {
     ...mapGetters('snippets', [
-      'snippets',
+      'snippetsBySort',
       'selected',
+      'selectedIndex',
+      'selectedSnippets',
       'snippetsBySort',
       'sort'
     ]),
     isSelected () {
       if (!this.selected) return null
 
-      return this.selected._id === this.model._id
+      const selected = this.selectedSnippets.find(i => i._id === this.model._id)
+
+      // return this.selected._id === this.model._id
+      return !!selected
     },
     date () {
       const isToday = isSameDay(this.model.updatedAt, new Date())
@@ -89,6 +94,26 @@ export default {
   },
 
   methods: {
+    onClick (e) {
+      if (e.shiftKey) {
+        let snippets
+        if (this.selectedIndex < this.index) {
+          snippets = this.snippetsBySort.slice(
+            this.selectedIndex,
+            this.index + 1
+          )
+        } else {
+          snippets = this.snippetsBySort.slice(
+            this.index,
+            this.selectedIndex + 1
+          )
+        }
+        this.$store.commit('snippets/SET_SELECTED_SNIPPETS', snippets)
+      } else {
+        this.onSelect()
+        this.$store.commit('snippets/SET_SELECTED_SNIPPETS', [this.model])
+      }
+    },
     onSelect () {
       this.focus = true
       this.$store.dispatch('snippets/setSelected', this.model)
@@ -98,7 +123,8 @@ export default {
       })
     },
     onDrag (e) {
-      const payload = JSON.stringify({ value: this.model._id })
+      const value = this.selectedSnippets.map(i => i._id)
+      const payload = JSON.stringify({ value })
       e.dataTransfer.setData('payload', payload)
     },
     onClickOutside () {
@@ -111,12 +137,12 @@ export default {
         {
           label: 'Add to Favorites',
           click: () => {
-            const id = this.model._id
+            const ids = this.selectedSnippets.map(i => i._id)
             const payload = {
               $set: { isFavorites: true }
             }
 
-            this.$store.dispatch('snippets/updateSnippet', { id, payload })
+            this.$store.dispatch('snippets/updateSnippets', { ids, payload })
             track('snippets/add-to-favorites')
           }
         },
@@ -141,13 +167,13 @@ export default {
         {
           label: 'Delete',
           click: async () => {
-            const id = this.model._id
+            const ids = this.selectedSnippets.map(i => i._id)
             const payload = {
               $set: { isDeleted: true }
             }
 
-            await this.$store.dispatch('snippets/updateSnippet', {
-              id,
+            await this.$store.dispatch('snippets/updateSnippets', {
+              ids,
               payload
             })
             const firstSnippet = this.snippetsBySort[0]
