@@ -90,11 +90,14 @@ export default {
     onDropTreeNode (e, folderId) {
       const data = e.dataTransfer.getData('payload')
       if (data) {
-        const id = JSON.parse(data).value
+        const ids = JSON.parse(data).value
         const payload = {
-          $set: { folderId }
+          $set: {
+            folderId,
+            isDeleted: false
+          }
         }
-        this.$store.dispatch('snippets/updateSnippet', { id, payload })
+        this.$store.dispatch('snippets/updateSnippets', { ids, payload })
       }
     },
     onTreeChange (node, newTree, oldTree) {

@@ -199,10 +199,10 @@ export default {
         'localSnippet',
         () => {
           this.$emit('edit')
-          const id = this.localSnippet._id
+          const ids = [this.localSnippet._id]
           const payload = this.localSnippet
 
-          this.$store.dispatch('snippets/updateSnippet', { id, payload })
+          this.$store.dispatch('snippets/updateSnippets', { ids, payload })
         },
         { deep: true }
       )
