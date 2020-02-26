@@ -4,6 +4,7 @@
     class="sidebar-list-item"
     :class="{
       'sidebar-list-item--selected': isSelected,
+      'sidebar-list-item--drag-hovered': isDragHovered,
       'sidebar-list-item--context': context
     }"
     v-on="$listeners"
@@ -71,6 +72,10 @@ export default {
     tag: {
       type: Boolean,
       default: false
+    },
+    dragHover: {
+      type: String,
+      default: null
     }
   },
 
@@ -117,6 +122,9 @@ export default {
         return this.selectedTagId === this.id
       }
       return this.selectedId === this.id
+    },
+    isDragHovered () {
+      return this.dragHover === this.id
     },
     isEditable () {
       return this.editableId === this.id
@@ -262,6 +270,7 @@ export default {
 
 <style lang="scss">
 .sidebar-list-item {
+  $r: &;
   display: flex;
   align-items: center;
   padding: 4px calc(var(--spacing-sm) + 2px);
@@ -295,6 +304,17 @@ export default {
   }
   &--selected {
     background-color: var(--color-contrast-low);
+  }
+  &--drag-hovered {
+    background-color: var(--color-primary);
+    color: #fff;
+    position: relative;
+    #{$r}__input {
+      color: #fff;
+    }
+    svg {
+      stroke: #fff;
+    }
   }
   &--context {
     position: relative;

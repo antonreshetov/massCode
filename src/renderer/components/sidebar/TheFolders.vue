@@ -21,6 +21,9 @@
               :children="!!data.children.length"
               :open="data.open"
               :model="data"
+              :drag-hover="dragHoveredFolderId"
+              @dragover="onDragOver($event, data.id)"
+              @dragleave="dragHoveredFolderId = null"
               @click:toggle="onNodeToggle(data, store)"
             />
           </div>
@@ -58,6 +61,7 @@ export default {
     return {
       localFolders: [],
       draggable: true,
+      dragHoveredFolderId: null,
       editableFolderId: null,
       ps: null
     }
@@ -89,6 +93,8 @@ export default {
     },
     onDropTreeNode (e, folderId) {
       const data = e.dataTransfer.getData('payload')
+      this.dragHoveredFolderId = null
+
       if (data) {
         const ids = JSON.parse(data).value
         const payload = {
@@ -109,6 +115,9 @@ export default {
       store.toggleOpen(data)
       const folders = this.tree.getPureData()
       this.$store.dispatch('folders/updateFolders', folders)
+    },
+    onDragOver (e, id) {
+      this.dragHoveredFolderId = id
     },
     initPS () {
       const el = document.querySelector('.folders .tree')
