@@ -125,7 +125,35 @@ export default {
     onDrag (e) {
       const value = this.selectedSnippets.map(i => i._id)
       const payload = JSON.stringify({ value })
+
       e.dataTransfer.setData('payload', payload)
+      this.focus = false
+      this.addGhostDragItem(e)
+    },
+    addGhostDragItem (e) {
+      const el = document.createElement('div')
+      const style = {
+        padding: '2px 10px',
+        backgroundColor: 'var(--color-primary)',
+        borderRadius: '3px',
+        color: '#fff',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        position: 'fixed',
+        fontSize: '14px',
+        top: '100%'
+      }
+
+      const count = this.selectedSnippets.length
+      el.id = 'ghost'
+      el.innerHTML = `${count} ${count > 1 ? 'items' : 'item'}`
+
+      Object.assign(el.style, style)
+      document.body.appendChild(el)
+
+      e.dataTransfer.setDragImage(el, 0, 0)
+      setTimeout(() => el.remove(), 0)
     },
     onClickOutside () {
       this.focus = false
