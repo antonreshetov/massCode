@@ -18,7 +18,8 @@ export default {
     searchQueryTray: null,
     newSnippetId: null,
     sort: electronStore.app.get('snippetsSort'),
-    activeFragment: { snippetId: null, index: 0 }
+    activeFragment: { snippetId: null, index: 0 },
+    count: null
   },
   getters: {
     snippetsBySort (state) {
@@ -78,6 +79,9 @@ export default {
     sort (state) {
       return state.sort
     },
+    count (state) {
+      return state.count
+    },
     activeFragment (state) {
       return state.activeFragment
     },
@@ -130,6 +134,9 @@ export default {
     },
     SET_ACTIVE_FRAGMENT (state, payload) {
       state.activeFragment = payload
+    },
+    SET_COUNT (state, count) {
+      state.count = count
     }
   },
   actions: {
@@ -453,6 +460,13 @@ export default {
         const selectedTagId = rootGetters['tags/selectedId']
         await dispatch('getSnippets', { tags: { $elemMatch: selectedTagId } })
       }
+    },
+    getSnippetsCount ({ commit }) {
+      db.snippets.count({ isDeleted: false }, (err, count) => {
+        if (err) throw new Error(err)
+
+        commit('SET_COUNT', count)
+      })
     }
   }
 }

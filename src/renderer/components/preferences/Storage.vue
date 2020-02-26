@@ -59,6 +59,9 @@
         </div>
       </div>
     </AppFormItem>
+    <AppFormItem label="Count">
+      {{ countText }}
+    </AppFormItem>
   </AppForm>
 </template>
 
@@ -81,6 +84,7 @@ export default {
   computed: {
     ...mapState(['app']),
     ...mapGetters('app', ['backups']),
+    ...mapGetters('snippets', ['count']),
     storagePath: {
       get () {
         return this.app.storagePath
@@ -88,19 +92,24 @@ export default {
       set (v) {
         this.$store.commit('app/SET_STORAGE_PATH', v)
       }
+    },
+    countText () {
+      return this.count === 1
+        ? `${this.count} snippet`
+        : `${this.count} snippets`
     }
   },
 
   watch: {
     $route (route) {
       if (route.name === 'preferences') {
-        this.$store.dispatch('app/getBackups')
+        this.getData()
       }
     }
   },
 
   created () {
-    this.$store.dispatch('app/getBackups')
+    this.getData()
   },
 
   mounted () {
@@ -185,6 +194,10 @@ export default {
           })
         }
       }
+    },
+    getData () {
+      this.$store.dispatch('app/getBackups')
+      this.$store.dispatch('snippets/getSnippetsCount')
     },
     initPS () {
       this.ps = new PerfectScrollbar(this.$refs.backup)
