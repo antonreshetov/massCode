@@ -9,7 +9,7 @@
     }"
     tabindex="0"
     v-bind="$listeners"
-    @dragstart="onDrag"
+    @dragstart="onDrag($event, model._id)"
     @click="onClick"
     @contextmenu="onContext"
   >
@@ -122,32 +122,51 @@ export default {
         index: 0
       })
     },
-    onDrag (e) {
-      const value = this.selectedSnippets.map(i => i._id)
-      const payload = JSON.stringify({ value })
+    onDrag (e, id) {
+      const isDraggableInSelected = this.selectedSnippets.some(
+        i => i._id === this.model._id
+      )
+      let value = [this.model._id]
 
-      e.dataTransfer.setData('payload', payload)
-      this.focus = false
-      this.addGhostDragItem(e)
-    },
-    addGhostDragItem (e) {
-      const el = document.createElement('div')
-      const style = {
-        padding: '2px 10px',
-        backgroundColor: 'var(--color-primary)',
-        borderRadius: '3px',
-        color: '#fff',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        position: 'fixed',
-        fontSize: '14px',
-        top: '100%'
+      if (this.selectedSnippets.length > 1 && isDraggableInSelected) {
+        this.addGhostDragItem(e, true)
+        value = this.selectedSnippets.map(i => i._id)
+      } else {
+        this.addGhostDragItem(e)
       }
 
-      const count = this.selectedSnippets.length
+      const payload = JSON.stringify({ value })
+      e.dataTransfer.setData('payload', payload)
+      this.focus = false
+    },
+    addGhostDragItem (e, multi) {
+      let el = e.target.cloneNode(true)
+      let style = {
+        backgroundColor: 'var(--color-bg)',
+        color: 'var(--color-contrast-higher)',
+        fontSize: '14px',
+        width: 'var(--snippets-list-width)',
+        borderBottom: 'none'
+      }
       el.id = 'ghost'
-      el.innerHTML = `${count} ${count > 1 ? 'items' : 'item'}`
+
+      if (multi) {
+        const count = this.selectedSnippets.length
+        el = document.createElement('div')
+        style = {
+          padding: '2px 10px',
+          backgroundColor: 'var(--color-bg)',
+          borderRadius: '3px',
+          color: 'var(--color-contrast-higher)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          position: 'fixed',
+          fontSize: '14px',
+          top: '100%'
+        }
+        el.innerHTML = `${count} ${count > 1 ? 'items' : 'item'}`
+      }
 
       Object.assign(el.style, style)
       document.body.appendChild(el)
