@@ -132,6 +132,13 @@ export default {
     'app.sidebarWidth' () {
       this.updateLayout()
     },
+    'app.markdownPreview' (e) {
+      if (!e) {
+        this.$nextTick(() => {
+          this.updateLayout()
+        })
+      }
+    },
     selected () {
       this.$nextTick(() => {
         this.updateLayout()

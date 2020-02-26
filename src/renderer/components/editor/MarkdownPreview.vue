@@ -38,7 +38,21 @@ export default {
   computed: {
     result () {
       const raw = this.md.render(this.model)
-      return sanitizeHtml(raw)
+      return sanitizeHtml(raw, {
+        allowedTags: false,
+        allowedAttributes: {
+          '*': [
+            'align',
+            'alt',
+            'height',
+            'href',
+            'name',
+            'src',
+            'target',
+            'width'
+          ]
+        }
+      })
     },
     previewStyles () {
       let style = {
