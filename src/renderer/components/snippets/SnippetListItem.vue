@@ -76,7 +76,6 @@ export default {
 
       const selected = this.selectedSnippets.find(i => i._id === this.model._id)
 
-      // return this.selected._id === this.model._id
       return !!selected
     },
     date () {
