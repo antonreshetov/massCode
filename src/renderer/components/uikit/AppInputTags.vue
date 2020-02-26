@@ -130,6 +130,7 @@ export default {
   .vue-tags-input {
     background-color: transparent;
     max-width: 100%;
+    outline: none;
     ::-webkit-input-placeholder {
       color: var(--color-contrast-medium);
     }
@@ -157,6 +158,9 @@ export default {
         background-color: transparent;
       }
     }
+  }
+  input {
+    outline: none;
   }
 }
 </style>
