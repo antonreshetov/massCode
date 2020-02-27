@@ -8,7 +8,7 @@
         Enable Assistant
       </AppCheckbox>
       <div class="desc">
-        App Assistant lets you access snippets right from the Tray. (masOS only)
+        App Assistant lets you access snippets right from the Tray. (macOS only)
       </div>
     </AppFormItem>
     <AppFormItem label="Shortcut">
