@@ -6,7 +6,9 @@
     @mouseenter="onHover"
   >
     <div class="title">
-      {{ model.name }}
+      <span>
+        {{ model.name }}
+      </span>
     </div>
     <div class="meta">
       <div class="folder">
@@ -108,6 +110,15 @@ export default {
 }
 
 .title {
+  display: table;
+  table-layout: fixed;
+  width: 100%;
+  overflow: hidden;
+  span {
+    display: -webkit-box;
+    -webkit-line-clamp: 1;
+    -webkit-box-orient: vertical;
+  }
 }
 .meta {
   display: flex;
