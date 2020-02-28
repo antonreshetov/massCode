@@ -368,14 +368,17 @@ export default {
           if (results.length) {
             const first = results[0]
             commit('SET_SELECTED_ID', first._id)
+            commit('folders/SET_SELECTED_ID', 'allSnippets', { root: true })
           } else {
             commit('SET_SELECTED_ID', null)
           }
         } else {
+          const selectedSnippetId = electronStore.app.get('selectedSnippetId')
+          const selectedFolderId = electronStore.app.get('selectedFolderId')
           commit('SET_SEARCH', false)
           commit('SET_SEARCH_QUERY', null)
-          const selectedSnippetId = electronStore.app.get('selectedSnippetId')
           commit('SET_SELECTED_ID', selectedSnippetId)
+          commit('folders/SET_SELECTED_ID', selectedFolderId, { root: true })
         }
         commit('SET_SEARCHED', results)
       })
