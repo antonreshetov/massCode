@@ -346,6 +346,7 @@ export default {
       const height = editorHeight
 
       this.editor.layout({ width, height })
+      this.$emit('change:layout', { width, height })
     },
     bindUndoRedo () {
       ipcRenderer.on('menu:undo', () => {

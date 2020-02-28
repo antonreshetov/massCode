@@ -11,6 +11,7 @@ export default {
     sidebarWidth: electronStore.app.get('sidebarWidth') || 180, // Принудительное значение если пришел null
     snippetListWidth: electronStore.app.get('snippetListWidth') || 220, // Принудительное значение если пришел null
     storagePath: electronStore.preferences.get('storagePath'),
+    editorWidth: null,
     backupPath: electronStore.preferences.get('backupPath'),
     backups: [], // Временные метки
     markdownPreview: false,

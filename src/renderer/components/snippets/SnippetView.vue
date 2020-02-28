@@ -54,6 +54,7 @@
       <SnippetTabs
         v-model="activeTab"
         :tabs="fragments"
+        :width="snippetWidth"
         @tab:edit="onEditTab"
         @tab:delete="onDeleteTab"
       >
@@ -70,6 +71,7 @@
             :language="i.language"
             :is-tabs="fragments.length > 1"
             @change:lang="onChangeLanguage($event, index)"
+            @change:layout="onChangeLayout"
           />
           <MarkdownPreview
             v-if="i.language === 'markdown' && i.value"
@@ -107,7 +109,8 @@ export default {
     return {
       localSnippet: null,
       unWatch: null,
-      inputTag: ''
+      inputTag: '',
+      snippetWidth: null
     }
   },
 
@@ -328,6 +331,10 @@ export default {
         tagId: e._id
       }
       this.$store.dispatch('snippets/addTag', payload)
+    },
+    onChangeLayout (e) {
+      const { width } = e
+      this.snippetWidth = width
     }
   }
 }
