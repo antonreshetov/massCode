@@ -15,7 +15,10 @@
         />
       </div>
     </div>
-    <div class="snippet-tabs__body">
+    <div
+      class="snippet-tabs__body"
+      :style="{ width: width ? width + 'px' : null }"
+    >
       <slot />
     </div>
   </div>
@@ -39,6 +42,10 @@ export default {
     tabs: {
       type: Array,
       default: () => []
+    },
+    width: {
+      type: Number,
+      default: null
     }
   },
 
