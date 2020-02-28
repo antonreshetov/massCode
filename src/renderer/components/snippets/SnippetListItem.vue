@@ -67,18 +67,23 @@ export default {
   computed: {
     ...mapGetters('snippets', [
       'snippetsBySort',
-      'selected',
+      'selectedId',
       'selectedIndex',
       'selectedSnippets',
       'snippetsBySort',
       'sort'
     ]),
     isSelected () {
-      if (!this.selected) return null
+      if (!this.selectedId) return null
 
-      const selected = this.selectedSnippets.find(i => i._id === this.model._id)
+      let selected
+      if (this.selectedSnippets.length > 1) {
+        selected = !!this.selectedSnippets.find(i => i._id === this.model._id)
+      } else {
+        selected = this.selectedId === this.model._id
+      }
 
-      return !!selected
+      return selected
     },
     date () {
       const isToday = isSameDay(this.model.updatedAt, new Date())
@@ -111,6 +116,7 @@ export default {
         }
         this.$store.commit('snippets/SET_SELECTED_SNIPPETS', snippets)
       } else {
+        console.log('ssss')
         this.onSelect()
         this.$store.commit('snippets/SET_SELECTED_SNIPPETS', [this.model])
       }
