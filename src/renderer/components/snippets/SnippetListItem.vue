@@ -188,17 +188,20 @@ export default {
     onContext () {
       this.context = true
       let ids
+      let isFavorites
 
       const inSelected =
         this.selectedSnippets.findIndex(i => i._id === this.model._id) !== -1
 
       if (!inSelected) {
         ids = [this.model._id]
+        isFavorites = this.model.isFavorites
       } else {
         ids = this.selectedSnippets.map(i => i._id)
+        isFavorites = this.selectedSnippets.some(i => i.isFavorites)
       }
 
-      const contextMenu = menu.popup([
+      const menuItems = [
         {
           label: 'Add to Favorites',
           click: () => {
@@ -285,7 +288,24 @@ export default {
             }
           ]
         }
-      ])
+      ]
+
+      if (isFavorites) {
+        const removeFromFavorites = {
+          label: 'Remove from Favorites',
+          click: () => {
+            const payload = {
+              $set: { isFavorites: false }
+            }
+
+            this.$store.dispatch('snippets/updateSnippets', { ids, payload })
+            track('snippets/remove-from-favorites')
+          }
+        }
+        menuItems.splice(1, 0, removeFromFavorites)
+      }
+
+      const contextMenu = menu.popup(menuItems)
       contextMenu.addListener('menu-will-close', () => {
         this.context = false
       })
