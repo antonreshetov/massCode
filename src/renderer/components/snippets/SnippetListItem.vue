@@ -116,7 +116,6 @@ export default {
         }
         this.$store.commit('snippets/SET_SELECTED_SNIPPETS', snippets)
       } else {
-        console.log('ssss')
         this.onSelect()
         this.$store.commit('snippets/SET_SELECTED_SNIPPETS', [this.model])
       }
