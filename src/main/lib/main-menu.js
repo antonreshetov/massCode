@@ -290,6 +290,16 @@ export default mainWindow => {
             `
           })
         }
+      },
+      {
+        type: 'separator'
+      },
+      {
+        label: 'Open Developer Tools',
+        accelerator: 'Alt+CommandOrControl+I',
+        click () {
+          mainWindow.webContents.openDevTools({ mode: 'detach' })
+        }
       }
     ]
   }
