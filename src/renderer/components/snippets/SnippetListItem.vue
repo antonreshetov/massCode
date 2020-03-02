@@ -187,11 +187,21 @@ export default {
     },
     onContext () {
       this.context = true
+      let ids
+
+      const inSelected =
+        this.selectedSnippets.findIndex(i => i._id === this.model._id) !== -1
+
+      if (!inSelected) {
+        ids = [this.model._id]
+      } else {
+        ids = this.selectedSnippets.map(i => i._id)
+      }
+
       const contextMenu = menu.popup([
         {
           label: 'Add to Favorites',
           click: () => {
-            const ids = this.selectedSnippets.map(i => i._id)
             const payload = {
               $set: { isFavorites: true }
             }
@@ -221,7 +231,6 @@ export default {
         {
           label: 'Delete',
           click: async () => {
-            const ids = this.selectedSnippets.map(i => i._id)
             const payload = {
               $set: { isDeleted: true }
             }
