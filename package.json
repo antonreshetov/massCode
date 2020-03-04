@@ -1,7 +1,7 @@
 {
   "name": "masscode",
   "productName": "massCode",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "author": "Anton Reshetov <reshetov.art@gmail.com>",
   "description": "A free and open source code snippets manager for developers",
   "license": "AGPL-3.0",
