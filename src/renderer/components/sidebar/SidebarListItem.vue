@@ -9,6 +9,7 @@
     }"
     v-on="$listeners"
     @click="onClick"
+    @dblclick="onDblClick"
     @contextmenu="onContext"
   >
     <div @click="$emit('click:toggle')">
@@ -21,6 +22,7 @@
     </div>
     <AppIcon :name="icon" />
     <input
+      v-if="editable"
       ref="input"
       v-model="folderName"
       class="sidebar-list-item__input"
@@ -31,6 +33,10 @@
       :disabled="!editable"
       @keydown.enter="onClickOutside"
     >
+    <span
+      v-else
+      class="folder-name"
+    > {{ folderName }}</span>
     <slot />
   </div>
 </template>
@@ -128,6 +134,10 @@ export default {
     },
     isEditable () {
       return this.editableId === this.id
+    },
+    isSystem () {
+      const libraryItems = ['inBox', 'favorites', 'allSnippets', 'trash']
+      return libraryItems.includes(this.id)
     }
   },
 
@@ -145,16 +155,16 @@ export default {
         this.$store.commit('tags/SET_SELECTED_ID', this.id)
       }
     },
+    onDblClick () {
+      if (!this.isSystem) this.setEditable()
+    },
     onContext () {
       if (!this.tag) {
-        const libraryItems = ['inBox', 'favorites', 'allSnippets', 'trash']
-        const isLibrary = libraryItems.includes(this.id)
-
         if (this.id === 'trash') {
-          this.trashContext()
+          return this.trashContext()
         }
 
-        if (isLibrary) return
+        if (this.isSystem) return
 
         this.folderContext()
       } else {
@@ -290,6 +300,11 @@ export default {
       background-color: var(--color-contrast-lower);
       color: var(--color-contrast-higher);
     }
+  }
+  .folder-name {
+    display: flex;
+    height: 20px;
+    align-items: center;
   }
   svg {
     width: 16px;
