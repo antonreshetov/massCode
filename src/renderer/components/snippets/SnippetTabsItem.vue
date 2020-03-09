@@ -6,9 +6,11 @@
       active: isActive
     }"
     v-on="$listeners"
+    @dblclick="onDblClick"
     @contextmenu="onTabContext"
   >
     <input
+      v-if="editable"
       ref="input"
       v-model="computedLabel"
       :class="{
@@ -18,6 +20,10 @@
       :disabled="!editable"
       @keydown.enter="onClickOutside"
     >
+    <span
+      v-else
+      class="fragment-name"
+    >{{ computedLabel }}</span>
   </div>
 </template>
 
@@ -61,17 +67,21 @@ export default {
   },
 
   methods: {
+    setEditable () {
+      this.editable = true
+      this.$nextTick(() => {
+        this.$refs.input.focus()
+        this.$refs.input.select()
+      })
+    },
+    onDblClick () {
+      this.setEditable()
+    },
     onTabContext () {
       menu.popup([
         {
           label: `Rename "${this.label}"`,
-          click: () => {
-            this.editable = true
-            this.$nextTick(() => {
-              this.$refs.input.focus()
-              this.$refs.input.select()
-            })
-          }
+          click: () => this.setEditable()
         },
         {
           type: 'separator'
@@ -107,10 +117,11 @@ export default {
   align-items: center;
   justify-content: center;
   height: 100%;
+  width: 100%;
   padding: 0 var(--spacing-xs);
   color: var(--color-contrast-medium);
   font-size: var(--text-sm);
-  -webkit-user-select: none;
+  user-select: none;
   input {
     width: 100%;
     color: var(--color-contrast-medium);
@@ -120,7 +131,6 @@ export default {
     outline: none;
     &[disabled] {
       color: var(--color-contrast-medium);
-      -webkit-user-select: none;
     }
     &.is-editable {
       border: 1px solid var(--color-primary);
