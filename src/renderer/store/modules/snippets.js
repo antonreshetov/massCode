@@ -28,7 +28,7 @@ export default {
           a.createdAt > b.createdAt ? -1 : 1
         )
       }
-      if (state.sort === 'updateAt') {
+      if (state.sort === 'updatedAt') {
         return [...state.snippets].sort((a, b) =>
           a.updatedAt > b.updatedAt ? -1 : 1
         )

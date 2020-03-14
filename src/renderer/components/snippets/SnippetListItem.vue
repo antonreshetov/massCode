@@ -14,9 +14,7 @@
     @contextmenu="onContext"
   >
     <div class="title">
-      <span>
-        {{ model.name }}
-      </span>
+      <span>{{ model.name }}</span>
     </div>
     <div class="meta">
       <div class="folder">
@@ -219,7 +217,7 @@ export default {
           label: 'Duplicate',
           click: () => {
             const snippet = Object.assign({}, this.model)
-            snippet.createAt = new Date()
+            snippet.createdAt = new Date()
             snippet.updatedAt = new Date()
             delete snippet._id
 
@@ -261,19 +259,19 @@ export default {
             {
               label: 'Date Modified',
               type: 'radio',
-              checked: this.sort === 'updateAt',
+              checked: this.sort === 'updatedAt',
               click: () => {
-                this.$store.dispatch('snippets/setSort', 'updateAt')
-                track('snippets/sort/updateAt')
+                this.$store.dispatch('snippets/setSort', 'updatedAt')
+                track('snippets/sort/updatedAt')
               }
             },
             {
               label: 'Date Created',
               type: 'radio',
-              checked: this.sort === 'createAt',
+              checked: this.sort === 'createdAt',
               click: () => {
-                this.$store.dispatch('snippets/setSort', 'createAt')
-                track('snippets/sort/createAt')
+                this.$store.dispatch('snippets/setSort', 'createdAt')
+                track('snippets/sort/createdAt')
               }
             },
             {
