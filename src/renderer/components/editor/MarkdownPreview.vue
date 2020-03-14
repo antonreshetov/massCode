@@ -13,6 +13,9 @@ import mila from 'markdown-it-link-attributes'
 import { shell } from 'electron'
 import PerfectScrollbar from 'perfect-scrollbar'
 import sanitizeHtml from 'sanitize-html'
+import hljs from 'highlight.js'
+import fs from 'fs'
+import { mapState } from 'vuex'
 
 export default {
   name: 'MarkdownPreview',
@@ -36,6 +39,7 @@ export default {
   },
 
   computed: {
+    ...mapState(['app']),
     result () {
       const raw = this.md.render(this.model)
       return sanitizeHtml(raw, {
@@ -49,7 +53,8 @@ export default {
             'name',
             'src',
             'target',
-            'width'
+            'width',
+            'class'
           ]
         }
       })
@@ -72,6 +77,9 @@ export default {
   watch: {
     model () {
       this.setLinksClass()
+    },
+    'app.theme' (v) {
+      this.toggleHljsStyles(v)
     }
   },
 
@@ -93,13 +101,31 @@ export default {
     init () {
       this.md = new MarkdownIt({
         html: true,
-        langPrefix: 'language-'
+        langPrefix: 'language-',
+        highlight (str, lang) {
+          if (lang && hljs.getLanguage(lang)) {
+            try {
+              return `<pre class="hljs"><code>${
+                hljs.highlight(lang, str, true).value
+              }</code></pre>`
+            } catch (err) {
+              console.log(err)
+            }
+          }
+          return `<pre class="hljs"><code>${MarkdownIt().utils.escapeHtml(
+            str
+          )}</code></pre>`
+        }
       })
       this.md.use(mila, {
         attrs: {
           class: 'external'
         }
       })
+
+      this.app.theme === 'dark'
+        ? this.toggleHljsStyles('dark')
+        : this.toggleHljsStyles('light')
     },
     // Добавляем класс ссылкам которые были созданы как HTML
     setLinksClass () {
@@ -116,6 +142,25 @@ export default {
     },
     initPS () {
       this.ps = new PerfectScrollbar(this.$refs.preview)
+    },
+    toggleHljsStyles (theme) {
+      const dark = fs.readFileSync(
+        __static + '/css/hljs/atom-one-dark.css',
+        'utf8'
+      )
+      const light = fs.readFileSync(
+        __static + '/css/hljs/atom-one-light.css',
+        'utf8'
+      )
+      const style = document.createElement('style')
+      style.setAttribute('name', 'hljs')
+
+      const existStyle = document.querySelector('style[name="hljs"]')
+
+      if (existStyle) existStyle.remove()
+
+      theme === 'dark' ? (style.innerHTML = dark) : (style.innerHTML = light)
+      document.head.appendChild(style)
     }
   }
 }
