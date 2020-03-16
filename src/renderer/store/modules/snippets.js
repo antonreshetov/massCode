@@ -3,6 +3,14 @@ import electronStore from '@@/store'
 import { defaultLibraryQuery } from '@/util/helpers'
 import uniqBy from 'lodash-es/uniqBy'
 
+// Fallback stored sorting value
+// @see https://github.com/antonreshetov/massCode/pull/74
+// TODO: Remove in future
+const sort =
+  electronStore.app.get('snippetsSort') === 'updateAt'
+    ? 'updatedAt'
+    : electronStore.app.get('snippetsSort')
+
 export default {
   namespaced: true,
   state: {
@@ -17,7 +25,7 @@ export default {
     searchQuery: null,
     searchQueryTray: null,
     newSnippetId: null,
-    sort: electronStore.app.get('snippetsSort'),
+    sort,
     activeFragment: { snippetId: null, index: 0 },
     count: null
   },
