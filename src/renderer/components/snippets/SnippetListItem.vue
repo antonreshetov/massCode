@@ -18,7 +18,7 @@
     </div>
     <div class="meta">
       <div class="folder">
-        {{ model.folder ? model.folder.name : 'InBox' }}
+        {{ model.folder ? model.folder.name : 'Inbox' }}
       </div>
       <div class="date">
         {{ date }}
