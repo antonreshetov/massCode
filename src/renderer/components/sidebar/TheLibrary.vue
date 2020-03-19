@@ -58,7 +58,7 @@ export default {
   data () {
     return {
       library: [
-        { label: 'InBox', id: 'inBox', icon: 'inbox' },
+        { label: 'Inbox', id: 'inBox', icon: 'inbox' },
         { label: 'Favorites', id: 'favorites', icon: 'star' },
         { label: 'All Snippets', id: 'allSnippets', icon: 'archive' },
         { label: 'Trash', id: 'trash', icon: 'trash' }
