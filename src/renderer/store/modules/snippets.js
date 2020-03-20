@@ -334,6 +334,17 @@ export default {
         commit('SET_NEW', null)
       })
     },
+    deleteSnippets ({ dispatch, rootGetters }, ids) {
+      const foldersIds = rootGetters['folders/selectedIds']
+      const folderId = rootGetters['folders/selectedId']
+      const defaultQuery = { folderId: { $in: foldersIds } }
+      const query = defaultLibraryQuery(defaultQuery, folderId)
+
+      db.snippets.remove({ _id: { $in: ids } }, { multi: true }, (err, num) => {
+        if (err) return
+        dispatch('getSnippets', query)
+      })
+    },
     emptyTrash ({ dispatch, rootGetters }) {
       const ids = rootGetters['folders/selectedIds']
       const folderId = rootGetters['folders/selectedId']
