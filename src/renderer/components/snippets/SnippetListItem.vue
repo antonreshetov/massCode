@@ -30,7 +30,7 @@
 <script>
 import { mapGetters } from 'vuex'
 import { format, isSameDay } from 'date-fns'
-import { menu } from '@@/lib'
+import { menu, dialog } from '@@/lib'
 import { track } from '@@/lib/analytics'
 
 export default {
@@ -71,6 +71,7 @@ export default {
       'snippetsBySort',
       'sort'
     ]),
+    ...mapGetters('folders', { selectedFolderId: 'selectedId' }),
     isSelected () {
       if (!this.selectedId) return null
 
@@ -198,7 +199,7 @@ export default {
         isFavorites = this.selectedSnippets.some(i => i.isFavorites)
       }
 
-      const menuItems = [
+      let menuItems = [
         {
           label: 'Add to Favorites',
           click: () => {
@@ -300,6 +301,35 @@ export default {
           }
         }
         menuItems.splice(1, 0, removeFromFavorites)
+      }
+
+      if (this.selectedFolderId === 'trash') {
+        const deleteNow = {
+          label: 'Delete Now',
+          click: async () => {
+            const plural = ids.length > 1 ? 'snippets' : 'snippet'
+            const buttonId = dialog.showMessageBoxSync({
+              message: `Are you sure you want to permanently delete ${plural}?`,
+              detail: 'You cannot undo this action.',
+              buttons: ['Delete', 'Cancel'],
+              defaultId: 0,
+              cancelId: 1
+            })
+            if (buttonId === 0) {
+              await this.$store.dispatch('snippets/deleteSnippets', ids)
+              const firstSnippet = this.snippetsBySort[0]
+
+              if (firstSnippet) {
+                this.$store.dispatch('snippets/setSelected', firstSnippet)
+              } else {
+                this.$store.dispatch('snippets/setSelected', null)
+              }
+
+              track('snippets/delete-now')
+            }
+          }
+        }
+        menuItems = [deleteNow]
       }
 
       const contextMenu = menu.popup(menuItems)
