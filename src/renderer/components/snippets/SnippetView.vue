@@ -172,11 +172,13 @@ export default {
   },
 
   watch: {
-    isNew () {
-      this.$nextTick(() => {
-        this.$refs.input.$refs.input.focus()
-        this.$refs.input.$refs.input.select()
-      })
+    isNew (v) {
+      if (v) {
+        this.$nextTick(() => {
+          this.$refs.input.$refs.input.focus()
+          this.$refs.input.$refs.input.select()
+        })
+      }
     }
   },
 
