@@ -17,19 +17,44 @@ class DataStore {
     this.init()
   }
 
-  init () {
-    this.snippets = new Store({
-      autoload: true,
-      filename: path.join(this._path, '/snippets.db')
+  async init () {
+    this.createDB('masscode', false)
+    this.createDB('snippets')
+    this.createDB('tags')
+
+    this.masscode.loadDatabase(err => {
+      if (err) throw err
+
+      const defaultFolder = {
+        list: [
+          {
+            id: shortid(),
+            name: 'Default',
+            open: false,
+            defaultLanguage: 'text'
+          }
+        ],
+        _id: 'folders'
+      }
+      this.masscode.insert(defaultFolder)
     })
-    this.tags = new Store({
-      autoload: true,
-      filename: path.join(this._path, '/tags.db')
+
+    await this.createBackupDir()
+    this.autoBackup()
+  }
+
+  async createDB (name, autoload = true) {
+    this[name] = new Store({
+      autoload,
+      filename: path.join(this._path, `/${name}.db`),
+      onload: err => {
+        if (err) {
+          this.createDB(name)
+          console.log(`db ${name} is restarted`)
+        }
+      }
     })
-    this.masscode = new Store({
-      autoload: true,
-      filename: path.join(this._path, '/masscode.db')
-    })
+    console.log(`db ${name} is created`)
   }
 
   updatePath () {
@@ -70,6 +95,10 @@ class DataStore {
     this.masscode.persistence.compactDatafile()
     this.snippets.persistence.compactDatafile()
     this.tags.persistence.compactDatafile()
+  }
+
+  async createBackupDir () {
+    await fs.ensureDir(this._backupPath)
   }
 
   createBackupDirByDate (date) {
@@ -216,21 +245,4 @@ class DataStore {
   }
 }
 
-const db = new DataStore()
-
-const defaultFolder = {
-  list: [
-    {
-      id: shortid(),
-      name: 'Default',
-      open: false,
-      defaultLanguage: 'text'
-    }
-  ],
-  _id: 'folders'
-}
-
-db.masscode.insert(defaultFolder)
-db.autoBackup()
-
-export default db
+export default new DataStore()
