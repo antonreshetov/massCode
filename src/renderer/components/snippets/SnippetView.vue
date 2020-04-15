@@ -87,6 +87,7 @@
 <script>
 import { mapGetters, mapState } from 'vuex'
 import cloneDeep from 'lodash-es/cloneDeep'
+import debounce from 'lodash-es/debounce'
 import MonacoEditor from '@/components/editor/MonacoEditor.vue'
 import MarkdownPreview from '@/components/editor/MarkdownPreview.vue'
 import SnippetTabs from '@/components/snippets/SnippetTabs.vue'
@@ -202,13 +203,12 @@ export default {
     setWatcher () {
       this.unWatch = this.$watch(
         'localSnippet',
-        () => {
+        debounce(() => {
           this.$emit('edit')
           const ids = [this.localSnippet._id]
           const payload = this.localSnippet
-
           this.$store.dispatch('snippets/updateSnippets', { ids, payload })
-        },
+        }, 300),
         { deep: true }
       )
     },
