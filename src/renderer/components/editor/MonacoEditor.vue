@@ -32,6 +32,7 @@ import languages from './languages'
 import { track } from '@@/lib/analytics'
 import prettier from 'prettier'
 import { ipcRenderer } from 'electron'
+import { conf as dartConf, language as dartLanguage } from './languages/dart'
 
 export default {
   name: 'MonacoEditor',
@@ -202,6 +203,7 @@ export default {
   methods: {
     init () {
       this.defineThemes()
+      this.addLanguage('dart', dartConf, dartLanguage)
 
       this.editor = monaco.editor.create(this.$refs.editor, {
         value: this.value,
@@ -303,6 +305,11 @@ export default {
     setLanguage (lang) {
       const model = this.editor.getModel()
       monaco.editor.setModelLanguage(model, lang)
+    },
+    addLanguage (name, conf, language) {
+      monaco.languages.register({ id: name })
+      monaco.languages.setMonarchTokensProvider(name, language)
+      monaco.languages.setLanguageConfiguration(name, conf)
     },
     onClickLanguage () {
       menu.popup(this.languagesMenu)

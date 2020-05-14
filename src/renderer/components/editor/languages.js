@@ -44,6 +44,10 @@ export default [
     value: 'css'
   },
   {
+    label: 'Dart',
+    value: 'dart'
+  },
+  {
     label: 'Dockerfile',
     value: 'dockerfile'
   },
