@@ -4,6 +4,7 @@
       ref="tagsInput"
       v-bind="$attrs"
       :add-on-blur="false"
+      :is-duplicate="isAllowToAdd"
       @tags-changed="onTagsChange"
       v-on="$listeners"
     />
@@ -13,12 +14,17 @@
       :append-to="appendEl"
       :arrow="false"
     >
-      <div class="app-input-tags__autocomplete">
+      <div
+        ref="list"
+        class="app-input-tags__autocomplete"
+      >
         <div
-          v-for="i in autocomplete"
+          v-for="(i, index) in autocomplete"
           :key="i._id"
           class="app-input-tags__autocomplete-item"
+          :class="{ 'is-selected': index === aheadIndex }"
           @click="onSelectTag(i)"
+          @hover="aheadIndex = $event"
         >
           {{ i.name }}
         </div>
@@ -29,6 +35,7 @@
 
 <script>
 import { VueTagsInput, createTag } from '@johmun/vue-tags-input'
+import PerfectScrollbar from 'perfect-scrollbar'
 import { mapGetters } from 'vuex'
 
 export default {
@@ -48,7 +55,11 @@ export default {
   data () {
     return {
       appendEl: null,
-      showPopper: false
+      showPopper: false,
+      aheadIndex: null,
+      pointerPosTop: null,
+      viewportHeight: null,
+      ps: null
     }
   },
 
@@ -71,16 +82,43 @@ export default {
     selected () {
       this.$nextTick(() => {
         this.checkTagsHeight()
+        this.showPopper = false
       })
+    },
+    autocomplete (v) {
+      if (v.length) {
+        this.aheadIndex = null
+        this.$nextTick(() => {
+          this.getViewportHeight()
+          if (this.ps) {
+            this.ps.update()
+          }
+        })
+      }
+    },
+    showPopper (v) {
+      if (!v) {
+        this.viewportHeight = null
+        this.pointerPosTop = null
+        this.aheadIndex = null
+      } else {
+        this.$nextTick(() => {
+          this.initPS()
+        })
+      }
     }
   },
 
   mounted () {
     this.checkTagsHeight()
     this.appendEl = this.$el.querySelector('.ti-new-tag-input')
+    this.bindKeyEvent()
   },
 
   methods: {
+    isAllowToAdd (e) {
+      return this.aheadIndex !== null
+    },
     onTagsChange () {
       this.$nextTick(() => {
         this.checkTagsHeight()
@@ -103,6 +141,60 @@ export default {
       this.$refs.tagsInput.addTag(newTag)
       this.$emit('tag:select', newTag)
       this.showPopper = false
+    },
+    bindKeyEvent () {
+      this.appendEl.addEventListener('keydown', e => {
+        this.scrollByArrow(e)
+        if (e.keyCode === 27) this.aheadIndex = null
+        if (e.keyCode === 13 && this.aheadIndex !== null) {
+          const tag = this.autocomplete[this.aheadIndex]
+          this.onSelectTag(tag)
+        }
+      })
+    },
+    scrollByArrow (e) {
+      if (!this.showPopper) return
+
+      const list = this.$refs.popper.$el.children[0]
+      const itemHeight = this.$refs.list.children[0].offsetHeight
+
+      if (e.keyCode === 38) {
+        if (this.aheadIndex > 0) this.aheadIndex--
+        this.getPointerPosTop()
+      }
+
+      if (e.keyCode === 40) {
+        if (this.aheadIndex === null) {
+          this.aheadIndex = 0
+          return
+        }
+
+        if (this.aheadIndex < this.autocomplete.length - 1) {
+          this.aheadIndex++
+        }
+
+        this.getPointerPosTop()
+      }
+
+      if (this.pointerPosTop < list.scrollTop) {
+        list.scrollTop = this.pointerPosTop
+      }
+
+      if (
+        this.pointerPosTop >
+        list.scrollTop + this.viewportHeight - itemHeight
+      ) {
+        list.scrollTop = this.pointerPosTop - this.viewportHeight + itemHeight
+      }
+    },
+    getPointerPosTop () {
+      this.pointerPosTop = this.$refs.list.children[this.aheadIndex].offsetTop
+    },
+    getViewportHeight () {
+      this.viewportHeight = this.$refs.popper?.$el.children[0]?.offsetHeight
+    },
+    initPS () {
+      this.ps = new PerfectScrollbar(this.$refs.popper.$el.children[0])
     }
   }
 }
@@ -114,6 +206,8 @@ export default {
   overflow: hidden;
   position: relative;
   &__autocomplete {
+    // overflow: hidden;
+    position: relative;
     &-item {
       font-size: var(--text-sm);
       padding: var(--spacing-xs);
@@ -124,6 +218,9 @@ export default {
       }
       &:last-child {
         border-bottom: none;
+      }
+      &.is-selected {
+        background-color: var(--color-contrast-lower);
       }
     }
   }

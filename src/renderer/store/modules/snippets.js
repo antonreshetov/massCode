@@ -207,8 +207,10 @@ export default {
         snippet.tagsPopulated = []
         snippet.tags.forEach(tagId => {
           const foundedTag = tags.find(tag => tag._id === tagId)
-          foundedTag.text = foundedTag.name
-          snippet.tagsPopulated.push(foundedTag)
+          if (foundedTag) {
+            foundedTag.text = foundedTag.name
+            snippet.tagsPopulated.push(foundedTag)
+          }
         })
       })
 

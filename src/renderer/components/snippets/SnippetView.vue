@@ -150,6 +150,7 @@ export default {
       return []
     },
     autocompleteTag () {
+      if (this.inputTag === '') return []
       return this.tags
         .filter(
           i =>
@@ -189,6 +190,7 @@ export default {
       this.unWatch()
       this.cloneSnippet()
       this.setWatcher()
+      this.inputTag = ''
     })
     this.setWatcher()
     this.$bus.$on('snippet:new-fragment', () => {
@@ -306,26 +308,33 @@ export default {
         name: tag.text.trim()
       })
 
-      if (newTag) {
-        addTag()
-        const payload = {
-          snippetId: this.selected._id,
-          tagId: newTag._id
+      if (
+        !tag.tiClasses.includes('ti-duplicate') ||
+        !tag.tiClasses.includes('ti-invalid')
+      ) {
+        if (newTag) {
+          addTag()
+          const payload = {
+            snippetId: this.selected._id,
+            tagId: newTag._id
+          }
+          track('tags/new')
+          this.$store.dispatch('snippets/addTag', payload)
         }
-        track('tags/new')
-        this.$store.dispatch('snippets/addTag', payload)
+        track('tags/new-snippet-tag')
       }
-      track('tags/new-snippet-tag')
     },
     async onRemoveTag (e) {
       const { tag, deleteTag } = e
-      const payload = {
-        snippetId: this.selected._id,
-        tagId: tag._id
+      if (tag) {
+        const payload = {
+          snippetId: this.selected._id,
+          tagId: tag._id
+        }
+        this.$store.dispatch('snippets/removeTag', payload)
+        deleteTag()
+        track('tags/delete-snippet-tag')
       }
-      this.$store.dispatch('snippets/removeTag', payload)
-      deleteTag()
-      track('tags/delete-snippet-tag')
     },
     onAddTagFromAutocomplete (e) {
       const payload = {

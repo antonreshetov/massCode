@@ -112,8 +112,8 @@ export default {
     box-sizing: border-box;
   }
   &__inner {
-    // padding: 10px;
-    overflow-y: auto;
+    position: relative;
+    overflow: hidden;
   }
   &__arrow {
     position: absolute;

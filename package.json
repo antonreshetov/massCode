@@ -68,6 +68,7 @@
     }
   },
   "dependencies": {
+    "@babel/plugin-proposal-optional-chaining": "^7.10.1",
     "@johmun/vue-tags-input": "^2.1.0",
     "axios": "^0.19.1",
     "date-fns": "^2.8.1",
