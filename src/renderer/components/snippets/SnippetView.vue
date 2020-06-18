@@ -189,6 +189,7 @@ export default {
       this.unWatch()
       this.cloneSnippet()
       this.setWatcher()
+      this.inputTag = ''
     })
     this.setWatcher()
     this.$bus.$on('snippet:new-fragment', () => {

@@ -71,6 +71,7 @@ export default {
     selected () {
       this.$nextTick(() => {
         this.checkTagsHeight()
+        this.showPopper = false
       })
     }
   },
