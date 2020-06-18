@@ -138,16 +138,28 @@ export default mainWindow => {
       {
         label: 'Cut',
         accelerator: 'CommandOrControl+X',
+        click (menuItem, focusedWin) {
+          mainWindow.webContents.send('menu:cut')
+          focusedWin.webContents.cut()
+        },
         selector: 'cut:'
       },
       {
         label: 'Copy',
         accelerator: 'CommandOrControl+C',
+        click (menuItem, focusedWin) {
+          mainWindow.webContents.send('menu:copy')
+          focusedWin.webContents.copy()
+        },
         selector: 'copy:'
       },
       {
         label: 'Paste',
         accelerator: 'CommandOrControl+V',
+        click (menuItem, focusedWin) {
+          mainWindow.webContents.send('menu:paste')
+          focusedWin.webContents.paste()
+        },
         selector: 'paste:'
       },
       {
