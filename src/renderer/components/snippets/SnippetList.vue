@@ -10,16 +10,14 @@
       ref="wrapper"
       class="snippet-list__wrapper"
     >
-      <TransitionGroup :name="animation">
-        <SnippetListItem
-          v-for="(i, index) in snippetsList"
-          :id="i.label"
-          :key="i._id"
-          :index="index"
-          :model="i"
-          :draggable="true"
-        />
-      </TransitionGroup>
+      <SnippetListItem
+        v-for="(i, index) in snippetsList"
+        :id="i.label"
+        :key="i._id"
+        :index="index"
+        :model="i"
+        :draggable="true"
+      />
     </div>
     <div
       ref="gutter"
@@ -46,7 +44,6 @@ export default {
   data () {
     return {
       focus: false,
-      animation: '',
       ps: null
     }
   },
@@ -118,7 +115,6 @@ export default {
     },
     snippetsList () {
       this.$nextTick(() => {
-        this.animation = 'list'
         this.ps.update()
         this.$refs.wrapper.scrollTop = 0
       })
