@@ -304,23 +304,22 @@ export default {
     },
     async onAddTag (e) {
       const { tag, addTag } = e
-      const newTag = await this.$store.dispatch('tags/addTag', {
-        name: tag.text.trim()
-      })
 
       if (
         !tag.tiClasses.includes('ti-duplicate') ||
         !tag.tiClasses.includes('ti-invalid')
       ) {
-        if (newTag) {
-          addTag()
-          const payload = {
-            snippetId: this.selected._id,
-            tagId: newTag._id
-          }
-          track('tags/new')
-          this.$store.dispatch('snippets/addTag', payload)
+        addTag()
+        const newTag = await this.$store.dispatch('tags/addTag', {
+          name: tag.text.trim()
+        })
+        const payload = {
+          snippetId: this.selected._id,
+          tagId: newTag._id
         }
+        track('tags/new')
+        this.$store.dispatch('snippets/addTag', payload)
+
         track('tags/new-snippet-tag')
       }
     },
@@ -337,11 +336,13 @@ export default {
       }
     },
     onAddTagFromAutocomplete (e) {
-      const payload = {
-        snippetId: this.selected._id,
-        tagId: e._id
+      if (e._id) {
+        const payload = {
+          snippetId: this.selected._id,
+          tagId: e._id
+        }
+        this.$store.dispatch('snippets/addTag', payload)
       }
-      this.$store.dispatch('snippets/addTag', payload)
     },
     onChangeLayout (e) {
       const { width } = e
