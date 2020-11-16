@@ -358,14 +358,31 @@ export default {
         dispatch('getSnippets', query)
       })
     },
-    searchSnippets ({ commit }, query) {
+    searchSnippets ({ commit, rootGetters }, query) {
+      const selectedFolderId = rootGetters['folders/selectedId']
+      const searchByFolder = selectedFolderId !== 'allSnippets'
+      const searchingFavorites = selectedFolderId === 'favorites'
+      const searchingDeleted = selectedFolderId === 'trash'
+
       db.snippets.find({}, (err, doc) => {
         if (err) return
         query = query.toLowerCase()
 
-        doc = doc
-          .filter(snippet => !snippet.isDeleted)
-          .sort((a, b) => (a.updatedAt > b.updatedAt ? -1 : 1))
+        if (!searchingDeleted) {
+          doc = doc.filter(snippet => !snippet.isDeleted)
+        }
+
+        if (searchByFolder) {
+          if (searchingFavorites) {
+            doc = doc.filter(snippet => snippet.isFavorites)
+          } else if (searchingDeleted) {
+            doc = doc.filter(snippet => snippet.isDeleted)
+          } else {
+            doc = doc.filter(snippet => snippet.folderId === selectedFolderId)
+          }
+        }
+
+        doc = doc.sort((a, b) => (a.updatedAt > b.updatedAt ? -1 : 1))
 
         const resultBySnippetContent = doc.filter(snippet =>
           snippet.content.some(content =>
@@ -389,7 +406,7 @@ export default {
           if (results.length) {
             const first = results[0]
             commit('SET_SELECTED_ID', first._id)
-            commit('folders/SET_SELECTED_ID', 'allSnippets', { root: true })
+            // commit('folders/SET_SELECTED_ID', 'allSnippets', { root: true })
           } else {
             commit('SET_SELECTED_ID', null)
           }
