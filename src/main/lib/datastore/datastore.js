@@ -20,7 +20,6 @@ class Datastore {
 
     this.db = low(new FileSync(`${this.path}/db.json`))
     this.collections = {}
-    this.schema = Joi
     this.migrateStore = {}
 
     this.createCollections(config.collections)
