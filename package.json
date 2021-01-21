@@ -69,6 +69,7 @@
   },
   "dependencies": {
     "@babel/plugin-proposal-optional-chaining": "^7.10.1",
+    "@hapi/joi": "^17.1.1",
     "@johmun/vue-tags-input": "^2.1.0",
     "axios": "^0.19.1",
     "date-fns": "^2.8.1",
@@ -80,6 +81,7 @@
     "interactjs": "^1.8.0-alpha.6",
     "junk": "^3.1.0",
     "lodash-es": "^4.17.15",
+    "lowdb": "^1.0.0",
     "markdown-it": "^10.0.0",
     "markdown-it-link-attributes": "^3.0.0",
     "monaco-editor": "^0.19.0",
@@ -93,6 +95,7 @@
     "sanitize-html": "^1.21.1",
     "shortid": "^2.2.15",
     "universal-analytics": "^0.4.20",
+    "uuid": "^8.3.0",
     "vue": "^2.5.16",
     "vue-draggable-nested-tree": "github:massCodeIO/vue-draggable-nested-tree",
     "vue-electron": "^1.0.6",
