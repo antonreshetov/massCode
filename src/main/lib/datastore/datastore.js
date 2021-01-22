@@ -130,6 +130,18 @@ class Datastore {
   async migrate (path) {
     if (!path) throw Error('"path" is required')
 
+    const files = await fs.readdir(path)
+    const migrateFiles = ['masscode.db', 'snippets.db', 'tags.db']
+
+    const isFilesExist = migrateFiles
+      .reduce((acc, item) => {
+        acc.push(files.includes(item))
+        return acc
+      }, [])
+      .every(i => i === true)
+
+    if (!isFilesExist) throw Error('DB files not exist in this folder')
+
     console.log('Migrate from v1 is started')
     this.clearCollections()
     this.createDefaultFolders()
