@@ -8,6 +8,9 @@ import extendMethods from './extend-methods'
 import electronStore from '../../store'
 import { nestedToFlat } from '../../util/helpers'
 import pull from 'lodash-es/pull'
+import { format, min, max, isSameDay } from 'date-fns'
+import junk from 'junk'
+import rimraf from 'rimraf'
 
 class Datastore {
   /**
@@ -20,6 +23,7 @@ class Datastore {
 
     this.db = low(new FileSync(`${this.path}/db.json`))
     this.collections = {}
+    this.backupLimit = 30
     this.migrateStore = {}
 
     this.createCollections(config.collections)
@@ -31,6 +35,7 @@ class Datastore {
 
     fs.ensureDirSync(config.path)
     fs.ensureDirSync(config.backupPath)
+    fs.ensureDirSync(this.backupPath)
 
     this.path = config.path
     this.backupPath = config.backupPath
@@ -126,6 +131,148 @@ class Datastore {
     this.db = low(new FileSync(`${path}/db.json`))
     this.updateCollections()
   }
+
+  // Backup
+
+  async createBackupDirByDate (date) {
+    const folderPath = this.convertDateToBackupPath(date)
+    await fs.ensureDir(folderPath)
+
+    return folderPath
+  }
+
+  convertDateToBackupPath (date) {
+    date = date || new Date()
+    const backupFolderDatePattern = 'yyyy-MM-dd_HH-mm-ss'
+    const suffixFolder = 'massCode'
+    const dirName = `${format(date, backupFolderDatePattern)}_${suffixFolder}`
+
+    return path.resolve(this.backupPath, dirName)
+  }
+
+  async backup () {
+    const dir = await this.createBackupDirByDate()
+    const src = path.resolve(`${this.path}/db.json`)
+    const dest = path.resolve(dir, 'db.json')
+
+    await fs.copy(src, dest)
+  }
+
+  autoBackup () {
+    const start = async () => {
+      const now = new Date()
+      const isEmpty = await this.isBackupEmpty()
+
+      if (isEmpty) {
+        await this.backup()
+      } else {
+        const { date } = await this.getLatestBackupDir()
+
+        if (!isSameDay(now, date)) {
+          await this.removeEarliestBackup()
+          await this.backup()
+        }
+      }
+      console.log('autobackup is started')
+    }
+
+    start()
+    setInterval(() => {
+      start()
+    }, 1000 * 60 * 60 * 12)
+  }
+
+  restoreFromBackup (date) {
+    return new Promise((resolve, reject) => {
+      const dir = this.convertDateToBackupPath(date)
+      fs.copyFileSync(`${dir}/db.json`, `${this.path}/db.json`)
+      this.updatePath(this.path)
+      resolve()
+    })
+  }
+
+  async moveBackup (to) {
+    const dirs = await this.getBackupDirs()
+    const src = dirs.map(i => path.resolve(this.backupPath, i))
+    const dest = dirs.map(i => path.resolve(to, i))
+
+    src.forEach((dir, index) => {
+      fs.moveSync(dir, dest[index], { overwrite: true })
+    })
+
+    this.backupPath = to
+    electronStore.preferences.set('backupPath', to)
+  }
+
+  async getBackupDirs () {
+    let dirs = await fs.readdir(this.backupPath)
+    dirs = dirs.filter(junk.not).filter(i => i.includes('massCode'))
+
+    return dirs
+  }
+
+  async getBackupsDirsAsDate () {
+    const dirs = await this.getBackupDirs()
+    return this.convertBackupDirsToDate(dirs.filter(junk.not))
+  }
+
+  async getEarliestBackupDir () {
+    const dirs = await this.getBackupDirs()
+
+    const dirsDate = this.convertBackupDirsToDate(dirs)
+    const minDate = min(dirsDate).getTime()
+    const dir = dirs[dirsDate.indexOf(minDate)]
+
+    return {
+      date: minDate,
+      dir,
+      path: dir ? path.resolve(this.backupPath, dir) : null
+    }
+  }
+
+  async getLatestBackupDir () {
+    const dirs = await this.getBackupDirs()
+
+    const dirsDate = this.convertBackupDirsToDate(dirs)
+    const maxDate = max(dirsDate).getTime()
+    const dir = dirs[dirsDate.indexOf(maxDate)]
+
+    return {
+      date: maxDate,
+      dir,
+      path: dir ? path.resolve(this.backupPath, dir) : null
+    }
+  }
+
+  async removeEarliestBackup () {
+    const dirs = await this.getBackupDirs()
+    const { path } = await this.getEarliestBackupDir()
+
+    if (dirs.length > this.backupLimit) {
+      rimraf(path, err => {
+        if (err) throw Error(err)
+      })
+    }
+  }
+
+  convertBackupDirsToDate (dirs) {
+    return dirs.map(i => {
+      const arr = i.split('_').splice(0, 2)
+      arr[1] = `T${arr[1].replace(/-/g, ':')}`
+      const date = new Date(arr.join('')).getTime()
+
+      return date
+    })
+  }
+
+  async isBackupEmpty () {
+    let dirs = await this.getBackupDirs()
+    dirs = dirs.filter(junk.not)
+
+    return dirs.length === 0
+  }
+
+  // Migrate
 
   async migrate (path) {
     if (!path) throw Error('"path" is required')
