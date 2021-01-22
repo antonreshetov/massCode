@@ -35,7 +35,6 @@ class Datastore {
 
     fs.ensureDirSync(config.path)
     fs.ensureDirSync(config.backupPath)
-    fs.ensureDirSync(this.backupPath)
 
     this.path = config.path
     this.backupPath = config.backupPath
