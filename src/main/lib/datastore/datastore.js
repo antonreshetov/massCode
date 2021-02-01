@@ -365,6 +365,7 @@ class Datastore {
       this.migrateStore.tagIdsMap.map(([oldId, newId]) => {
         const snippetsWithTags = this.collections.snippets
           .filter(i => i.tagIds.includes(oldId))
+          .cloneDeep()
           .value()
 
         snippetsWithTags.map(s => {
@@ -373,7 +374,7 @@ class Datastore {
           tagIds.push(newId)
           this.collections.snippets
             .find({ _id })
-            .assign(tagIds)
+            .assign({ tagIds })
             .write()
         })
       })
