@@ -331,12 +331,12 @@ class Datastore {
         const { _id } = this.collections.folders.$insert(rest)
 
         this.migrateStore.folderIdsMap.push([id, _id])
-      })
-      this.migrateStore.folderIdsMap.map(([oldId, newId]) => {
-        this.collections.folders
-          .find({ parentId: oldId })
-          .assign({ parentId: newId })
-          .write()
+        this.migrateStore.folderIdsMap.map(([oldId, newId]) => {
+          this.collections.folders
+            .find({ parentId: oldId })
+            .assign({ parentId: newId })
+            .write()
+        })
       })
       // Snippets
       snippetsJSON.map(
