@@ -29,7 +29,8 @@ export default {
     ...mapGetters('folders', [
       'selectedIds',
       'defaultQueryBySystemFolder',
-      'isSystemFolder'
+      'isSystemFolder',
+      'systemAliases'
     ]),
     ...mapGetters('snippets', ['snippetsBySort']),
     isTray () {
@@ -64,31 +65,23 @@ export default {
       const selectedSnippetId = electronStore.app.get('selectedSnippetId')
 
       if (selectedFolderId) {
-        this.$store.dispatch('folders/setSelectedFolder', selectedFolderId)
+        const isFolderExist = await this.$store.dispatch(
+          'folders/isFolderExist',
+          selectedFolderId
+        )
+        const folderId = isFolderExist
+          ? selectedFolderId
+          : this.systemAliases.inbox
 
-        let query = {}
-
-        if (this.isSystemFolder) {
-          query = this.defaultQueryBySystemFolder
-        }
-
-        if (this.selectedIds) {
-          query = { folderId: { $in: this.selectedIds } }
-        }
-
-        await this.$store.dispatch('snippets/getSnippets', query)
+        await this.$store.dispatch('folders/setSelectedFolderById', folderId)
+        await this.$store.dispatch('snippets/getSnippetsBySelectedFolders')
       } else {
-        await this.$store.dispatch('snippets/getSnippets', { folderId: null })
+        await this.$store.dispatch('snippets/getSnippets')
       }
 
       if (selectedSnippetId) {
-        const snippet = this.snippetsBySort.find(
-          i => i._id === selectedSnippetId
-        )
-        if (snippet) {
-          this.$store.dispatch('snippets/setSelected', snippet)
-          this.$store.commit('snippets/SET_SELECTED_SNIPPETS', [snippet])
-        }
+        await this.$store.dispatch('snippets/setSelected', selectedSnippetId)
+        this.$store.commit('snippets/SET_SELECTED_IDS', [selectedSnippetId])
       }
 
       this.$store.commit('app/SET_INIT', true)
