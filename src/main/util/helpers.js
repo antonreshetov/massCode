@@ -33,23 +33,27 @@ export function nestedToFlat (items, link = 'id') {
 
   flat(items)
 
-  return flatList
-    .map(({
-      children,
-      ...rest
-    }) => rest)
+  return flatList.map(({ children, ...rest }) => rest)
 }
 /**
- * Конвертация плоского строения дерева в вложенный через 'children'
- * @param {Array} items - массив элементов
+ * Конвертация плоского строения дерева во вложенный через 'children'
+ * @param {Array} items - массив элементов c полями связей
+ * с родительскими элементами
  * @param {String} id - ID элемента
- * @param {String} link - связь по полю
+ * @param {String} idLink - имя свойства ID
+ * @param {String} link - имя связанного поля
+ * @example [{id:1, parentId: null }, {id:2, parentId: 1 }] -> [{id:1, children: [id:2] }]
  */
-export function flatToNested (items, id = null, link = 'parentId') {
+export function flatToNested (
+  items,
+  id = null,
+  idLink = '_id',
+  link = 'parentId'
+) {
   return items
     .filter(item => item[link] === id)
     .map(item => ({
       ...item,
-      children: flatToNested(items, item.id)
+      children: flatToNested(items, item[idLink])
     }))
 }
