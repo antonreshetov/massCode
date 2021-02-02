@@ -1,5 +1,6 @@
 import { v4 as uuid } from 'uuid'
 import cloneDeep from 'lodash-es/cloneDeep'
+import merge from 'lodash-es/merge'
 import { deleteTechProps } from './helpers'
 
 const extendMethods = {
@@ -45,20 +46,24 @@ const extendMethods = {
    * Обновление документа по ID
    * @param filter {Object} - Фильтр поиска
    * @param update - {Object} - Обновления для документа
-   * @returns {Object} - Обновленные документ
+   * @returns {Object} - Патч обновление
    */
   $findOneAndUpdate (filter, update) {
-    update = deleteTechProps(update)
-    const { error } = this._schema.validate(update)
+    const doc = this.find(filter)
+    const docData = doc.cloneDeep().value()
+    const updatedDoc = merge(deleteTechProps(docData), deleteTechProps(update))
+
+    const { error } = this._schema.validate(updatedDoc)
 
     if (error) {
       throw new Error(error)
     } else {
-      this.find(filter)
-        .assign(update)
+      doc
+        .assign(updatedDoc)
         .set('updatedAt', new Date().getTime())
         .write()
-      return this.find(filter)
+
+      return doc
     }
   },
   /**
