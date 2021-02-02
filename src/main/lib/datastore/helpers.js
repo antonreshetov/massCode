@@ -9,6 +9,9 @@ export function deleteTechProps (obj) {
   obj = cloneDeep(obj)
 
   delete obj._id
+  delete obj.children
+  delete obj.tags
+  delete obj.folders
   delete obj.createdAt
   delete obj.updatedAt
 
