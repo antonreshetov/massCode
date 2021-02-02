@@ -149,7 +149,7 @@ class Datastore {
   convertDateToBackupPath (date) {
     date = date || new Date()
     const backupFolderDatePattern = 'yyyy-MM-dd_HH-mm-ss'
-    const suffixFolder = 'massCode'
+    const suffixFolder = 'massCode_v2'
     const dirName = `${format(date, backupFolderDatePattern)}_${suffixFolder}`
 
     return path.resolve(this.backupPath, dirName)
@@ -211,7 +211,7 @@ class Datastore {
 
   async getBackupDirs () {
     let dirs = await fs.readdir(this.backupPath)
-    dirs = dirs.filter(junk.not).filter(i => i.includes('massCode'))
+    dirs = dirs.filter(junk.not).filter(i => i.includes('massCode_v2'))
 
     return dirs
   }
