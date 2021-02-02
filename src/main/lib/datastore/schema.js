@@ -3,7 +3,9 @@ import Joi from '@hapi/joi'
 export const FOLDERS_SCHEMA = {
   name: Joi.string().required(),
   defaultLanguage: Joi.string(),
-  parentId: Joi.string().allow(null),
+  parentId: Joi.string()
+    .allow(null)
+    .required(),
   open: Joi.boolean().default(false),
   isSystem: Joi.boolean().default(false),
   alias: Joi.string()
