@@ -34,6 +34,9 @@ export default {
       commit('SET_TAGS', tags)
     },
     addTag ({ commit, dispatch }, tag) {
+      const isExist = db.collections.tags.find({ name: tag }).value()
+      if (isExist) return
+
       const newTag = db.collections.tags.$insert(tag)
       dispatch('getTags')
       return newTag
