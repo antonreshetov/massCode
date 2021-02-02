@@ -82,13 +82,19 @@ class Datastore {
     if (this.collections.folders.size().value()) return
 
     const systemFolders = [
-      { name: 'Inbox', isSystem: true, alias: 'inbox' },
-      { name: 'Favorites', isSystem: true, alias: 'favorites' },
-      { name: 'All Snippets', isSystem: true, alias: 'allSnippets' },
-      { name: 'Trash', isSystem: true, alias: 'trash' }
+      { name: 'Inbox', isSystem: true, parentId: null, alias: 'inbox' },
+      { name: 'Favorites', isSystem: true, parentId: null, alias: 'favorites' },
+      {
+        name: 'All Snippets',
+        isSystem: true,
+        parentId: null,
+        alias: 'allSnippets'
+      },
+      { name: 'Trash', isSystem: true, parentId: null, alias: 'trash' }
     ]
     const defaultFolder = {
       name: 'Default',
+      parentId: null,
       defaultLanguage: 'text'
     }
     const folders = [...systemFolders, defaultFolder]
