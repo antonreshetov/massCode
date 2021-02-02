@@ -35,7 +35,7 @@ function createMainWindow () {
   mainWindow.loadURL(winURL)
 
   if (isDev) {
-    mainWindow.webContents.openDevTools({ mode: 'detach' })
+    mainWindow.webContents.openDevTools({ mode: 'bottom' })
   }
 
   if (process.platform === 'darwin') {
