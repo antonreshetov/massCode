@@ -30,5 +30,6 @@ const db = new DB({
 })
 
 db.createDefaultFolders()
+db.autoBackup()
 
 export default db
