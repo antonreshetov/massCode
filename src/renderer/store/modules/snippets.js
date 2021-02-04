@@ -284,11 +284,17 @@ export default {
       const defaultLanguage =
         rootGetters['folders/selected']?.defaultLanguage || 'text'
 
-      db.collections.snippets.$insert({
-        name: 'Untitled snippet',
-        folderId: folderId === allSnippets ? inbox : folderId,
-        content: [{ label: 'Fragment 1', language: defaultLanguage, value: '' }]
-      })
+      if (!snippet) {
+        db.collections.snippets.$insert({
+          name: 'Untitled snippet',
+          folderId: folderId === allSnippets ? inbox : folderId,
+          content: [
+            { label: 'Fragment 1', language: defaultLanguage, value: '' }
+          ]
+        })
+      } else {
+        db.collections.snippets.$insert(snippet)
+      }
 
       dispatch('getSnippetsBySelectedFolders')
       const first = getters.snippetsBySort[0]
