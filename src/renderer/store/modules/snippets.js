@@ -2,6 +2,7 @@ import electronStore from '@@/store'
 import uniqBy from 'lodash-es/uniqBy'
 import db from '@@/lib/datastore'
 import pull from 'lodash-es/pull'
+import { deleteTechProps } from '@@/lib/datastore/helpers'
 
 const sort = electronStore.app.get('snippetsSort') || 'updatedAt'
 
@@ -293,6 +294,7 @@ export default {
           ]
         })
       } else {
+        snippet = deleteTechProps(snippet)
         db.collections.snippets.$insert(snippet)
       }
 
