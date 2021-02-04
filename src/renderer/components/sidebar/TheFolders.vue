@@ -13,18 +13,18 @@
           <div
             v-if="!data.isDragPlaceHolder"
             @dragover.prevent
-            @drop="onDropTreeNode($event, data.id)"
+            @drop="onDropTreeNode($event, data._id)"
           >
             <SidebarListItem
-              :id="data.id"
+              :id="data._id"
               :title="data.name"
               :children="!!data.children.length"
               :open="data.open"
               :model="data"
               :drag-hover="dragHoveredFolderId"
-              @dragover="onDragOver($event, data.id)"
+              @dragover="onDragOver($event, data._id)"
               @dragleave="dragHoveredFolderId = null"
-              @click:toggle="onNodeToggle(data, store)"
+              @click:toggle="onNodeToggle(data, store, data)"
             />
           </div>
         </template>
@@ -69,6 +69,7 @@ export default {
 
   computed: {
     ...mapGetters('folders', ['folders']),
+    ...mapGetters('snippets', ['selectedSnippets', 'selectedIds']),
     tree () {
       return this.$refs.tree
     }
@@ -96,14 +97,9 @@ export default {
       this.dragHoveredFolderId = null
 
       if (data) {
-        const ids = JSON.parse(data).value
-        const payload = {
-          $set: {
-            folderId,
-            isDeleted: false
-          }
-        }
-        this.$store.dispatch('snippets/updateSnippets', { ids, payload })
+        const ids = this.selectedIds
+        const payload = { folderId }
+        this.$store.dispatch('snippets/updateSnippetsByIds', { ids, payload })
       }
     },
     onTreeChange (node, newTree, oldTree) {
@@ -111,7 +107,7 @@ export default {
       this.$store.dispatch('folders/updateFolders', folders)
       this.ps.update()
     },
-    onNodeToggle (data, store) {
+    onNodeToggle (data, store, node) {
       store.toggleOpen(data)
       const folders = this.tree.getPureData()
       this.$store.dispatch('folders/updateFolders', folders)
