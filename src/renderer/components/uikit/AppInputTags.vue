@@ -2,9 +2,12 @@
   <div class="app-input-tags">
     <VueTagsInput
       ref="tagsInput"
+      v-click-outside="onClickOutside"
       v-bind="$attrs"
-      :add-on-blur="false"
-      :is-duplicate="isAllowToAdd"
+      :add-on-blur="true"
+      :avoid-adding-duplicates="false"
+      :save-on-key="[13, 9]"
+      tabindex="-1"
       @tags-changed="onTagsChange"
       v-on="$listeners"
     />
@@ -195,6 +198,11 @@ export default {
     },
     initPS () {
       this.ps = new PerfectScrollbar(this.$refs.popper.$el.children[0])
+    },
+    onClickOutside () {
+      this.showPopper = false
+      this.$refs.tagsInput.$emit('input', '')
+      this.$nextTick(() => {})
     }
   }
 }
