@@ -51,7 +51,6 @@ import { mapGetters } from 'vuex'
 import PerfectScrollbar from 'perfect-scrollbar'
 import '@/lib/ipcRenderer'
 import { ipcRenderer } from 'electron'
-import db from '@/datastore'
 
 export default {
   name: 'TrayView',
@@ -78,7 +77,7 @@ export default {
 
   computed: {
     ...mapGetters('snippets', [
-      'snippetsLatest',
+      'snippetsTray',
       'searchQueryTray',
       'isSearchedTray',
       'snippetsSearchedTray'
@@ -93,9 +92,7 @@ export default {
       }
     },
     snippetList () {
-      return this.isSearchedTray
-        ? this.snippetsSearchedTray
-        : this.snippetsLatest
+      return this.isSearchedTray ? this.snippetsSearchedTray : this.snippetsTray
     }
   },
 
@@ -121,9 +118,7 @@ export default {
   methods: {
     async init () {
       // Загружаем последние изменения БД
-      db.updatePath()
-
-      await this.$store.dispatch('snippets/getLatestSnippets')
+      await this.$store.dispatch('snippets/getSnippetsForTray')
       if (this.ps) {
         this.$nextTick(() => {
           this.ps.update()
