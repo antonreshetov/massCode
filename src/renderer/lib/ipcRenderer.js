@@ -47,7 +47,7 @@ ipcRenderer.on('menu:markdown-preview', (e, value) => {
 })
 
 ipcRenderer.on('menu:favorites', () => {
-  store.dispatch('folders/setSelectedFolder', 'favorites')
+  store.dispatch('folders/setSelectedFolderById', 'favorites')
 })
 
 ipcRenderer.on('update-available', () => {
