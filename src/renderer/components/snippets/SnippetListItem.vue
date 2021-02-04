@@ -32,6 +32,7 @@ import { mapGetters } from 'vuex'
 import { format, isSameDay } from 'date-fns'
 import { menu, dialog } from '@@/lib'
 import { track } from '@@/lib/analytics'
+import cloneDeep from 'lodash-es/cloneDeep'
 
 export default {
   name: 'SnippetListItem',
@@ -72,12 +73,13 @@ export default {
       'sort'
     ]),
     ...mapGetters('folders', { selectedFolderId: 'selectedId' }),
+    ...mapGetters('folders', ['systemAliases']),
     isSelected () {
       if (!this.selectedId) return null
 
       let selected
-      if (this.selectedSnippets.length > 1) {
-        selected = !!this.selectedSnippets.find(i => i._id === this.model._id)
+      if (this.selectedSnippets?.length > 1) {
+        selected = !!this.selectedSnippets.find(i => i?._id === this.model._id)
       } else {
         selected = this.selectedId === this.model._id
       }
@@ -113,19 +115,16 @@ export default {
             this.selectedIndex + 1
           )
         }
-        this.$store.commit('snippets/SET_SELECTED_SNIPPETS', snippets)
+        const ids = snippets.map(i => i._id)
+        this.$store.commit('snippets/SET_SELECTED_IDS', ids)
       } else {
         this.onSelect()
-        this.$store.commit('snippets/SET_SELECTED_SNIPPETS', [this.model])
+        this.$store.commit('snippets/SET_SELECTED_IDS', [this.model._id])
       }
     },
     onSelect () {
       this.focus = true
       this.$store.dispatch('snippets/setSelected', this.model)
-      this.$store.commit('snippets/SET_ACTIVE_FRAGMENT', {
-        snippetId: this.model._id,
-        index: 0
-      })
     },
     onDrag (e, id) {
       const isDraggableInSelected = this.selectedSnippets.some(
@@ -185,29 +184,26 @@ export default {
     },
     onContext () {
       this.context = true
-      let ids
+      let snippets = cloneDeep(this.selectedSnippets)
       let isFavorites
 
       const inSelected =
-        this.selectedSnippets.findIndex(i => i._id === this.model._id) !== -1
+        this.selectedSnippets.findIndex(i => i?._id === this.model?._id) !== -1
 
       if (!inSelected) {
-        ids = [this.model._id]
+        snippets = [cloneDeep(this.model)]
         isFavorites = this.model.isFavorites
       } else {
-        ids = this.selectedSnippets.map(i => i._id)
         isFavorites = this.selectedSnippets.some(i => i.isFavorites)
       }
+
+      const ids = snippets.map(i => i._id)
 
       let menuItems = [
         {
           label: 'Add to Favorites',
           click: () => {
-            const payload = {
-              $set: { isFavorites: true }
-            }
-
-            this.$store.dispatch('snippets/updateSnippets', { ids, payload })
+            this.$store.dispatch('snippets/addToFavoritesByIds', ids)
             track('snippets/add-to-favorites')
           }
         },
@@ -218,9 +214,7 @@ export default {
           label: 'Duplicate',
           click: () => {
             const snippet = Object.assign({}, this.model)
-            snippet.createdAt = new Date()
-            snippet.updatedAt = new Date()
-            delete snippet._id
+            snippet.name = `${snippet.name} (copy)`
 
             this.$store.dispatch('snippets/addSnippet', {
               folderId: snippet.folderId,
@@ -233,10 +227,10 @@ export default {
           label: 'Delete',
           click: async () => {
             const payload = {
-              $set: { isDeleted: true }
+              isDeleted: true
             }
 
-            await this.$store.dispatch('snippets/updateSnippets', {
+            await this.$store.dispatch('snippets/updateSnippetsByIds', {
               ids,
               payload
             })
@@ -292,22 +286,18 @@ export default {
         const removeFromFavorites = {
           label: 'Remove from Favorites',
           click: () => {
-            const payload = {
-              $set: { isFavorites: false }
-            }
-
-            this.$store.dispatch('snippets/updateSnippets', { ids, payload })
+            this.$store.dispatch('snippets/removeFromFavoritesByIds', ids)
             track('snippets/remove-from-favorites')
           }
         }
-        menuItems.splice(1, 0, removeFromFavorites)
+        menuItems.splice(0, 1, removeFromFavorites)
       }
 
-      if (this.selectedFolderId === 'trash') {
+      if (this.selectedFolderId === this.systemAliases.trash) {
         const deleteNow = {
           label: 'Delete Now',
           click: async () => {
-            const plural = ids.length > 1 ? 'snippets' : 'snippet'
+            const plural = snippets.length > 1 ? 'snippets' : 'snippet'
             const buttonId = dialog.showMessageBoxSync({
               message: `Are you sure you want to permanently delete ${plural}?`,
               detail: 'You cannot undo this action.',
@@ -316,7 +306,9 @@ export default {
               cancelId: 1
             })
             if (buttonId === 0) {
-              await this.$store.dispatch('snippets/deleteSnippets', ids)
+              // const ids = snippets.map(i => i._id)
+              // const ids = ids
+              await this.$store.dispatch('snippets/deleteSnippetByIds', ids)
               const firstSnippet = this.snippetsBySort[0]
 
               if (firstSnippet) {
