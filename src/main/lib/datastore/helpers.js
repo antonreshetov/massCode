@@ -11,7 +11,7 @@ export function deleteTechProps (obj) {
   delete obj._id
   delete obj.children
   delete obj.tags
-  delete obj.folders
+  delete obj.folder
   delete obj.createdAt
   delete obj.updatedAt
 
