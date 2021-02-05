@@ -27,6 +27,13 @@ export function nestedToFlat (items, link = 'id') {
         }
 
         flat(i.children)
+      } else {
+        if (!flatList.find(l => l[link] === i[link])) {
+          flatList.push({
+            ...i,
+            parentId: null
+          })
+        }
       }
     })
   }
