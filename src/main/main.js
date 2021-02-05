@@ -27,7 +27,8 @@ function createMainWindow () {
     transparent: process.platform === 'darwin',
     backgroundColor,
     webPreferences: {
-      nodeIntegration: true
+      nodeIntegration: true,
+      enableRemoteModule: true
     }
   })
 
