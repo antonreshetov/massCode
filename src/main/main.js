@@ -36,7 +36,12 @@ function createMainWindow () {
   mainWindow.loadURL(winURL)
 
   if (isDev) {
-    mainWindow.webContents.openDevTools({ mode: 'bottom' })
+    mainWindow.webContents.on('did-frame-finish-load', () => {
+      mainWindow.webContents.once('devtools-opened', () => {
+        mainWindow.focus()
+      })
+      mainWindow.webContents.openDevTools({ mode: 'bottom' })
+    })
   }
 
   if (process.platform === 'darwin') {
