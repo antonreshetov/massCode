@@ -128,7 +128,7 @@ export default {
     },
     onDrag (e, id) {
       const isDraggableInSelected = this.selectedSnippets.some(
-        i => i._id === this.model._id
+        i => i?._id === this.model?._id
       )
       let value = [this.model._id]
 

@@ -95,7 +95,8 @@ class Datastore {
     const defaultFolder = {
       name: 'Default',
       parentId: null,
-      defaultLanguage: 'text'
+      defaultLanguage: 'text',
+      index: -1
     }
     const folders = [...systemFolders, defaultFolder]
 

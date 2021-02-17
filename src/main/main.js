@@ -36,6 +36,7 @@ function createMainWindow () {
   mainWindow.loadURL(winURL)
 
   if (isDev) {
+    // @see https://github.com/SimulatedGREG/electron-vue/issues/389
     mainWindow.webContents.on('did-frame-finish-load', () => {
       mainWindow.webContents.once('devtools-opened', () => {
         mainWindow.focus()

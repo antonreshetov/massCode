@@ -10,6 +10,8 @@ import AppMenuItem from './AppMenuItem.vue'
 import AppSelect from './AppSelect.vue'
 import AppInputTags from './AppInputTags.vue'
 import AppPopper from './AppPopper.vue'
+import AppTree from './AppTree/AppTree.vue'
+import AppTreeNode from './AppTree/AppTreeNode.vue'
 
 const components = [
   AppButton,
@@ -23,7 +25,9 @@ const components = [
   AppMenuItem,
   AppSelect,
   AppInputTags,
-  AppPopper
+  AppPopper,
+  AppTree,
+  AppTreeNode
 ]
 
 export default {

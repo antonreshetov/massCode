@@ -6,6 +6,7 @@ export const FOLDERS_SCHEMA = {
   parentId: Joi.string()
     .allow(null)
     .required(),
+  index: Joi.number().allow(null),
   open: Joi.boolean().default(false),
   isSystem: Joi.boolean().default(false),
   alias: Joi.string()
