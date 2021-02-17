@@ -1,5 +1,7 @@
 # massCode
 
+> The second version in beta stage is available in the [v2](https://github.com/antonreshetov/massCode/tree/v2) branch, builds are available in the [releases](https://github.com/antonreshetov/massCode/releases)
+
 A free and open source code snippets manager for developers.
 
 <p align="center">
