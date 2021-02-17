@@ -79,8 +79,37 @@ export default {
   actions: {
     getFolders ({ commit }) {
       const folders = db.collections.folders.$find()
+      let nestedFolders = flatToNested(folders, null)
 
-      commit('SET_FOLDERS', flatToNested(folders, null))
+      // Добавляем пропс 'id' для обеспечения работоспособности AppTree
+      function addIdProp (arr) {
+        return arr.map(i => {
+          i.id = i._id
+          if (i.children && i.children.length) {
+            addIdProp(i.children)
+          }
+          return i
+        })
+      }
+
+      nestedFolders = addIdProp(nestedFolders)
+      const systemFolders = nestedFolders.splice(0, 4)
+
+      function sort (arr, key = 'index') {
+        arr
+          .sort((a, b) => (a[key] > b[key] ? 1 : -1))
+          .map(i => {
+            if (i.children && i.children.length) {
+              sort(i.children)
+            }
+            return i
+          })
+      }
+
+      sort(nestedFolders)
+      nestedFolders = [...systemFolders, ...nestedFolders]
+
+      commit('SET_FOLDERS', nestedFolders)
     },
     setSelectedFolderById (
       { state, commit, dispatch, getters, rootGetters },
@@ -164,7 +193,6 @@ export default {
     },
     updateFolders ({ dispatch }, folders) {
       folders.map(i => {
-        console.log(i)
         db.collections.folders.$findOneAndUpdate(
           {
             _id: i._id
