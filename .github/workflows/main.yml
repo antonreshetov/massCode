@@ -21,6 +21,8 @@ jobs:
         run: (node -p "require('./package.json').version") > TAG
 
       - name: Set action ENV
+        env:
+          ACTIONS_ALLOW_UNSECURE_COMMANDS: 'true'
         run: echo "::set-env name=TAG::$(cat TAG)"
 
       - name: yarn install
@@ -68,6 +70,8 @@ jobs:
         run: (node -p "require('./package.json').version") > TAG
 
       - name: Set action ENV
+        env:
+          ACTIONS_ALLOW_UNSECURE_COMMANDS: 'true'
         run: echo "::set-env name=TAG::$(cat TAG)"
 
       - name: Create Release
