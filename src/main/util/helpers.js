@@ -8,11 +8,12 @@ export function nestedToFlat (items, link = 'id') {
   const flatList = []
 
   function flat (items) {
-    items.map(i => {
+    items.map((i, index) => {
       if (i.children && i.children.length) {
-        const children = i.children.map(item => {
+        const children = i.children.map((item, idx) => {
           return {
             ...item,
+            index: idx,
             parentId: i[link]
           }
         })
@@ -22,6 +23,7 @@ export function nestedToFlat (items, link = 'id') {
         if (!flatList.find(l => l[link] === i[link])) {
           flatList.push({
             ...i,
+            index,
             parentId: null
           })
         }
@@ -31,6 +33,7 @@ export function nestedToFlat (items, link = 'id') {
         if (!flatList.find(l => l[link] === i[link])) {
           flatList.push({
             ...i,
+            index,
             parentId: null
           })
         }
@@ -59,7 +62,7 @@ export function flatToNested (
 ) {
   return items
     .filter(item => item[link] === id)
-    .map(item => ({
+    .map((item, index) => ({
       ...item,
       children: flatToNested(items, item[idLink])
     }))
