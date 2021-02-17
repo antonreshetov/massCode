@@ -183,9 +183,21 @@ export default {
         this.$refs.input.focus()
         this.$refs.input.select()
       })
+      this.folderName = this.model.name
     },
     onClickOutside () {
+      if (!this.editable) return
+
+      if (this.folderName !== this.model.name) {
+        const id = this.model._id
+        const payload = {
+          name: this.folderName
+        }
+        this.$store.dispatch('folders/updateFolderNameById', { id, payload })
+      }
+
       this.editable = false
+      this.folderName = null
     }
   }
 }
