@@ -35,8 +35,8 @@ import { mapGetters } from 'vuex'
 import cloneDeep from 'lodash-es/cloneDeep'
 import { track } from '@@/lib/analytics'
 import PerfectScrollbar from 'perfect-scrollbar'
-import AppTree from '@/components/uikit/AppTree/AppTree'
-import FolderItem from '@/components/sidebar/FolderItem'
+import AppTree from '@/components/uikit/AppTree/AppTree.vue'
+import FolderItem from '@/components/sidebar/FolderItem.vue'
 import { nestedToFlat } from '@@/util/helpers'
 
 export default {
