@@ -26,7 +26,7 @@ jobs:
         run: echo "::set-env name=TAG::$(cat TAG)"
 
       - name: yarn install
-        run: yarn install
+        run: yarn install --network-timeout 1000000
 
       - name: Build
         run: yarn run build
