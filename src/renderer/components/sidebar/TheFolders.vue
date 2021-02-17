@@ -118,7 +118,9 @@ export default {
       this.$refs.tree.setHighlightedNode(null)
     },
     onDragOver (e, id) {
-      this.$refs.tree.setHighlightedNode(id)
+      if (!this.$refs.tree.dragNode) {
+        this.$refs.tree.setHighlightedNode(id)
+      }
     },
     initPS () {
       const el = document.querySelector('.app-tree__inner')
