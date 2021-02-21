@@ -13,6 +13,11 @@
     @click="onClick"
     @contextmenu="onContext"
   >
+    <AppIcon
+      v-if="model.isFavorites"
+      class="snippet-list-item__favorites"
+      name="star"
+    />
     <div class="title">
       <span>{{ model.name }}</span>
     </div>
@@ -333,7 +338,7 @@ export default {
 }
 </script>
 
-<style lang="scss" scoped>
+<style lang="scss">
 .snippet-list-item {
   $r: &;
   padding: var(--spacing-xs);
@@ -341,6 +346,18 @@ export default {
   outline: none;
   margin-right: 1px;
   user-select: none;
+  position: relative;
+  &__favorites {
+    position: absolute;
+    top: 0px;
+    right: var(--spacing-xs);
+    svg {
+      width: 9px;
+      height: 9px;
+      stroke: var(--color-contrast-medium);
+      fill: var(--color-contrast-medium);
+    }
+  }
   &--context {
     position: relative;
     &::after {
@@ -354,6 +371,12 @@ export default {
     }
   }
   &--selected {
+    #{$r}__favorites {
+      svg {
+        fill: var(--color-text);
+        stroke: var(--color-text);
+      }
+    }
     &::after {
       border: 2px solid #fff;
     }
