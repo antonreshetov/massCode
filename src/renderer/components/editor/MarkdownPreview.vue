@@ -159,7 +159,7 @@ export default {
 
       if (existStyle) existStyle.remove()
 
-      theme === 'dark' ? (style.innerHTML = dark) : (style.innerHTML = light)
+      theme === 'light' ? (style.innerHTML = light) : (style.innerHTML = dark)
       document.head.appendChild(style)
     }
   }

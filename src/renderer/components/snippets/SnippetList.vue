@@ -98,7 +98,7 @@ export default {
 <style lang="scss">
 .snippet-list {
   --action-bar-height: 48px;
-
+  background-color: var(--color-bg-snippet-list);
   position: relative;
   outline: none;
   display: flex;

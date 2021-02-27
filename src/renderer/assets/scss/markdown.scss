@@ -489,7 +489,6 @@
   }
 }
 
-
 [data-theme='light'] {
   .markdown-github {
     color: #333;
@@ -501,45 +500,45 @@
     pre {
       background-color: rgba(0, 0, 0, 0.15);
     }
-  
+
     a,
     a:visited {
       color: var(--color-primary);
     }
-  
+
     a:hover,
     a:active {
       color: var(--color-primary);
     }
-  
+
     h1,
     h2 {
       border-bottom-color: rgba(255, 255, 255, 0.1);
     }
-  
+
     h6 {
       color: rgba(255, 255, 255, 0.5);
     }
-  
+
     hr {
       background-color: rgba(255, 255, 255, 0.1);
     }
-  
+
     blockquote {
       color: rgba(255, 255, 255, 0.5);
       border-left-color: rgba(255, 255, 255, 0.1);
     }
-  
+
     table tr {
       background-color: transparent;
     }
-  
+
     table tr,
     table th,
     table td {
       border-color: rgba(255, 255, 255, 0.1);
     }
-  
+
     .toc {
       background-color: rgba(255, 255, 255, 0.05);
       border: none;

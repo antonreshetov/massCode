@@ -98,7 +98,7 @@ export default {
   svg {
     width: 18px;
     height: 18px;
-    stroke: var(--color-contrast-low);
+    stroke: var(--color-contrast-low-alt);
   }
   .add-snippet {
     margin-right: var(--spacing-xs);
