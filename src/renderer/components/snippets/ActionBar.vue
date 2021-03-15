@@ -35,6 +35,7 @@
 import AppInput from '@/components/uikit/AppInput.vue'
 import { mapGetters } from 'vuex'
 import { track } from '@@/lib/analytics'
+import debounce from 'lodash-es/debounce'
 
 export default {
   name: 'ActionBar',
@@ -55,7 +56,7 @@ export default {
         return this.searchQuery
       },
       set (query) {
-        this.$store.dispatch('snippets/searchSnippets', query)
+        this.search(query)
       }
     }
   },
@@ -74,7 +75,10 @@ export default {
     onClearSearch () {
       this.$store.commit('snippets/SET_SEARCH', false)
       this.$store.commit('snippets/SET_SEARCH_QUERY', null)
-    }
+    },
+    search: debounce(function (query) {
+      this.$store.dispatch('snippets/searchSnippets', query)
+    }, 300)
   }
 }
 </script>
