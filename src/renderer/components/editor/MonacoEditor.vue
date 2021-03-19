@@ -316,7 +316,9 @@ export default {
     },
     searchHighlight (query) {
       const model = this.editor.getModel()
-      const matches = model.findMatches(query, false, true, false)
+      const re = new RegExp(query ? query.replace(' ', '|') : null)
+      const matches = model.findMatches(re, false, true, false)
+
       const newDecorations = matches.map(i => {
         return {
           range: i.range,
