@@ -354,17 +354,19 @@ export default {
       await dispatch('getSnippets')
       commit('RESET_ACTIVE_FRAGMENT')
 
-      query = query.toLowerCase()
+      query = query.trim().toLowerCase()
+      const re = new RegExp(query.replace(' ', '|'))
+
       const snippets = getters.snippetsBySort
 
       const resultBySnippetContent = snippets.filter(snippet =>
         snippet.content.some(content =>
-          content.value ? content.value.toLowerCase().includes(query) : false
+          content.value ? content.value.toLowerCase().match(re)?.length : false
         )
       )
 
       const resultBySnippetName = snippets.filter(snippet =>
-        snippet.name.toLowerCase().includes(query)
+        snippet.name.toLowerCase().match(re)?.length
       )
 
       const results = uniqBy(
@@ -400,15 +402,16 @@ export default {
 
       query = query.toLowerCase()
       const snippets = getters.snippetsBySort
+      const re = new RegExp(query.replace(' ', '|'))
 
       const resultBySnippetContent = snippets.filter(snippet =>
         snippet.content.some(content =>
-          content.value ? content.value.toLowerCase().includes(query) : false
+          content.value ? content.value.toLowerCase().match(re)?.length : false
         )
       )
 
       const resultBySnippetName = snippets.filter(snippet =>
-        snippet.name.toLowerCase().includes(query)
+        snippet.name.toLowerCase().match(re)?.length
       )
 
       const results = uniqBy(
