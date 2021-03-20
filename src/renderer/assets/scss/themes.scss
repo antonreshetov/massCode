@@ -26,3 +26,15 @@
     }
   }
 }
+[data-theme='nord'] {
+  .snippet-list-item--selected {
+    background-color: var(--color-contrast-lower);
+    &.focus {
+      background-color: var(--color-primary);
+      .title,
+      .meta {
+        color: #a4b2cc;
+      }
+    }
+  }
+}

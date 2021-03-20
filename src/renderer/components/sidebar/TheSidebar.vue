@@ -47,7 +47,7 @@ export default {
 .sidebar {
   padding-top: var(--title-bar-height);
   position: relative;
-  background-color: var(--color-contrast-lower);
+  background-color: var(--color-bg-sidebar);
   display: grid;
   height: 100%;
   overflow: hidden;

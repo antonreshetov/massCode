@@ -392,7 +392,7 @@ export default {
       justify-content: center;
       &.active {
         svg {
-          stroke: var(--color-primary);
+          stroke: var(--color-contrast-higher);
         }
       }
       &.eye {

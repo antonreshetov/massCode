@@ -294,12 +294,32 @@ export default {
           'list.highlightForeground': '#ffffff'
         }
       })
+      monaco.editor.defineTheme('massCode-nord', {
+        base: 'vs-dark',
+        inherit: true,
+        rules: [{ background: '434c5e' }],
+        colors: {
+          'editor.background': '#434c5e',
+          'editor.lineHighlightBackground': '#3C4252',
+          'editorLineNumber.foreground': '#2E3440',
+          'editorSuggestWidget.foreground': '#262626',
+          'editorSuggestWidget.background': '#3b4252',
+          'editorSuggestWidget.selectedBackground': '#3b4252',
+          'editorSuggestWidget.highlightForeground': '#434c5e',
+          'list.focusBackground': '#3b4252',
+          'list.hoverBackground': '#3b4252',
+          'list.hoverForeground': '#434c5e',
+          'list.highlightForeground': '#434c5e'
+        }
+      })
     },
     setTheme () {
       if (this.app.theme === 'dark') {
         monaco.editor.setTheme('massCode-dark')
-      } else {
+      } else if (this.app.theme === 'light') {
         monaco.editor.setTheme('massCode-light')
+      } else {
+        monaco.editor.setTheme('massCode-nord')
       }
     },
     setLanguage (lang) {

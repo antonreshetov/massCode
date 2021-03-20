@@ -344,7 +344,7 @@ export default {
   padding: var(--spacing-xs);
   border-bottom: 1px solid var(--color-border);
   outline: none;
-  margin-right: 1px;
+  // margin-right: 1px;
   user-select: none;
   position: relative;
   &__favorites {
