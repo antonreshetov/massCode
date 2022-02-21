@@ -46,6 +46,9 @@ const preferences = new Store({
     },
     allowAnalytics: {
       default: true
+    },
+    showSubContent: {
+      default: true
     }
   }
 })

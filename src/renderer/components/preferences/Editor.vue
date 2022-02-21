@@ -1,6 +1,14 @@
 <template>
   <AppForm>
     <h4>Editor</h4>
+    <AppFormItem label="SubFolder Snippet">
+      <AppCheckbox v-model="showSubContent">
+        Enable
+      </AppCheckbox>
+      <div class="desc">
+        Show SubFolder Snippet
+      </div>
+    </AppFormItem>
     <AppFormItem label="Tab size">
       <AppInput v-model="tabSize" />
       <div class="desc">
@@ -127,6 +135,15 @@ export default {
       },
       set (v) {
         this.$store.dispatch('preferences/setPrettierQuotes', v)
+      }
+    },
+    showSubContent: {
+      get () {
+        return this.preferences.showSubContent
+      },
+      set (v) {
+        this.$store.dispatch('preferences/setShowSubContent', v)
+        this.$store.dispatch('snippets/getSnippetsBySelectedFolders')
       }
     }
   }

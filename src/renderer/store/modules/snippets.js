@@ -201,12 +201,16 @@ export default {
 
       commit('SET_SNIPPETS', snippets)
     },
-    getSnippetsBySelectedFolders ({ dispatch, rootGetters }) {
+    getSnippetsBySelectedFolders ({ dispatch, rootGetters, rootState }) {
       const foldersIds = rootGetters['folders/selectedIds']
+      const foldersId = rootGetters['folders/selectedId']
       const isSystemFolder = rootGetters['folders/isSystemFolder']
       const defaultQueryBySystemFolder =
         rootGetters['folders/defaultQueryBySystemFolder']
-      let query = { folderId: { $in: foldersIds } }
+      const isShowSubContent = rootState.preferences.showSubContent
+      let query = {
+        folderId: { $in: isShowSubContent ? foldersIds : [foldersId] }
+      }
 
       if (isSystemFolder) query = defaultQueryBySystemFolder
 
@@ -365,8 +369,8 @@ export default {
         )
       )
 
-      const resultBySnippetName = snippets.filter(snippet =>
-        snippet.name.toLowerCase().match(re)?.length
+      const resultBySnippetName = snippets.filter(
+        snippet => snippet.name.toLowerCase().match(re)?.length
       )
 
       const results = uniqBy(
@@ -410,8 +414,8 @@ export default {
         )
       )
 
-      const resultBySnippetName = snippets.filter(snippet =>
-        snippet.name.toLowerCase().match(re)?.length
+      const resultBySnippetName = snippets.filter(
+        snippet => snippet.name.toLowerCase().match(re)?.length
       )
 
       const results = uniqBy(

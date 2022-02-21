@@ -8,7 +8,8 @@ export default {
     tabSize: electronStore.preferences.get('tabSize'),
     insertSpaces: electronStore.preferences.get('insertSpaces'),
     prettierSemi: electronStore.preferences.get('prettierSemi'),
-    prettierQuotes: electronStore.preferences.get('prettierQuotes')
+    prettierQuotes: electronStore.preferences.get('prettierQuotes'),
+    showSubContent: electronStore.preferences.get('showSubContent')
   },
   getters: {},
   mutations: {
@@ -29,6 +30,9 @@ export default {
     },
     SET_PRETTIER_QUOTES (state, bool) {
       state.prettierQuotes = bool
+    },
+    SET_SHOW_SUB_CONTENT (state, bool) {
+      state.showSubContent = bool
     }
   },
   actions: {
@@ -55,6 +59,10 @@ export default {
     setPrettierQuotes ({ commit }, bool) {
       commit('SET_PRETTIER_QUOTES', bool)
       electronStore.preferences.set('prettierQuotes', bool)
+    },
+    setShowSubContent ({ commit }, bool) {
+      commit('SET_SHOW_SUB_CONTENT', bool)
+      electronStore.preferences.set('showSubContent', bool)
     }
   }
 }
