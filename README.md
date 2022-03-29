@@ -1,5 +1,8 @@
 # massCode
 
+> 🎉 I excited to announce that I have taken the time to develop [massCode next](https://github.com/massCodeIO/massCode). 
+
+
 A free and open source code snippets manager for developers.
 
 <p align="center">
