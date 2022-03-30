@@ -9,3 +9,4 @@ npm-debug.log.*
 thumbs.db
 .env
 !.gitkeep
+.idea

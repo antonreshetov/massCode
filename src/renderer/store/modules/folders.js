@@ -1,7 +1,6 @@
-import db from '@/datastore'
 import electronStore from '@@/store'
-import shortid from 'shortid'
-import { defaultLibraryQuery } from '@/util/helpers'
+import db from '@@/lib/datastore'
+import { flatToNested } from '@@/util/helpers'
 
 export default {
   namespaced: true,
@@ -13,8 +12,24 @@ export default {
     editableId: null
   },
   getters: {
-    folders (state) {
+    all (state) {
       return state.list
+    },
+    folders (state) {
+      return state.list.filter(i => !i.isSystem)
+    },
+    system (state) {
+      return state.list.filter(i => i.isSystem)
+    },
+    systemAliases (state, getters) {
+      const aliases = {}
+      getters.system.map((i, index) => {
+        aliases[getters.system[index].alias] = i._id
+      })
+      return aliases
+    },
+    selected (state, getters) {
+      return getters.folders.find(i => i._id === state.selectedId) || null
     },
     selectedId (state) {
       return state.selectedId
@@ -25,35 +40,23 @@ export default {
     editableId (state) {
       return state.editableId
     },
-    defaultLanguage (state) {
-      if (state.selected) {
-        return state.selected.defaultLanguage
-      }
-    },
-    defaultQueryBySystemFolder (state) {
-      let query
-      if (state.selectedId === 'trash') {
+    defaultQueryBySystemFolder (state, getters) {
+      let query = { isDeleted: false }
+
+      if (state.selectedId === getters.systemAliases.trash) {
         query = { isDeleted: true }
       }
-      if (state.selectedId === 'favorites') {
-        query = { isFavorites: true }
+      if (state.selectedId === getters.systemAliases.favorites) {
+        query = { isFavorites: true, isDeleted: false }
       }
-      if (state.selectedId === 'allSnippets') {
-        query = {}
-      }
-      if (state.selectedId === 'inBox') {
-        query = { folderId: null }
+      if (state.selectedId === getters.systemAliases.inbox) {
+        query = { folderId: state.selectedId, isDeleted: false }
       }
 
       return query
     },
     isSystemFolder (state) {
-      return (
-        state.selectedId === 'trash' ||
-        state.selectedId === 'favorites' ||
-        state.selectedId === 'allSnippets' ||
-        state.selectedId === 'inBox'
-      )
+      return state.selected?.isSystem || false
     }
   },
   mutations: {
@@ -75,63 +78,79 @@ export default {
   },
   actions: {
     getFolders ({ commit }) {
-      return new Promise((resolve, reject) => {
-        db.masscode.findOne({ _id: 'folders' }, (err, doc) => {
-          if (err) return
-          if (doc) {
-            commit('SET_FOLDERS', doc.list)
-            resolve()
+      const folders = db.collections.folders.$find()
+      let nestedFolders = flatToNested(folders, null)
+
+      // Добавляем пропс 'id' для обеспечения работоспособности AppTree
+      function addIdProp (arr) {
+        return arr.map(i => {
+          i.id = i._id
+          if (i.children && i.children.length) {
+            addIdProp(i.children)
           }
+          return i
         })
-      })
+      }
+
+      nestedFolders = addIdProp(nestedFolders)
+      const systemFolders = nestedFolders.splice(0, 4)
+
+      function sort (arr, key = 'index') {
+        arr
+          .sort((a, b) => (a[key] > b[key] ? 1 : -1))
+          .map(i => {
+            if (i.children && i.children.length) {
+              sort(i.children)
+            }
+            return i
+          })
+      }
+
+      sort(nestedFolders)
+      nestedFolders = [...systemFolders, ...nestedFolders]
+
+      commit('SET_FOLDERS', nestedFolders)
     },
-    setSelectedFolder ({ state, commit, dispatch, getters }, id) {
-      const libraryItems = ['inBox', 'favorites', 'allSnippets', 'trash']
-
-      if (!id) {
-        commit('SET_SELECTED_ID', null)
-        electronStore.app.delete('selectedFolderId')
-        return
-      }
-
-      commit('SET_SELECTED_ID', id)
-      electronStore.app.set('selectedFolderId', id)
-
-      if (libraryItems.includes(id)) {
-        commit('SET_SELECTED', null)
-        commit('SET_SELECTED_IDS', null)
-        return
-      }
-
+    setSelectedFolderById (
+      { state, commit, dispatch, getters, rootGetters },
+      id
+    ) {
       const { list } = state
+      const defaultFolderId = getters.systemAliases.allSnippets
+      let folder
 
       function findFolderById (folders, id) {
-        let found
         folders.forEach(i => {
-          if (i.id === id) found = i
+          if (i._id === id) folder = i
 
           if (i.children && i.children.length) {
             findFolderById(i.children, id)
           }
         })
-
-        if (found) {
-          commit('SET_SELECTED', found)
-        }
       }
 
-      findFolderById(list, id)
+      if (id) {
+        findFolderById(list, id)
+        commit('SET_SELECTED', folder)
+        commit('SET_SELECTED_ID', id)
+        electronStore.app.set('selectedFolderId', id)
+      } else {
+        const folder = list.find(i => i._id === defaultFolderId)
+        commit('SET_SELECTED', folder)
+        commit('SET_SELECTED_ID', defaultFolderId)
+        electronStore.app.set('selectedFolderId', defaultFolderId)
+      }
 
-      dispatch('setSelectedIds')
+      dispatch('getNestedFolderIds')
     },
-    setSelectedIds ({ state, commit }) {
+    getNestedFolderIds ({ state, commit }) {
       if (!state.selected) return
 
       const ids = []
 
       function getIds (arr) {
         arr.forEach(i => {
-          ids.push(i.id)
+          ids.push(i._id)
 
           if (i.children && i.children.length) {
             getIds(i.children)
@@ -145,133 +164,67 @@ export default {
     },
     addFolder ({ state, commit, dispatch }) {
       const folder = {
-        id: shortid(),
         name: 'Untitled',
         open: false,
+        parentId: null,
         defaultLanguage: 'text'
       }
 
-      db.masscode.update(
-        { _id: 'folders' },
-        { $push: { list: folder } },
-        (err, doc) => {
-          if (err) return
+      const { _id: id } = db.collections.folders.$insert(folder)
 
-          commit('SET_EDITABLE', folder.id)
-          commit('SET_SELECTED', folder)
-          commit('SET_SELECTED_ID', folder.id)
-          commit('SET_SELECTED_IDS', [folder.id])
-          dispatch('getFolders')
-        }
-      )
+      dispatch('getFolders')
+      dispatch('setSelectedFolderById', id)
     },
-    updateFolderName ({ dispatch, rootGetters }, { id, payload }) {
-      db.masscode.findOne({ _id: 'folders' }, (err, doc) => {
-        if (err) return
+    updateFolderById ({ dispatch, getters, rootGetters }, { id, payload }) {
+      db.collections.folders.$findOneAndUpdate({ _id: id }, payload)
 
-        const { list } = doc
-
-        function findAndUpdate (arr) {
-          arr.forEach((i, index) => {
-            if (i.id === id) {
-              i.name = payload
-            }
-
-            if (i.children && i.children.length) {
-              findAndUpdate(i.children)
-            }
-          })
-        }
-        findAndUpdate(list)
-
-        const ids = rootGetters['folders/selectedIds']
-        const folderId = rootGetters['folders/selectedId']
-        const defaultQuery = { folderId: { $in: ids } }
-        const query = defaultLibraryQuery(defaultQuery, folderId)
-
-        dispatch('updateFolders', list)
-        dispatch('snippets/getSnippets', query, { root: true })
-      })
+      dispatch('getFolders')
     },
-    updateFolderLanguage ({ dispatch, rootGetters }, { id, payload }) {
-      db.masscode.findOne({ _id: 'folders' }, async (err, doc) => {
-        if (err) return
+    updateFolderNameById ({ dispatch, getters, rootGetters }, { id, payload }) {
+      dispatch('updateFolderById', { id, payload })
 
-        const { list } = doc
-
-        function findAndUpdate (arr) {
-          arr.forEach((i, index) => {
-            if (i.id === id) {
-              i.defaultLanguage = payload
-            }
-
-            if (i.children && i.children.length) {
-              findAndUpdate(i.children)
-            }
-          })
-        }
-        findAndUpdate(list)
-
-        await dispatch('updateFolders', list)
-        const folderId = rootGetters['folders/selectedId']
-
-        if (folderId === id) {
-          dispatch('setSelectedFolder', id)
-        }
-      })
-    },
-    updateFolders ({ dispatch }, list) {
-      return new Promise((resolve, reject) => {
-        db.masscode.update({ _id: 'folders' }, { list }, async (err, doc) => {
-          if (err) return
-          await dispatch('getFolders')
-          resolve()
-        })
-      })
-    },
-    deleteFolder ({ state, commit, dispatch, rootGetters }, id) {
       const ids = rootGetters['folders/selectedIds']
-      const folderId = rootGetters['folders/selectedId']
-      const defaultQuery = { folderId: { $in: ids } }
-      const query = defaultLibraryQuery(defaultQuery, folderId)
-      // Перемещаем все сниппеты из удаленной папки,
-      // включая вложенные сниппеты в подпапках, в корзину
-      db.snippets.update(
+      dispatch(
+        'snippets/getSnippets',
         { folderId: { $in: ids } },
-        { $set: { isDeleted: true } },
-        { multi: true },
-        (err, doc) => {
-          if (err) return
-          dispatch('snippets/getSnippets', query, { root: true })
-        }
+        { root: true }
       )
-      // Удаляем папку, включая все подпапки
-      db.masscode.findOne({ _id: 'folders' }, (err, doc) => {
-        if (err) return
-
-        const { list } = doc
-
-        function findAndRemove (arr) {
-          arr.forEach((i, index) => {
-            if (i.id === id) {
-              return arr.splice(index, 1)
-            }
-
-            if (i.children && i.children.length) {
-              findAndRemove(i.children)
-            }
-          })
-        }
-        findAndRemove(list)
-
-        db.masscode.update({ _id: 'folders' }, { list }, (err, doc) => {
-          if (err) return
-
-          dispatch('getFolders')
-          dispatch('snippets/setSelected', null, { root: true })
-          dispatch('setSelectedFolder', 'allSnippets')
-        })
+      dispatch('getFolders')
+    },
+    updateFolders ({ dispatch }, folders) {
+      folders.map(i => {
+        db.collections.folders.$findOneAndUpdate(
+          {
+            _id: i._id
+          },
+          i
+        )
       })
+      dispatch('getFolders')
+    },
+    deleteFolderByIds ({ state, commit, dispatch, getters, rootGetters }, ids) {
+      const snippetIds = rootGetters['snippets/snippetsBySort'].map(i => i._id)
+      const payload = {
+        folderId: getters.systemAliases.inbox,
+        isDeleted: true
+      }
+
+      ids.map(id => db.collections.folders.remove({ _id: id }).write())
+
+      dispatch('getFolders')
+      dispatch('setSelectedFolderById', getters.systemAliases.inbox)
+      dispatch(
+        'snippets/updateSnippetsByIds',
+        { ids: snippetIds, payload },
+        { root: true }
+      )
+      dispatch('snippets/getSnippets', getters.defaultQueryBySystemFolder, {
+        root: true
+      })
+      dispatch('snippets/setSelected', null, { root: true })
+    },
+    isFolderExist ({ state }, id) {
+      return !!db.collections.folders.find({ _id: id }).value()
     }
   }
 }

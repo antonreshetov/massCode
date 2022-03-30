@@ -46,7 +46,8 @@ function createTrayWindow () {
     movable: false,
     webPreferences: {
       nodeIntegration: true,
-      devTools: false
+      devTools: false,
+      enableRemoteModule: true
     }
   })
 

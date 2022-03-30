@@ -9,10 +9,10 @@
           size="small"
           class="preferences__input"
         />
-        <AppButton @click="onChangeStorage">
+        <AppButton @click="onMoveStorage">
           Move storage
         </AppButton>
-        <AppButton @click="onOpenStorage">
+        <AppButton @click="onOpenStorageFolder">
           Open storage
         </AppButton>
       </div>
@@ -50,13 +50,22 @@
           :key="index"
           class="backups__item"
         >
-          <!-- <span class="backups__item-count">210 snippets</span> -->
           <span class="backups__item-date">{{ i.label }}</span>
           <span
             class="backups__item-action"
             @click="onRestore(i.date)"
           >Restore</span>
         </div>
+      </div>
+    </AppFormItem>
+    <AppFormItem label="Migrate">
+      <div class="preferences__form-item">
+        <AppButton @click="onOpenMigrateFolder">
+          Open folder
+        </AppButton>
+      </div>
+      <div class="desc">
+        You can migrate from massCode v1, select the folder with old DB files.
       </div>
     </AppFormItem>
     <AppFormItem label="Count">
@@ -69,8 +78,8 @@
 import { mapState, mapGetters } from 'vuex'
 import { dialog } from '@@/lib'
 import { ipcRenderer } from 'electron'
-import db from '@/datastore'
 import PerfectScrollbar from 'perfect-scrollbar'
+import db from '@@/lib/datastore'
 
 export default {
   name: 'Storage',
@@ -85,6 +94,7 @@ export default {
     ...mapState(['app']),
     ...mapGetters('app', ['backups']),
     ...mapGetters('snippets', ['count']),
+    ...mapGetters('folders', ['systemAliases']),
     storagePath: {
       get () {
         return this.app.storagePath
@@ -117,7 +127,7 @@ export default {
   },
 
   methods: {
-    async onChangeStorage () {
+    async onMoveStorage () {
       const dir = dialog.showOpenDialogSync({
         properties: ['openDirectory', 'createDirectory']
       })
@@ -125,39 +135,34 @@ export default {
         const path = dir[0]
         try {
           await db.move(path)
-          this.updateData()
           this.$store.commit('app/SET_STORAGE_PATH', path)
         } catch (err) {
           ipcRenderer.send('message', {
             message: 'Error',
             type: 'error',
-            detail:
-              'Folder already contains db files. Please select another folder.'
+            detail: 'Folder already contains DB. Please select another folder.'
           })
         }
       }
     },
-    async onOpenStorage () {
+    onOpenStorageFolder () {
       const dir = dialog.showOpenDialogSync({
         properties: ['openDirectory']
       })
       if (dir) {
         const path = dir[0]
         db.import(path)
-        this.updateData()
         this.$store.commit('app/SET_STORAGE_PATH', path)
+        this.$store.dispatch('folders/getFolders')
+        this.$store.dispatch('snippets/getSnippets')
+        this.$store.dispatch('snippets/getSnippetsCount')
+        this.$store.dispatch('tags/getTags')
       }
-    },
-    async updateData () {
-      this.$store.dispatch('snippets/setSelected', null)
-      this.$store.dispatch('folders/setSelectedFolder', 'allSnippets')
-      await this.$store.dispatch('folders/getFolders')
-      await this.$store.dispatch('snippets/getSnippets')
     },
     async onBackup () {
       await db.removeEarliestBackup()
       await db.backup()
-      this.$store.dispatch('app/getBackups')
+      await this.$store.dispatch('app/getBackups')
       this.$nextTick(() => {
         this.ps.update()
       })
@@ -194,6 +199,50 @@ export default {
           })
         }
       }
+    },
+    async onOpenMigrateFolder () {
+      const dir = dialog.showOpenDialogSync({
+        properties: ['openDirectory']
+      })
+      const path = dir ? dir[0] : null
+
+      if (!path) return
+
+      const buttonId = dialog.showMessageBoxSync({
+        message: 'Are you sure you want to migrate from v1?',
+        detail:
+          'During migrate from old DB, the current library will be overwritten.',
+        buttons: ['Confirm', 'Cancel'],
+        defaultId: 0,
+        cancelId: 1
+      })
+
+      if (buttonId === 1) return
+
+      try {
+        await db.migrate(path)
+        this.$store.dispatch('folders/getFolders')
+        this.$store.dispatch('snippets/getSnippets')
+        this.$store.dispatch('snippets/getSnippetsCount')
+        this.$store.dispatch('tags/getTags')
+      } catch (err) {
+        dialog.showMessageBoxSync({
+          title: 'Error',
+          message: 'DB files not exist in this folder',
+          type: 'error'
+        })
+      }
+    },
+    async updateData () {
+      this.$store.dispatch('snippets/setSelected', null)
+      this.$store.dispatch(
+        'folders/setSelectedFolderById',
+        this.systemAliases.allSnippets
+      )
+      this.$store.dispatch('folders/getFolders')
+      this.$store.dispatch('snippets/getSnippets')
+      this.$store.dispatch('snippets/getSnippetsCount')
+      this.$store.dispatch('tags/getTags')
     },
     getData () {
       this.$store.dispatch('app/getBackups')

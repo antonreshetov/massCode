@@ -27,7 +27,8 @@ function createMainWindow () {
     transparent: process.platform === 'darwin',
     backgroundColor,
     webPreferences: {
-      nodeIntegration: true
+      nodeIntegration: true,
+      enableRemoteModule: true
     }
   })
 
@@ -35,7 +36,13 @@ function createMainWindow () {
   mainWindow.loadURL(winURL)
 
   if (isDev) {
-    mainWindow.webContents.openDevTools({ mode: 'detach' })
+    // @see https://github.com/SimulatedGREG/electron-vue/issues/389
+    mainWindow.webContents.on('did-frame-finish-load', () => {
+      mainWindow.webContents.once('devtools-opened', () => {
+        mainWindow.focus()
+      })
+      mainWindow.webContents.openDevTools({ mode: 'bottom' })
+    })
   }
 
   if (process.platform === 'darwin') {

@@ -1,6 +1,6 @@
 import electronStore from '@@/store'
 import { format } from 'date-fns'
-import db from '@/datastore'
+import db from '@@/lib/datastore'
 
 export default {
   namespaced: true,

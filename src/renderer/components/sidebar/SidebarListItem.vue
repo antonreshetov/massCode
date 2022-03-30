@@ -94,8 +94,18 @@ export default {
   },
 
   computed: {
-    ...mapGetters('folders', ['selectedId', 'editableId']),
+    ...mapGetters('folders', [
+      'selected',
+      'selectedId',
+      'selectedIds',
+      'editableId',
+      'system',
+      'isSystemFolder',
+      'defaultQueryBySystemFolder',
+      'systemAliases'
+    ]),
     ...mapGetters('tags', { selectedTagId: 'selectedId' }),
+    ...mapGetters('snippets', ['snippetsBySort']),
     languagesMenu () {
       return languages
         .map(i => {
@@ -103,8 +113,8 @@ export default {
           i.checked = i.value === this.model.defaultLanguage
           i.click = e => {
             const id = this.id
-            const payload = e.value
-            this.$store.dispatch('folders/updateFolderLanguage', {
+            const payload = { defaultLanguage: e.value }
+            this.$store.dispatch('folders/updateFolderById', {
               id,
               payload
             })
@@ -134,10 +144,6 @@ export default {
     },
     isEditable () {
       return this.editableId === this.id
-    },
-    isSystem () {
-      const libraryItems = ['inBox', 'favorites', 'allSnippets', 'trash']
-      return libraryItems.includes(this.id)
     }
   },
 
@@ -148,23 +154,23 @@ export default {
   },
 
   methods: {
-    onClick () {
+    async onClick () {
       if (!this.tag) {
-        this.$store.dispatch('folders/setSelectedFolder', this.id)
+        await this.getSnippetsByFolder()
       } else {
-        this.$store.commit('tags/SET_SELECTED_ID', this.id)
+        await this.getSnippetsByTag(this.id)
       }
     },
     onDblClick () {
-      if (!this.isSystem) this.setEditable()
+      if (!this.isSystemFolder) this.setEditable()
     },
     onContext () {
       if (!this.tag) {
-        if (this.id === 'trash') {
+        if (this.id === this.systemAliases.trash) {
           return this.trashContext()
         }
 
-        if (this.isSystem) return
+        if (this.isSystemFolder) return
 
         this.folderContext()
       } else {
@@ -190,7 +196,10 @@ export default {
               cancelId: 1
             })
             if (buttonId === 0) {
-              this.$store.dispatch('folders/deleteFolder', this.id)
+              this.$store.dispatch(
+                'folders/deleteFolderByIds',
+                this.selectedIds
+              )
               track('folders/delete')
             }
           }
@@ -270,8 +279,53 @@ export default {
       }
       if (this.updatedFolderName) {
         const id = this.id
-        const payload = this.updatedFolderName
-        this.$store.dispatch('folders/updateFolderName', { id, payload })
+        const payload = {
+          name: this.updatedFolderName
+        }
+        this.$store.dispatch('folders/updateFolderNameById', {
+          id,
+          payload
+        })
+      }
+    },
+    async getSnippetsByFolder () {
+      await this.$store.dispatch('folders/setSelectedFolderById', this.id)
+
+      let query = { folderId: { $in: this.selectedIds } }
+
+      if (this.isSystemFolder) {
+        query = this.defaultQueryBySystemFolder
+      }
+
+      await this.$store.dispatch('snippets/getSnippets', query)
+      const firstSnippet = this.snippetsBySort[0]
+
+      if (firstSnippet) {
+        await this.$store.dispatch('snippets/setSelected', firstSnippet._id)
+        this.$store.commit('snippets/SET_SELECTED_IDS', [firstSnippet._id])
+      } else {
+        await this.$store.dispatch('snippets/setSelected', null)
+        this.$store.commit('snippets/SET_SELECTED_IDS', [])
+      }
+    },
+    async getSnippetsByTag (id) {
+      this.$store.commit('tags/SET_SELECTED_ID', this.id)
+      await this.$store.dispatch('snippets/getSnippets', {
+        tagIds: { $elemMatch: id }
+      })
+      const firstSnippet = this.snippetsBySort[0]
+      if (firstSnippet) {
+        this.$store.commit('snippets/SET_SELECTED_ID', firstSnippet._id)
+        this.$store.commit('snippets/SET_ACTIVE_FRAGMENT', {
+          snippetId: firstSnippet._id,
+          index: 0
+        })
+      } else {
+        this.$store.commit('snippets/SET_SELECTED_ID', null)
+        this.$store.commit('snippets/SET_ACTIVE_FRAGMENT', {
+          snippetId: null,
+          index: 0
+        })
       }
     }
   }
@@ -287,25 +341,30 @@ export default {
   cursor: default;
   user-select: none;
   position: relative;
+
   &__input {
     width: 100%;
     border: 1px solid transparent;
     background-color: transparent;
     outline: none;
+
     &[disabled] {
       color: var(--color-text);
     }
+
     &.is-editable {
       border: 1px solid var(--color-primary);
       background-color: var(--color-contrast-lower);
       color: var(--color-contrast-higher);
     }
   }
+
   .folder-name {
     display: flex;
     height: 20px;
     align-items: center;
   }
+
   svg {
     width: 16px;
     height: 16px;
@@ -314,25 +373,32 @@ export default {
     margin-right: var(--spacing-xs);
     stroke: var(--color-contrast-medium);
   }
+
   &:last-child {
     margin-bottom: 0;
   }
+
   &--selected {
     background-color: var(--color-contrast-low);
   }
+
   &--drag-hovered {
     background-color: var(--color-primary);
     color: #fff;
     position: relative;
+
     #{$r}__input {
       color: #fff;
     }
+
     svg {
       stroke: #fff;
     }
   }
+
   &--context {
     position: relative;
+
     &::after {
       content: '';
       position: absolute;
@@ -344,15 +410,18 @@ export default {
       border-radius: 4px;
     }
   }
+
   &__child-icon {
     position: absolute;
     top: 6px;
     left: 2px;
+
     &.is-open {
       svg {
         transform: rotate(90deg);
       }
     }
+
     svg {
       transition: all 0.1s;
       width: 14px;

@@ -15,7 +15,7 @@ const app = new Store({
       default: 220
     },
     selectedFolderId: {
-      default: 'inBox'
+      default: 'inbox'
     },
     selectedFolderIds: {
       default: null

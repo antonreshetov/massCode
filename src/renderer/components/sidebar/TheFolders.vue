@@ -1,34 +1,24 @@
 <template>
   <div class="folders">
     <SidebarList title="Folders">
-      <DraggableTree
+      <AppTree
         ref="tree"
-        :data="localFolders"
-        :indent="10"
-        :space="0"
-        :draggable="true"
+        v-model="localFolders"
+        class="folders__tree"
+        :create-ghost-el="addGhostEl"
+        @click:node="onClickFolder"
         @change="onTreeChange"
       >
-        <template v-slot="{ data, store }">
-          <div
-            v-if="!data.isDragPlaceHolder"
-            @dragover.prevent
-            @drop="onDropTreeNode($event, data.id)"
-          >
-            <SidebarListItem
-              :id="data.id"
-              :title="data.name"
-              :children="!!data.children.length"
-              :open="data.open"
-              :model="data"
-              :drag-hover="dragHoveredFolderId"
-              @dragover="onDragOver($event, data.id)"
-              @dragleave="dragHoveredFolderId = null"
-              @click:toggle="onNodeToggle(data, store)"
-            />
-          </div>
+        <template v-slot="{ node, deep }">
+          <FolderItem
+            :model="node"
+            :deep="deep"
+            @drop="onDropTreeNode($event, node)"
+            @dragover="onDragOver($event, node._id)"
+            @dragleave="onDragLeave"
+          />
         </template>
-      </DraggableTree>
+      </AppTree>
       <template v-slot:action>
         <AppIcon
           name="plus"
@@ -41,36 +31,41 @@
 
 <script>
 import SidebarList from './SidebarList.vue'
-import SidebarListItem from './SidebarListItem.vue'
 import { mapGetters } from 'vuex'
 import cloneDeep from 'lodash-es/cloneDeep'
-import { DraggableTree } from 'vue-draggable-nested-tree/dist/vue-draggable-nested-tree'
 import { track } from '@@/lib/analytics'
 import PerfectScrollbar from 'perfect-scrollbar'
+import AppTree from '@/components/uikit/AppTree/AppTree.vue'
+import FolderItem from '@/components/sidebar/FolderItem.vue'
+import { nestedToFlat } from '@@/util/helpers'
 
 export default {
   name: 'TheFolders',
 
   components: {
-    SidebarList,
-    SidebarListItem,
-    DraggableTree
+    FolderItem,
+    AppTree,
+    SidebarList
   },
 
   data () {
     return {
       localFolders: [],
-      draggable: true,
-      dragHoveredFolderId: null,
       editableFolderId: null,
       ps: null
     }
   },
 
   computed: {
-    ...mapGetters('folders', ['folders']),
-    tree () {
-      return this.$refs.tree
+    ...mapGetters('folders', ['folders', 'selectedId']),
+    ...mapGetters('snippets', ['selectedSnippets', 'selectedIds'])
+  },
+
+  watch: {
+    selectedId (newVal, oldVal) {
+      if (newVal !== oldVal) {
+        this.$refs.tree.setSelectedNode(this.selectedId)
+      }
     }
   },
 
@@ -83,6 +78,7 @@ export default {
   },
 
   mounted () {
+    this.$refs.tree.setSelectedNode(this.selectedId)
     this.initPS()
   },
 
@@ -91,46 +87,82 @@ export default {
       this.$store.dispatch('folders/addFolder')
       track('folders/new')
     },
-    onDropTreeNode (e, folderId) {
+    onDropTreeNode (e, node) {
       const data = e.dataTransfer.getData('payload')
-      this.dragHoveredFolderId = null
 
-      if (data) {
+      if (!data) return
+
+      try {
         const ids = JSON.parse(data).value
-        const payload = {
-          $set: {
-            folderId,
-            isDeleted: false
-          }
+        if (ids) {
+          const payload = { folderId: node.id }
+          this.$store.dispatch('snippets/updateSnippetsByIds', { ids, payload })
         }
-        this.$store.dispatch('snippets/updateSnippets', { ids, payload })
+      } catch (err) {
+        console.warn(err)
       }
+      this.$refs.tree.setHighlightedNode(null)
     },
-    onTreeChange (node, newTree, oldTree) {
-      const folders = newTree.getPureData()
-      this.$store.dispatch('folders/updateFolders', folders)
+    onClickFolder (id) {
+      this.$store.dispatch('folders/setSelectedFolderById', id)
+      this.$store.dispatch('snippets/getSnippetsBySelectedFolders')
+    },
+    onTreeChange (tree) {
+      const flat = nestedToFlat(tree)
+      flat.map(i => delete i.id)
+
+      this.$store.dispatch('folders/updateFolders', flat)
       this.ps.update()
     },
-    onNodeToggle (data, store) {
-      store.toggleOpen(data)
-      const folders = this.tree.getPureData()
-      this.$store.dispatch('folders/updateFolders', folders)
+    onDragLeave () {
+      this.$refs.tree.setHighlightedNode(null)
     },
     onDragOver (e, id) {
-      this.dragHoveredFolderId = id
+      if (!this.$refs.tree.dragNode) {
+        this.$refs.tree.setHighlightedNode(id)
+      }
     },
     initPS () {
-      const el = document.querySelector('.folders .tree')
-      this.ps = new PerfectScrollbar(el)
+      const el = document.querySelector('.app-tree__inner')
+      this.ps = new PerfectScrollbar(el, {
+        suppressScrollX: true
+      })
+    },
+    addGhostEl (e) {
+      let el = e.target.cloneNode(true)
+      el = el.querySelector('.app-tree-node__row')
+      el.classList.remove('is-selected')
+      el.id = 'ghost'
+
+      const style = {
+        backgroundColor: 'transparent',
+        color: 'var(--color-contrast-higher)',
+        fontSize: '14px',
+        width: 'var(--snippets-list-width)',
+        borderBottom: 'none'
+      }
+
+      Object.assign(el.style, style)
+      document.body.appendChild(el)
+
+      e.dataTransfer.setDragImage(el, 0, 0)
+      setTimeout(() => el.remove(), 0)
     }
   }
 }
 </script>
 
-<style lang="scss" scoped>
+<style lang="scss">
 .folders {
   overflow: hidden;
   height: 100%;
+  &__tree {
+    overflow: hidden;
+    .app-tree__inner {
+      position: relative;
+      height: 100%;
+    }
+  }
   .sidebar-list {
     display: grid;
     grid-template-rows: 30px 1fr;

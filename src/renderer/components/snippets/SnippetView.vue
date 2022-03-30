@@ -42,7 +42,7 @@
         <AppInputTags
           v-model="inputTag"
           tabindex="-1"
-          :tags="selectedTags"
+          :tags="snippetTags"
           :autocomplete="autocompleteTag"
           @before-adding-tag="onAddTag"
           @before-deleting-tag="onRemoveTag"
@@ -143,9 +143,14 @@ export default {
       }
       return null
     },
-    selectedTags () {
+    snippetTags () {
       if (this.selected) {
-        return this.selected.tagsPopulated
+        return this.selected.tags.map(i => {
+          return {
+            text: i.name,
+            _id: i._id
+          }
+        })
       }
       return []
     },
@@ -154,7 +159,7 @@ export default {
       return this.tags
         .filter(
           i =>
-            !this.selectedTags.some(
+            !this.snippetTags.some(
               tag => tag.text.toLowerCase() === i.text.toLowerCase()
             )
         )
@@ -209,7 +214,7 @@ export default {
           this.$emit('edit')
           const ids = [this.localSnippet._id]
           const payload = this.localSnippet
-          this.$store.dispatch('snippets/updateSnippets', { ids, payload })
+          this.$store.dispatch('snippets/updateSnippetsByIds', { ids, payload })
         }, 300),
         { deep: true }
       )
@@ -222,6 +227,9 @@ export default {
     },
     onChangeLanguage (lang, index) {
       this.localSnippet.content[index].language = lang
+      const ids = [this.localSnippet._id]
+      const payload = this.localSnippet
+      this.$store.dispatch('snippets/updateSnippetsByIds', { ids, payload })
     },
     onClickOutside () {
       if (this.newSnippetId) {
@@ -232,7 +240,7 @@ export default {
       const index = this.localSnippet.content.length
       const fragment = {
         label: `Fragment ${index + 1}`,
-        language: null,
+        language: 'text',
         value: null
       }
       this.localSnippet.content.push(fragment)
@@ -310,16 +318,16 @@ export default {
         !tag.tiClasses.includes('ti-invalid')
       ) {
         addTag()
-        const newTag = await this.$store.dispatch('tags/addTag', {
+        const { _id } = await this.$store.dispatch('tags/addTag', {
           name: tag.text.trim()
         })
+
         const payload = {
           snippetId: this.selected._id,
-          tagId: newTag._id
+          tagId: _id
         }
-        track('tags/new')
         this.$store.dispatch('snippets/addTag', payload)
-
+        track('tags/new')
         track('tags/new-snippet-tag')
       }
     },

@@ -1,23 +1,18 @@
-import db from '@/datastore'
 import electronStore from '@@/store'
-import { defaultLibraryQuery } from '@/util/helpers'
 import uniqBy from 'lodash-es/uniqBy'
+import db from '@@/lib/datastore'
+import pull from 'lodash-es/pull'
+import { deleteTechProps } from '@@/lib/datastore/helpers'
 
-// Fallback stored sorting value
-// @see https://github.com/antonreshetov/massCode/pull/74
-// TODO: Remove in future
-const sort =
-  electronStore.app.get('snippetsSort') === 'updateAt'
-    ? 'updatedAt'
-    : electronStore.app.get('snippetsSort')
+const sort = electronStore.app.get('snippetsSort') || 'updatedAt'
 
 export default {
   namespaced: true,
   state: {
     snippets: [],
-    snippetsLatest: [],
+    snippetsTray: [],
     selectedId: null,
-    selectedSnippets: [],
+    selectedIds: [],
     searched: [],
     searchedTray: [],
     search: false,
@@ -48,8 +43,14 @@ export default {
       }
       return state.snippets
     },
-    snippetsLatest (state) {
-      return state.snippetsLatest
+    snippetFirst (state, getters) {
+      return getters.snippetsBySort?.[0]
+    },
+    snippetLatest (state, getters) {
+      return getters.snippetsBySort[getters.snippetsBySort.length - 1]
+    },
+    snippetsTray (state) {
+      return state.snippetsTray
     },
     snippetsFavorites (state) {
       return state.snippets.filter(i => i.isFavorites)
@@ -70,16 +71,29 @@ export default {
       return state.searchQueryTray
     },
     selected (state) {
-      return state.snippets.find(i => i._id === state.selectedId)
+      if (state.search) {
+        return state.searched.find(i => i._id === state.selectedId)
+      } else {
+        return state.snippets.find(i => i._id === state.selectedId)
+      }
     },
     selectedId (state) {
       return state.selectedId
     },
+    selectedIds (state) {
+      return state.selectedIds
+    },
     selectedIndex (state, getters) {
       return getters.snippetsBySort.findIndex(i => i._id === state.selectedId)
     },
-    selectedSnippets (state) {
-      return state.selectedSnippets
+    selectedSnippets (state, getters) {
+      return (
+        getters.selectedIds?.reduce((acc, id) => {
+          const snippet = state.snippets.find(i => i._id === id)
+          acc.push(snippet)
+          return acc
+        }, []) || []
+      )
     },
     newSnippetId (state) {
       return state.newSnippetId
@@ -96,6 +110,9 @@ export default {
     isSelected (state) {
       return !!state.selectedId
     },
+    isSelectedMultiple (state, getters) {
+      return getters.selectedIds?.length > 1 || false
+    },
     isSearched (state) {
       return state.search
     },
@@ -107,14 +124,14 @@ export default {
     SET_SNIPPETS (state, snippets) {
       state.snippets = snippets
     },
-    SET_LATEST_SNIPPETS (state, snippets) {
-      state.snippetsLatest = snippets
+    SET_SNIPPETS_FOR_TRAY (state, snippets) {
+      state.snippetsTray = snippets
     },
     SET_SELECTED_ID (state, id) {
       state.selectedId = id
     },
-    SET_SELECTED_SNIPPETS (state, snippets) {
-      state.selectedSnippets = snippets
+    SET_SELECTED_IDS (state, ids) {
+      state.selectedIds = ids
     },
     SET_NEW (state, snippet) {
       state.newSnippetId = snippet
@@ -143,354 +160,301 @@ export default {
     SET_ACTIVE_FRAGMENT (state, payload) {
       state.activeFragment = payload
     },
+    RESET_ACTIVE_FRAGMENT (state) {
+      state.activeFragment = { snippetId: null, index: 0 }
+    },
     SET_COUNT (state, count) {
       state.count = count
     }
   },
   actions: {
-    async getSnippets ({ commit }, query = {}) {
+    async getSnippets ({ commit, rootGetters }, query = {}) {
       const defaultQuery = {
         isDeleted: false,
         ...query
       }
 
-      function getSnippets () {
-        return new Promise((resolve, reject) => {
-          db.snippets.find(defaultQuery, (err, snippets) => {
-            if (err) reject(err)
-            resolve(snippets)
-          })
-        })
-      }
-
-      function getFolders () {
-        return new Promise((resolve, reject) => {
-          db.masscode.findOne({ _id: 'folders' }, (err, doc) => {
-            if (err) reject(err)
-            resolve(doc.list)
-          })
-        })
-      }
-
-      function getTags () {
-        return new Promise((resolve, reject) => {
-          db.tags.find({}, (err, doc) => {
-            if (err) reject(err)
-            resolve(doc)
-          })
-        })
-      }
-
-      const snippets = await getSnippets()
-      const folders = await getFolders()
-      const tags = await getTags()
-
-      // Добавляем связь folder
-      snippets.map(snippet => {
-        function findFolderById (folders, id) {
-          folders.forEach(i => {
-            if (i.id === id) snippet.folder = i
-
-            if (i.children && i.children.length) {
-              findFolderById(i.children, id)
-            }
-          })
-        }
-
-        findFolderById(folders, snippet.folderId)
-
-        return snippet
-      })
-
-      // Добавляем связь tags
-      snippets.map(snippet => {
-        snippet.tagsPopulated = []
-        snippet.tags.forEach(tagId => {
-          const foundedTag = tags.find(tag => tag._id === tagId)
-          if (foundedTag) {
-            foundedTag.text = foundedTag.name
-            snippet.tagsPopulated.push(foundedTag)
+      const snippets = db.collections.snippets.$aggregate([
+        {
+          $match: defaultQuery
+        },
+        {
+          $lookup: {
+            from: 'tags',
+            localField: 'tagIds',
+            foreignField: '_id',
+            as: 'tags'
           }
-        })
-      })
+        },
+        {
+          $lookup: {
+            from: 'folders',
+            localField: 'folderId',
+            foreignField: '_id',
+            as: 'folder'
+          }
+        },
+        {
+          $sort: { updatedAt: 1 }
+        }
+      ])
 
       commit('SET_SNIPPETS', snippets)
     },
-    async getLatestSnippets ({ commit, dispatch }, limit = 20) {
-      const query = {
+    getSnippetsBySelectedFolders ({ dispatch, rootGetters }) {
+      const foldersIds = rootGetters['folders/selectedIds']
+      const isSystemFolder = rootGetters['folders/isSystemFolder']
+      const defaultQueryBySystemFolder =
+        rootGetters['folders/defaultQueryBySystemFolder']
+      let query = { folderId: { $in: foldersIds } }
+
+      if (isSystemFolder) query = defaultQueryBySystemFolder
+
+      dispatch('getSnippets', query)
+    },
+    async getSnippetsForTray ({ commit, dispatch }, limit = 10) {
+      const defaultQuery = {
         isDeleted: false
       }
-
-      return new Promise((resolve, reject) => {
-        db.snippets
-          .find(query)
-          .sort({ updatedAt: -1 })
-          .limit(limit)
-          .exec((err, snippets) => {
-            if (err) return
-            // Добавляем связь folder по его id у snippet
-            db.masscode.findOne({ _id: 'folders' }, (err, doc) => {
-              if (err) return
-
-              const { list } = doc
-
-              snippets.map(snippet => {
-                function findFolderById (folders, id) {
-                  folders.forEach(i => {
-                    if (i.id === id) snippet.folder = i
-
-                    if (i.children && i.children.length) {
-                      findFolderById(i.children, id)
-                    }
-                  })
-                }
-
-                findFolderById(list, snippet.folderId)
-
-                return snippet
-              })
-
-              commit('SET_LATEST_SNIPPETS', snippets)
-              resolve()
-            })
-          })
-      })
+      const snippets = db.collections.snippets.$aggregate([
+        {
+          $match: defaultQuery
+        },
+        {
+          $lookup: {
+            from: 'tags',
+            localField: 'tagIds',
+            foreignField: '_id',
+            as: 'tags'
+          }
+        },
+        {
+          $lookup: {
+            from: 'folders',
+            localField: 'folderId',
+            foreignField: '_id',
+            as: 'folder'
+          }
+        },
+        {
+          $sort: { updatedAt: 1 }
+        },
+        {
+          $limit: limit
+        }
+      ])
+      commit('SET_SNIPPETS_FOR_TRAY', snippets)
     },
     setSelected ({ commit }, snippet) {
       if (snippet) {
-        commit('SET_SELECTED_ID', snippet._id)
-        electronStore.app.set('selectedSnippetId', snippet._id)
+        if (typeof snippet === 'object') {
+          commit('SET_SELECTED_ID', snippet._id)
+          commit('SET_ACTIVE_FRAGMENT', {
+            snippetId: snippet._id,
+            index: 0
+          })
+          electronStore.app.set('selectedSnippetId', snippet._id)
+        }
+        if (typeof snippet === 'string') {
+          commit('SET_SELECTED_ID', snippet)
+          commit('SET_ACTIVE_FRAGMENT', {
+            snippetId: snippet,
+            index: 0
+          })
+          electronStore.app.set('selectedSnippetId', snippet)
+        }
       } else {
         commit('SET_SELECTED_ID', null)
         electronStore.app.delete('selectedSnippetId')
       }
     },
-    addSnippet ({ commit, dispatch, rootGetters }, { folderId, snippet }) {
-      const ids = rootGetters['folders/selectedIds']
-      const defaultLanguage = rootGetters['folders/defaultLanguage']
-      const defaultQuery = { folderId: { $in: ids } }
-      const query = defaultLibraryQuery(defaultQuery, folderId)
+    async addSnippet (
+      { commit, dispatch, getters, rootGetters },
+      { folderId, snippet }
+    ) {
+      const isFolderExist = await dispatch('folders/isFolderExist', folderId, {
+        root: true
+      })
+      const { trash, favorites, allSnippets, inbox } = rootGetters[
+        'folders/systemAliases'
+      ]
+
+      if (folderId === trash || folderId === favorites) return
+      if (!folderId || !isFolderExist) folderId = inbox
+
+      const defaultLanguage =
+        rootGetters['folders/selected']?.defaultLanguage || 'text'
 
       if (!snippet) {
-        snippet = {
+        db.collections.snippets.$insert({
           name: 'Untitled snippet',
-          folderId: folderId,
+          folderId: folderId === allSnippets ? inbox : folderId,
           content: [
             { label: 'Fragment 1', language: defaultLanguage, value: '' }
-          ],
-          tags: [],
-          isFavorites: false,
-          isDeleted: false,
-          createdAt: new Date(),
-          updatedAt: new Date()
+          ]
+        })
+      } else {
+        snippet = deleteTechProps(snippet)
+        db.collections.snippets.$insert(snippet)
+      }
+
+      dispatch('getSnippetsBySelectedFolders')
+      const first = getters.snippetsBySort[0]
+      dispatch('setSelected', first)
+    },
+    updateSnippetsByIds ({ commit, dispatch, rootGetters }, { ids, payload }) {
+      ids.forEach(id => {
+        try {
+          db.collections.snippets.$findOneAndUpdate(
+            {
+              _id: id
+            },
+            payload
+          )
+        } catch (err) {
+          console.error(err)
         }
-      }
-
-      if (folderId === 'trash') {
-        snippet.folderId = null
-        snippet.isDeleted = true
-      }
-      if (folderId === 'favorites') {
-        snippet.folderId = null
-        snippet.isFavorites = true
-      }
-      if (folderId === 'allSnippets') {
-        snippet.folderId = null
-      }
-      if (folderId === 'inBox') {
-        snippet.folderId = null
-      }
-
-      db.snippets.insert(snippet, (err, snippet) => {
-        if (err) return
-        dispatch('getSnippets', query)
-        commit('SET_SELECTED_ID', snippet._id)
-        commit('SET_NEW', snippet._id)
       })
+
+      dispatch('getSnippetsBySelectedFolders')
     },
-    updateSnippets ({ commit, dispatch, rootGetters }, { ids, payload }) {
-      const foldersIds = rootGetters['folders/selectedIds']
-      const folderId = rootGetters['folders/selectedId']
-      const isTagsShow = rootGetters['app/isTagsShow']
-      const defaultQuery = { folderId: { $in: foldersIds } }
-      const query = defaultLibraryQuery(defaultQuery, folderId)
-
-      return new Promise((resolve, reject) => {
-        db.snippets.update(
-          { _id: { $in: ids } },
-          payload,
-          { multi: true },
-          async (err, num) => {
-            if (err) return
-            if (!isTagsShow) {
-              await dispatch('getSnippets', query)
-            } else {
-              const selectedTagId = rootGetters['tags/selectedId']
-              await dispatch('getSnippets', {
-                tags: { $elemMatch: selectedTagId }
-              })
-            }
-            resolve()
-          }
-        )
-        commit('SET_NEW', null)
+    addToFavoritesByIds ({ state, dispatch }, ids) {
+      ids.map(id => {
+        db.collections.snippets
+          .find({ _id: id })
+          .assign({ isFavorites: true })
+          .write()
       })
+      dispatch('getSnippetsBySelectedFolders')
     },
-    deleteSnippets ({ dispatch, rootGetters }, ids) {
-      const foldersIds = rootGetters['folders/selectedIds']
-      const folderId = rootGetters['folders/selectedId']
-      const defaultQuery = { folderId: { $in: foldersIds } }
-      const query = defaultLibraryQuery(defaultQuery, folderId)
-
-      db.snippets.remove({ _id: { $in: ids } }, { multi: true }, (err, num) => {
-        if (err) return
-        dispatch('getSnippets', query)
+    removeFromFavoritesByIds ({ state, dispatch }, ids) {
+      ids.map(id => {
+        db.collections.snippets
+          .find({ _id: id })
+          .assign({ isFavorites: false })
+          .write()
       })
+      dispatch('getSnippetsBySelectedFolders')
+    },
+    deleteSnippetByIds ({ dispatch, rootGetters }, ids) {
+      ids.map(id => {
+        db.collections.snippets.remove({ _id: id }).write()
+      })
+      dispatch('getSnippetsBySelectedFolders')
     },
     emptyTrash ({ dispatch, rootGetters }) {
-      const ids = rootGetters['folders/selectedIds']
-      const folderId = rootGetters['folders/selectedId']
-      const defaultQuery = { folderId: { $in: ids } }
-      const query = defaultLibraryQuery(defaultQuery, folderId)
-
-      db.snippets.remove({ isDeleted: true }, { multi: true }, (err, num) => {
-        if (err) return
-        dispatch('getSnippets', query)
-      })
+      db.collections.snippets.remove({ isDeleted: true }).write()
+      dispatch('setSelected', null)
+      dispatch('getSnippetsBySelectedFolders')
     },
-    searchSnippets ({ commit }, query) {
-      db.snippets.find({}, (err, doc) => {
-        if (err) return
-        query = query.toLowerCase()
+    async searchSnippets (
+      { state, commit, dispatch, getters, rootGetters },
+      query
+    ) {
+      await dispatch('getSnippets')
+      commit('RESET_ACTIVE_FRAGMENT')
 
-        doc = doc
-          .filter(snippet => !snippet.isDeleted)
-          .sort((a, b) => (a.updatedAt > b.updatedAt ? -1 : 1))
+      query = query.trim().toLowerCase()
+      const re = new RegExp(query.replace(' ', '|'))
 
-        const resultBySnippetContent = doc.filter(snippet =>
-          snippet.content.some(content =>
-            content.value ? content.value.toLowerCase().includes(query) : false
-          )
+      const snippets = getters.snippetsBySort
+
+      const resultBySnippetContent = snippets.filter(snippet =>
+        snippet.content.some(content =>
+          content.value ? content.value.toLowerCase().match(re)?.length : false
         )
+      )
 
-        const resultBySnippetName = doc.filter(snippet =>
-          snippet.name.toLowerCase().includes(query)
-        )
+      const resultBySnippetName = snippets.filter(snippet =>
+        snippet.name.toLowerCase().match(re)?.length
+      )
 
-        const results = uniqBy(
-          [...resultBySnippetContent, ...resultBySnippetName],
-          '_id'
-        )
+      const results = uniqBy(
+        [...resultBySnippetContent, ...resultBySnippetName],
+        '_id'
+      )
 
-        if (query) {
-          commit('SET_SEARCH', true)
-          commit('SET_SEARCH_QUERY', query)
+      if (query) {
+        commit('SET_SEARCH', true)
+        commit('SET_SEARCH_QUERY', query)
 
-          if (results.length) {
-            const first = results[0]
-            commit('SET_SELECTED_ID', first._id)
-            commit('folders/SET_SELECTED_ID', 'allSnippets', { root: true })
-          } else {
-            commit('SET_SELECTED_ID', null)
-          }
+        if (results.length) {
+          const first = results[0]
+          commit('SET_SELECTED_ID', first._id)
+          const { allSnippets } = rootGetters['folders/systemAliases']
+          commit('folders/SET_SELECTED_ID', allSnippets, { root: true })
         } else {
-          const selectedSnippetId = electronStore.app.get('selectedSnippetId')
-          const selectedFolderId = electronStore.app.get('selectedFolderId')
-          commit('SET_SEARCH', false)
-          commit('SET_SEARCH_QUERY', null)
-          commit('SET_SELECTED_ID', selectedSnippetId)
-          commit('folders/SET_SELECTED_ID', selectedFolderId, { root: true })
+          commit('SET_SELECTED_ID', null)
         }
-        commit('SET_SEARCHED', results)
-      })
+      } else {
+        const selectedSnippetId = electronStore.app.get('selectedSnippetId')
+        const selectedFolderId = electronStore.app.get('selectedFolderId')
+        commit('SET_SEARCH', false)
+        commit('SET_SEARCH_QUERY', null)
+        commit('SET_SELECTED_ID', selectedSnippetId)
+        commit('folders/SET_SELECTED_ID', selectedFolderId, { root: true })
+      }
+
+      commit('SET_SEARCHED', results)
     },
-    searchSnippetsTray ({ commit }, query) {
-      db.snippets.find({}, (err, doc) => {
-        if (err) return
-        query = query.toLowerCase()
+    async searchSnippetsTray ({ commit, dispatch, getters }, query) {
+      await dispatch('getSnippets')
 
-        doc = doc
-          .filter(snippet => !snippet.isDeleted)
-          .sort((a, b) => (a.updatedAt > b.updatedAt ? -1 : 1))
+      query = query.toLowerCase()
+      const snippets = getters.snippetsBySort
+      const re = new RegExp(query.replace(' ', '|'))
 
-        const resultBySnippetContent = doc.filter(snippet =>
-          snippet.content.some(content =>
-            content.value ? content.value.toLowerCase().includes(query) : false
-          )
+      const resultBySnippetContent = snippets.filter(snippet =>
+        snippet.content.some(content =>
+          content.value ? content.value.toLowerCase().match(re)?.length : false
         )
+      )
 
-        const resultBySnippetName = doc.filter(snippet =>
-          snippet.name.toLowerCase().includes(query)
-        )
+      const resultBySnippetName = snippets.filter(snippet =>
+        snippet.name.toLowerCase().match(re)?.length
+      )
 
-        const results = uniqBy(
-          [...resultBySnippetContent, ...resultBySnippetName],
-          '_id'
-        )
+      const results = uniqBy(
+        [...resultBySnippetContent, ...resultBySnippetName],
+        '_id'
+      )
 
-        if (query) {
-          commit('SET_SEARCH_TRAY', true)
-          commit('SET_SEARCH_QUERY_TRAY', query)
-        } else {
-          commit('SET_SEARCH_TRAY', false)
-          commit('SET_SEARCH_QUERY_TRAY', null)
-        }
+      if (query) {
+        commit('SET_SEARCH_TRAY', true)
+        commit('SET_SEARCH_QUERY_TRAY', query)
+      } else {
+        commit('SET_SEARCH_TRAY', false)
+        commit('SET_SEARCH_QUERY_TRAY', null)
+      }
 
-        commit('SET_SEARCHED_TRAY', results)
-      })
+      commit('SET_SEARCHED_TRAY', results)
     },
     setSort ({ commit }, sort) {
       commit('SET_SORT', sort)
       electronStore.app.set('snippetsSort', sort)
     },
-    async addTag ({ dispatch, rootGetters }, { snippetId, tagId }) {
-      db.snippets.update({ _id: snippetId }, { $addToSet: { tags: tagId } })
-      const isTagsShow = rootGetters['app/isTagsShow']
+    async addTag ({ dispatch, getters, rootGetters }, { snippetId, tagId }) {
+      const snippetDoc = db.collections.snippets.find({ _id: snippetId })
+      const { tagIds } = snippetDoc.cloneDeep().value()
 
-      if (!isTagsShow) {
-        const selectedFolderIds = rootGetters['folders/selectedIds']
-        const isSystemFolder = rootGetters['folders/isSystemFolder']
-        const defaultQuery = rootGetters['folders/defaultQueryBySystemFolder']
-
-        let query = { folderId: { $in: selectedFolderIds } }
-
-        if (isSystemFolder) {
-          query = defaultQuery
-        }
-
-        await dispatch('getSnippets', query)
-      } else {
-        const selectedTagId = rootGetters['tags/selectedId']
-        await dispatch('getSnippets', { tags: { $elemMatch: selectedTagId } })
-      }
+      tagIds.push(tagId)
+      snippetDoc.assign({ tagIds }).write()
+      dispatch('getSnippetsBySelectedFolders')
     },
-    async removeTag ({ dispatch, rootGetters }, { snippetId, tagId }) {
-      db.snippets.update({ _id: snippetId }, { $pull: { tags: tagId } })
-      const isTagsShow = rootGetters['app/isTagsShow']
+    async removeTag ({ dispatch, getters, rootGetters }, { snippetId, tagId }) {
+      const snippetDoc = db.collections.snippets.find({ _id: snippetId })
+      const { tagIds } = snippetDoc.cloneDeep().value()
 
-      if (!isTagsShow) {
-        const selectedFolderIds = rootGetters['folders/selectedIds']
-        const isSystemFolder = rootGetters['folders/isSystemFolder']
-        const defaultQuery = rootGetters['folders/defaultQueryBySystemFolder']
-
-        let query = { folderId: { $in: selectedFolderIds } }
-
-        if (isSystemFolder) {
-          query = defaultQuery
-        }
-
-        await dispatch('getSnippets', query)
-      } else {
-        const selectedTagId = rootGetters['tags/selectedId']
-        await dispatch('getSnippets', { tags: { $elemMatch: selectedTagId } })
-      }
+      pull(tagIds, tagId)
+      snippetDoc.assign({ tagIds }).write()
+      dispatch('getSnippetsBySelectedFolders')
     },
     getSnippetsCount ({ commit }) {
-      db.snippets.count({ isDeleted: false }, (err, count) => {
-        if (err) throw new Error(err)
-
-        commit('SET_COUNT', count)
-      })
+      const count = db.collections.snippets
+        .filter({ isDeleted: false })
+        .size()
+        .value()
+      commit('SET_COUNT', count)
     }
   }
 }

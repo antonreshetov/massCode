@@ -12,7 +12,7 @@ jobs:
 
     strategy:
       matrix:
-        os: [macOS-latest, ubuntu-18.04, windows-latest]
+        os: [macOS-latest, ubuntu-18.04]
 
     steps:
       - uses: actions/checkout@v1
@@ -21,10 +21,12 @@ jobs:
         run: (node -p "require('./package.json').version") > TAG
 
       - name: Set action ENV
+        env:
+          ACTIONS_ALLOW_UNSECURE_COMMANDS: 'true'
         run: echo "::set-env name=TAG::$(cat TAG)"
 
       - name: yarn install
-        run: yarn install
+        run: yarn install --network-timeout 1000000
 
       - name: Build
         run: yarn run build
@@ -50,12 +52,12 @@ jobs:
           name: linux
           path: build/massCode-${{ env.TAG }}.AppImage
 
-      - name: Upload Win artifacts
-        uses: actions/upload-artifact@v1
-        if: startsWith(matrix.os, 'windows')
-        with:
-          name: win
-          path: build/massCode Setup ${{ env.TAG }}.exe
+      # - name: Upload Win artifacts
+      #   uses: actions/upload-artifact@v1
+      #   if: startsWith(matrix.os, 'windows')
+      #   with:
+      #     name: win
+      #     path: build/massCode Setup ${{ env.TAG }}.exe
   
   assets:
     needs: build
@@ -68,6 +70,8 @@ jobs:
         run: (node -p "require('./package.json').version") > TAG
 
       - name: Set action ENV
+        env:
+          ACTIONS_ALLOW_UNSECURE_COMMANDS: 'true'
         run: echo "::set-env name=TAG::$(cat TAG)"
 
       - name: Create Release
@@ -96,10 +100,10 @@ jobs:
         with:
           name: linux
 
-      - name: Dowload Win Artifact
-        uses: actions/download-artifact@v1
-        with:
-          name: win
+      # - name: Dowload Win Artifact
+      #   uses: actions/download-artifact@v1
+      #   with:
+      #     name: win
 
       - name: Upload Release Mac Asset (zip)
         uses: actions/upload-release-asset@v1.0.1
@@ -131,12 +135,12 @@ jobs:
           asset_name: massCode-${{ env.TAG }}.AppImage
           asset_content_type: application/vnd.appimage
 
-      - name: Upload Release Win Asset
-        uses: actions/upload-release-asset@v1.0.1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: win/massCode Setup ${{ env.TAG }}.exe
-          asset_name: massCode Setup ${{ env.TAG }}.exe
-          asset_content_type: application/octet-stream
+      # - name: Upload Release Win Asset
+      #   uses: actions/upload-release-asset@v1.0.1
+      #   env:
+      #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      #   with:
+      #     upload_url: ${{ steps.create_release.outputs.upload_url }}
+      #     asset_path: win/massCode Setup ${{ env.TAG }}.exe
+      #     asset_name: massCode Setup ${{ env.TAG }}.exe
+      #     asset_content_type: application/octet-stream

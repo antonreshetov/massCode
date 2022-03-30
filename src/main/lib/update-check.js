@@ -9,6 +9,10 @@ function checkForUpdatesAndNotify () {
 
   async function check () {
     const currentVersion = pkg.version
+    const reBeta = /beta/
+
+    if (reBeta.test(currentVersion)) return
+
     const res = await axios.get(
       'https://github.com/antonreshetov/masscode/releases/latest'
     )
@@ -25,6 +29,7 @@ function checkForUpdatesAndNotify () {
   }
 
   check()
+  // setInterval(check, 1000 * 60 * 15)
   setInterval(check, 1000 * 60 * 15)
 }
 

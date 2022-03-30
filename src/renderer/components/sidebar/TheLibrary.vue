@@ -13,12 +13,12 @@
       >
         <template v-if="activeTitle === 0">
           <SidebarListItem
-            v-for="(i, index) in library"
-            :id="i.id"
-            :key="i.id"
-            :title="i.label"
+            v-for="i in system"
+            :id="i._id"
+            :key="i._id"
+            :title="i.name"
             :model="i"
-            :icon="icon(index)"
+            :icon="icon(i.name)"
           />
         </template>
       </SidebarList>
@@ -56,14 +56,7 @@ export default {
   },
 
   data () {
-    return {
-      library: [
-        { label: 'Inbox', id: 'inBox', icon: 'inbox' },
-        { label: 'Favorites', id: 'favorites', icon: 'star' },
-        { label: 'All Snippets', id: 'allSnippets', icon: 'archive' },
-        { label: 'Trash', id: 'trash', icon: 'trash' }
-      ]
-    }
+    return {}
   },
 
   computed: {
@@ -80,14 +73,11 @@ export default {
   },
 
   methods: {
-    icon (index) {
-      let icon
-      if (index === 0) icon = 'inbox'
-      if (index === 1) icon = 'star'
-      if (index === 2) icon = 'archive'
-      if (index === 3) icon = 'trash'
-      if (index > 3) icon = 'folder'
-      return icon
+    icon (name) {
+      if (name === 'Inbox') return 'inbox'
+      if (name === 'Favorites') return 'star'
+      if (name === 'All Snippets') return 'archive'
+      if (name === 'Trash') return 'trash'
     }
   }
 }
