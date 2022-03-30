@@ -8,7 +8,7 @@ A free and open source code snippets manager for developers.
 <p align="center">
   <img src="./logo.png" width="80">
 </p>
-<p align="center">💪
+<p align="center">�
   <img alt="GitHub Workflow Status" src="https://img.shields.io/github/workflow/status/antonreshetov/massCode/CI">
   <img alt="GitHub package.json version" src="https://img.shields.io/github/package-json/v/antonreshetov/massCode">
   <img alt="GitHub All Releases" src="https://img.shields.io/github/downloads/antonreshetov/massCode/total">
