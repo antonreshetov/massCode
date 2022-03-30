@@ -1,6 +1,6 @@
 # massCode
 
-> 🎉 I excited to announce that I have taken the time to develop [massCode next](https://github.com/massCodeIO/massCode). 
+> 🎉 I am excited to announce that a new version of [masCode](https://github.com/massCodeIO/massCode) is in active development. The masCode v1 code base is obsolete and I decided to start from scratch. Please support the new repository with a star 🙏.
 
 
 A free and open source code snippets manager for developers.
@@ -8,7 +8,7 @@ A free and open source code snippets manager for developers.
 <p align="center">
   <img src="./logo.png" width="80">
 </p>
-<p align="center">
+<p align="center">💪
   <img alt="GitHub Workflow Status" src="https://img.shields.io/github/workflow/status/antonreshetov/massCode/CI">
   <img alt="GitHub package.json version" src="https://img.shields.io/github/package-json/v/antonreshetov/massCode">
   <img alt="GitHub All Releases" src="https://img.shields.io/github/downloads/antonreshetov/massCode/total">
