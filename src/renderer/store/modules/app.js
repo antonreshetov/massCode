@@ -16,6 +16,7 @@ export default {
     backups: [], // Временные метки
     markdownPreview: false,
     updateAvailable: false,
+    nextVersionNotify: electronStore.app.get('nextVersionNotify'),
     showTags: false
   },
   getters: {
@@ -54,6 +55,9 @@ export default {
     },
     SET_UPDATE_AVAILABLE (state, bool) {
       state.updateAvailable = bool
+    },
+    SET_NEXT_VERSION_NOTIFY (state, bool) {
+      state.nextVersionNotify = bool
     },
     SET_SHOW_TAGS (state, bool) {
       state.showTags = bool

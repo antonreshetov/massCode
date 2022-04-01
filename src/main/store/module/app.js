@@ -31,6 +31,9 @@ const app = new Store({
     },
     updateAvailable: {
       default: false
+    },
+    nextVersionNotify: {
+      default: false
     }
   }
 })

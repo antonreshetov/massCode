@@ -17,6 +17,7 @@
     >
       Update available
     </div>
+    <AppAlert v-if="showNotifyNewVersion" />
   </div>
 </template>
 
@@ -27,6 +28,7 @@ import SnippetView from '../components/snippets/SnippetView.vue'
 import { mapState, mapGetters } from 'vuex'
 import { shell } from 'electron'
 import { track } from '@@/lib/analytics'
+import AppAlert from '@/components/uikit/AppAlert.vue'
 
 export default {
   name: 'Main',
@@ -34,7 +36,8 @@ export default {
   components: {
     TheSidebar,
     SnippetList,
-    SnippetView
+    SnippetView,
+    AppAlert
   },
 
   data () {
@@ -48,6 +51,9 @@ export default {
       return {
         'grid-template-columns': `${this.app.sidebarWidth}px ${this.app.snippetListWidth}px 1fr`
       }
+    },
+    showNotifyNewVersion () {
+      return !this.app.nextVersionNotify
     }
   },
 
