@@ -1,6 +1,6 @@
 # massCode
 
-> 🎉 I am excited to announce that a new version of [masCode](https://github.com/massCodeIO/massCode) is in active development. The masCode v1 code base is obsolete and I decided to start from scratch. Please support the new repository with a star 🙏.
+> This is the repository for massCode v1. A new version of massCode is available in this [repository](https://github.com/massCodeIO/massCode).
 
 
 A free and open source code snippets manager for developers.
