@@ -1,5 +1,7 @@
 # massCode
 
+> Project is no longer maintained, and may have bugs and security issues. Feel free to fork but no pull request or security alert will be answered. 
+> 
 > This is the repository for massCode v1. A new version of massCode is available in this [repository](https://github.com/massCodeIO/massCode).
 
 
